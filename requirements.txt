@@ -3,7 +3,6 @@ gunicorn
 whitenoise
 pillow
 reportlab
-xhtml2pdf
 openpyxl
 pypdf
 dj-database-url
