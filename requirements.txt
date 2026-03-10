@@ -6,3 +6,4 @@ reportlab
 openpyxl
 pypdf
 dj-database-url
+weasyprint
