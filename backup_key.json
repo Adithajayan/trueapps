@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "trueapps-backup",
+  "private_key_id": "de692c48916f7b4fa5af05e9c5f572eb4d6162fc",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDPpMoZu58e6LlV\neNgmYHfWePqNiaOjgMLx+Fd6VgGL0/bv/rGOG8EIY6BIrRuNfr+FuAR/rvYcnKjD\nfew29NuGhicuNW1nRBvQQeYryjhKjsEXnICFdbnHVHHWois1WRSjIntEM0AwDc2m\nJMcVBKXGp8KZOJOJNwrLopIJGzgxvJjZvslT/d+JbBaipYMmgeuy28FCej+apM11\nxG+gU1rNO+1Khq87bjf6inaN3ZlquEBPO62a7Ct0oPonyfMgSA4Qpbvn3iii13Ya\nH3PNXR5dKIgZ9fd2iJrYLa+gnerBz/WHUwabncN2Vc4G9n3lKSV5/d8KXn7GrBI4\nn8fCaTi/AgMBAAECggEAJZMw/Vod79Z2X1i4aK1xUi7fTEiZg6dz35ysm9c/fWG0\noHZrBAfStSVuJmipAUBsARMtQTvUjpXs1j+NxN4ncZ8KLQr/Cr5g+B1MvSThbeCK\nYa7w9PW6Ui9eUFRVVFiT6vd87fkGRwvgaI3kNtH5+8p05Qw/aoe63OHE4n/5+cnP\nPxkj3X/W3x9PMonqKSfd9nANFHULyCfxFaJ83/xPYGtnykewe8mEew+Dhvk7dFjT\nvprnxnkZ1KiqnWKRupopj2pVesHz70ymMjF9Q6B9mMCoaBhbeHMpkqrsirOtTdCT\nwSZfl7bxgSGaeGengPVcz98meGvRamqrJ1drug59WQKBgQDn7bBjQvjo1SR5DBJK\nG3pE0SkCemHalitgLsUmiasT5e8qMfZM77hLrOL9DprIyEblfjuIYjzjVOW3qix+\ntDwaJQm2ghGrhhP8UEMEAxP9kVq1BCCuEKnjQiiXPRej7I+ZcpOkTf9w5O+h/bT/\nC3AkAcDOuh6BhejHNzVFyh2htwKBgQDlMdt01A5QMKpi8/F2muPAbtakepO17bI5\ntOEpdGbR94FBQHHYQ52nj5E/9a/3bEm+CcpP9CQLhrf7yM5gjGKNeJ9sVC+eXDmN\nOClyJr58m3IaFlLtUN/qJ7GNeszlOJJMhfxAYPg2hqsjJz87Hyr+9eya5P5Lq4we\nEuu1q0WBOQKBgHO5sULGPycGe21+7X1W2pqN9zWKVVtZhQk4LR1+ogOKvtzCE1Du\naHoyKQz2BZvb+yw14YS66ADS8tDDM/KBAmBVTNRpcGGyxDQo5FeTJZ1nsugRyDCy\nleKUt2ZHkI01061Qc4UPej8drMiarH56eZkt2sQMMH6Wj8EfthA9uq1fAoGBAK97\nRu3iVrsrJ6nv4NbQrMRvmMQCXgoTXjw0s5jL2NW2TS6qqv/MdW8Py0RPVlV4gdWR\nJWemI9r3YPLUwr7FfceXrWiB5Ju5PQ9VCtatt3cshWZX5VJyc56Sma0bcrmmYM1a\nYNLh6+nDnlCiAhXAPWlM3cWSwukpBXUZQ4OrCOJxAoGARPRNdl6cvGGQ4af+T6tA\nkf+pQjeQzefg0C4GosU3FOFv6Z6kYYPWsdOB7hcBZ148aTbWuwFb9WSTDqWgM2h3\nLv60wNO/6L9T7oVlmGgfpTBUTYt8Umhfcr5UeP400HEiPgk7KsFjlHWa+Tf40LhD\nRSCaNNqdYnsNycW569NgO1E=\n-----END PRIVATE KEY-----\n",
+  "client_email": "trueapps-backup-586@trueapps-backup.iam.gserviceaccount.com",
+  "client_id": "112715309797647026961",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/trueapps-backup-586%40trueapps-backup.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
