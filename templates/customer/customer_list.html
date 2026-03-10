@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* SEARCH BAR STYLES */
+.search-container {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+/* TABLE WRAPPER */
+.responsive-table{
+    overflow-x:auto;
+}
+
+/* MOBILE RESPONSIVE FIXES */
+@media(max-width:768px){
+    .card{
+        padding:15px !important;
+    }
+
+    .customer-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+
+    .search-form {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .search-form input {
+        width: 100% !important;
+    }
+
+    table th, table td{
+        font-size:13px;
+        white-space:nowrap;
+    }
+
+    .btn-action-group {
+        display: flex;
+        gap: 5px;
+    }
+}
+</style>
+
+<a href="{% url 'dashboard' %}" class="back-btn">
+    ← Back
+</a>
+
+<div class="card shadow p-4 rounded-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 customer-header">
+        <h4 class="mb-0">👤 Customers</h4>
+        <a href="{% url 'customers_add' %}" class="btn btn-primary px-4">
+            + Add Customer
+        </a>
+    </div>
+
+    <div class="search-container">
+        <form method="GET" action="{% url 'customers_list' %}" class="d-flex gap-2 search-form">
+            <input type="text"
+                   name="q"
+                   class="form-control rounded-pill px-4"
+                   placeholder="Search name, phone or place..."
+                   value="{{ search_query }}"
+                   autocomplete="off">
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark rounded-pill px-4">
+                    🔍 Search
+                </button>
+                {% if search_query %}
+                    <a href="{% url 'customers_list' %}" class="btn btn-outline-danger rounded-pill px-4">
+                        Clear
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="responsive-table">
+        <table class="table table-hover table-bordered text-center align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Place</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for c in customers %}
+                <tr>
+                    <td class="fw-bold">{{ c.name }}</td>
+                    <td>{{ c.phone|default:"-" }}</td>
+                    <td>{{ c.place|default:"-" }}</td>
+                    <td>
+                        <div class="btn-action-group justify-content-center">
+                            <a href="{% url 'customers_edit' c.id %}" class="btn btn-sm btn-warning rounded-pill px-3">Edit</a>
+                            <a href="{% url 'customers_delete' c.id %}" class="btn btn-sm btn-danger rounded-pill px-3">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-muted py-4">
+                        {% if search_query %}
+                            No customers found for "<strong>{{ search_query }}</strong>"
+                        {% else %}
+                            No customers added yet.
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

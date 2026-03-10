@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+.ledger-title{
+font-size:26px;
+font-weight:700;
+letter-spacing:.5px;
+}
+
+.ledger-card{
+background:#fff;
+border-radius:16px;
+padding:25px;
+box-shadow:0 10px 30px rgba(0,0,0,.06);
+}
+
+.ledger-table th{
+background:#f5f7fb;
+font-weight:600;
+font-size:14px;
+}
+
+.ledger-table td{
+font-size:15px;
+vertical-align:middle;
+}
+
+.amount-total{
+font-weight:600;
+color:#222;
+}
+
+.amount-received{
+color:#198754;
+font-weight:600;
+}
+
+.amount-balance{
+color:#dc3545;
+font-weight:700;
+}
+
+.ledger-btn{
+border-radius:20px;
+padding:6px 16px;
+font-size:14px;
+transition:.3s;
+}
+
+.ledger-btn:hover{
+transform:translateY(-2px);
+}
+
+.ledger-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:12px;
+margin-bottom:20px;
+}
+
+/* search dropdown */
+
+#searchResults{
+max-height:250px;
+overflow-y:auto;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,.1);
+border:none;
+margin-top:5px;
+}
+
+.search-item{
+padding:12px 15px;
+border:none;
+border-bottom:1px solid #f0f0f0;
+cursor:pointer;
+}
+
+.search-item:last-child{
+border-bottom:none;
+}
+
+.search-item:hover{
+background:#f8f9fa;
+color:#0d6efd;
+}
+
+/* MOBILE FIX */
+
+@media(max-width:768px){
+
+.ledger-title{
+font-size:20px;
+}
+
+.ledger-card{
+padding:18px;
+}
+
+.ledger-header{
+flex-direction:column;
+align-items:stretch;
+}
+
+.ledger-header .btn-group{
+width:100%;
+}
+
+.ledger-header a.btn{
+width:100%;
+}
+
+#customerSearch{
+font-size:16px;
+}
+
+.ledger-table td,
+.ledger-table th{
+font-size:13px;
+}
+
+}
+
+</style>
+
+<div class="container mt-3">
+
+<div class="ledger-card">
+
+<div class="ledger-header">
+
+<div class="ledger-title">
+💰 Income Ledger
+</div>
+
+<div class="d-flex gap-2 flex-wrap align-items-center w-100 justify-content-end">
+
+<div class="position-relative flex-grow-1" style="min-width:250px">
+
+<div class="input-group">
+
+<span class="input-group-text bg-white border-end-0">
+<i class="bi bi-search text-muted"></i>
+</span>
+
+<input type="text"
+id="customerSearch"
+class="form-control border-start-0"
+placeholder="Search customer name..."
+autocomplete="off">
+
+</div>
+
+<div id="searchResults"
+class="list-group position-absolute w-100"
+style="z-index:1050"></div>
+
+</div>
+
+<div class="btn-group shadow-sm" style="border-radius:20px;overflow:hidden">
+
+<a href="{% url 'customer_list' %}"
+class="btn {% if not pending %}btn-primary{% else %}btn-outline-primary{% endif %} border-0 px-4">
+All
+</a>
+
+<a href="{% url 'customer_list' %}?pending=1"
+class="btn {% if pending %}btn-danger{% else %}btn-outline-danger{% endif %} border-0 px-4">
+Pending
+</a>
+
+</div>
+
+<a href="{% url 'customers_add' %}"
+class="btn btn-success ledger-btn shadow-sm">
+<i class="bi bi-person-plus"></i> Add
+</a>
+
+{% if pending %}
+
+<a href="{% url 'pending_pdf' %}"
+class="btn btn-dark ledger-btn shadow-sm">
+⬇ PDF
+</a>
+
+{% endif %}
+
+</div>
+
+</div>
+
+
+<div class="table-responsive">
+
+<table class="table ledger-table table-hover align-middle shadow-sm">
+
+<thead>
+
+<tr>
+
+<th class="ps-3">Customer</th>
+
+<th>Total</th>
+
+<th>Received</th>
+
+<th>Balance</th>
+
+<th width="240" class="text-center">Action</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for row in data %}
+
+<tr>
+
+<td class="ps-3">
+
+<div class="fw-bold text-dark">
+{{ row.customer.name }}
+</div>
+
+<small class="text-muted">
+{{ row.customer.place }}
+</small>
+
+</td>
+
+<td class="amount-total">
+₹ {{ row.total }}
+</td>
+
+<td class="amount-received">
+₹ {{ row.received }}
+</td>
+
+<td>
+
+{% if row.balance > 0 %}
+
+<span class="amount-balance bg-danger bg-opacity-10 px-3 py-1 rounded-pill">
+₹ {{ row.balance }}
+</span>
+
+{% else %}
+
+<span class="text-success fw-bold bg-success bg-opacity-10 px-3 py-1 rounded-pill">
+₹ 0
+</span>
+
+{% endif %}
+
+</td>
+
+<td class="text-center">
+
+<div class="d-flex gap-2 justify-content-center flex-wrap">
+
+<a href="{% url 'work_list' row.customer.id %}"
+class="btn btn-sm btn-primary ledger-btn">
+ledger
+</a>
+
+
+
+<a href="{% url 'customers_edit' row.customer.id %}"
+class="btn btn-sm btn-outline-warning ledger-btn">
+Edit
+</a>
+
+<a href="{% url 'customers_delete' row.customer.id %}"
+class="btn btn-sm btn-outline-danger ledger-btn">
+Delete
+</a>
+
+</div>
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="5"
+class="text-center text-muted py-5">
+
+<div class="mb-2">📭</div>
+
+No customer data found.
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+    const input = document.getElementById("customerSearch");
+    const resultsBox = document.getElementById("searchResults");
+
+    // Ninte table-ile data rows mathram select cheyyunnu
+    // 'No data found' enna row-ine filter cheyyathirikkaan vendi 'tr:not(.text-center)' use cheyyunnu
+    const tableRows = document.querySelectorAll("tbody tr:not(.text-center)");
+
+    input.addEventListener("input", function() {
+        let query = this.value.toLowerCase().trim();
+
+        // --- TABLE FILTERING LOGIC ---
+        // Ithu ninte table-ile rows mathram hide/show cheyyum
+        tableRows.forEach(row => {
+            // Customer column-ile name-um place-um check cheyyunnu
+            let customerName = row.querySelector("td:first-child .fw-bold") ?
+                               row.querySelector("td:first-child .fw-bold").innerText.toLowerCase() : "";
+            let customerPlace = row.querySelector("td:first-child .text-muted") ?
+                                row.querySelector("td:first-child .text-muted").innerText.toLowerCase() : "";
+
+            if (customerName.includes(query) || customerPlace.includes(query)) {
+                row.style.display = ""; // Match aayaal row show cheyyum
+            } else {
+                row.style.display = "none"; // Match aayillengil row hide cheyyum
+            }
+        });
+
+        // --- DROPDOWN CLEANUP ---
+        // AJAX dropdown list ippo namukku avashyamillatha kond resultsBox eppozhum empty aayi vekkunnu
+        if (resultsBox) {
+            resultsBox.innerHTML = "";
+        }
+    });
+
+    // Resetting dropdown just in case
+    document.addEventListener("DOMContentLoaded", function() {
+        if (resultsBox) {
+            resultsBox.innerHTML = "";
+        }
+    });
+</script>
+
+{% endblock %}

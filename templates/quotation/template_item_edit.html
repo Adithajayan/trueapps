@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- BACK BUTTON -->
+<div class="mb-3">
+    <a href="{% url 'template_items' item.template.id %}" class="btn btn-outline-secondary btn-sm">
+        ← Back
+    </a>
+</div>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-5">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">✏️ Edit Item Quantity</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        Product:
+                        <strong class="text-dark">{{ item.product.name }}</strong>
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="fw-bold form-label">Default Quantity</label>
+
+                            <input type="number"
+                                   name="qty"
+                                   class="form-control form-control-lg"
+                                   value="{{ item.default_qty }}"
+                                   required
+                                   step="0.01">
+                        </div>
+
+                        <div class="d-grid gap-2">
+
+                            <button type="submit" class="btn btn-success btn-lg">
+                                Update Quantity
+                            </button>
+
+                            <a href="{% url 'template_items' item.template.id %}"
+                               class="btn btn-light border">
+                               Cancel
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

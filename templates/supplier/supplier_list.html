@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .ledger-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+
+    .ledger-title {
+        font-size: 24px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ledger-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .ledger-table th {
+        background: #f5f7fb;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .ledger-table td {
+        font-size: 15px;
+        vertical-align: middle;
+    }
+
+    .amount-purchase {
+        color: #0d6efd;
+        font-weight: 600;
+    }
+
+    .amount-paid {
+        color: #198754;
+        font-weight: 600;
+    }
+
+    .amount-balance {
+        color: #dc3545;
+        font-weight: 700;
+    }
+
+    .ledger-btn {
+        border-radius: 25px;
+        padding: 6px 18px;
+        font-size: 14px;
+    }
+</style>
+
+<div class="ledger-card">
+
+    <!-- HEADER -->
+    <div class="ledger-header">
+        <div class="ledger-title">
+            🏭 Supplier Ledger
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a href="{% url 'supplier_list' %}"
+               class="btn btn-primary ledger-btn">
+                All
+            </a>
+
+            <a href="{% url 'supplier_add' %}"
+               class="btn btn-success ledger-btn">
+                + Add Supplier
+            </a>
+
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-responsive">
+        <table class="table table-bordered ledger-table align-middle">
+
+            <thead>
+                <tr>
+                    <th>Supplier</th>
+                    <th>Total Purchase</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for row in data %}
+                <tr>
+                    <td>
+                        <strong>{{ row.supplier.name }}</strong><br>
+                        <small class="text-muted">
+                            {{ row.supplier.phone }}
+                        </small>
+                    </td>
+
+                    <td class="amount-purchase">
+                        ₹ {{ row.total_purchase }}
+                    </td>
+
+                    <td class="amount-paid">
+                        ₹ {{ row.paid }}
+                    </td>
+
+                    <td>
+                        {% if row.balance > 0 %}
+                            <span class="amount-balance">
+                                ₹ {{ row.balance }}
+                            </span>
+                        {% else %}
+                            <span class="text-success fw-bold">
+                                ₹ 0
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a href="{% url 'supplier_purchase_list' row.supplier.id %}"
+                           class="btn btn-sm btn-outline-primary ledger-btn">
+                            View Ledger
+                        </a>
+                    </td>
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        No suppliers found
+                    </td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

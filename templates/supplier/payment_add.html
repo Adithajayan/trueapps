@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.form-card{
+    background:#fff;
+    max-width:500px;
+    margin:auto;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 10px 25px rgba(0,0,0,.06);
+}
+</style>
+
+<h5 class="fw-bold text-center mb-4">
+    ➕ Pay Supplier
+</h5>
+
+<div class="form-card">
+
+<form method="post">
+{% csrf_token %}
+
+<div class="mb-3">
+    <label>Date</label>
+    <input type="date" name="date" class="form-control" required>
+</div>
+
+<div class="mb-3">
+    <label>Payment Mode</label>
+    <select name="mode" class="form-control" required>
+        <option>Cash</option>
+        <option>UPI</option>
+        <option>Bank</option>
+    </select>
+</div>
+
+<div class="mb-3">
+    <label>Amount</label>
+    <input type="number" step="0.01" name="amount" class="form-control" required>
+</div>
+
+<div class="mb-3">
+    <label>Note</label>
+    <input type="text" name="note" class="form-control">
+</div>
+
+<button class="btn btn-primary w-100 rounded-pill">
+    Save Payment
+</button>
+
+</form>
+
+</div>
+
+{% endblock %}

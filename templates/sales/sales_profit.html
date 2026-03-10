@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.profit-card{
+background:linear-gradient(135deg,#1d976c 0%,#93f9b9 100%);
+color:white;
+border-radius:15px;
+padding:20px;
+transition:transform .3s;
+}
+
+.profit-card:hover{
+transform:translateY(-5px);
+}
+
+.table-card{
+border-radius:15px;
+overflow:hidden;
+border:none;
+}
+
+.badge-profit{
+font-size:.95rem;
+padding:8px 12px;
+border-radius:8px;
+min-width:100px;
+display:inline-block;
+}
+
+.return-indicator{
+font-size:.75rem;
+font-weight:800;
+color:#dc3545;
+text-transform:uppercase;
+margin-top:4px;
+display:block;
+}
+
+@media (max-width:768px){
+
+.filter-form{
+flex-direction:column;
+align-items:stretch;
+gap:8px;
+}
+
+.filter-form select,
+.filter-form button{
+width:100%;
+}
+
+}
+
+</style>
+
+<div class="container-fluid mt-4">
+
+<!-- Back Button -->
+<div class="mb-3">
+<a href="{% url 'sales_list' %}" class="btn btn-secondary btn-sm shadow-sm">
+<i class="fa fa-arrow-left"></i> Back
+</a>
+</div>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+
+<div>
+<h4 class="fw-bold mb-0">
+<i class="fa fa-chart-line text-success me-2"></i>
+Sales Profit Report
+</h4>
+<small class="text-muted">
+Tracking actual profit based on FIFO batches
+</small>
+</div>
+
+<form method="get" class="d-flex gap-2 filter-form">
+
+<select name="month"
+class="form-select shadow-sm border-0"
+style="min-width:150px;">
+
+{% for m_val,m_name in months %}
+<option value="{{ m_val }}" {% if m_val == month %}selected{% endif %}>
+{{ m_name }}
+</option>
+{% endfor %}
+
+</select>
+
+<select name="year"
+class="form-select shadow-sm border-0">
+
+{% for y in years %}
+<option value="{{ y }}" {% if y == year %}selected{% endif %}>
+{{ y }}
+</option>
+{% endfor %}
+
+</select>
+
+<button type="submit"
+class="btn btn-success shadow-sm px-4">
+
+<i class="fa fa-filter me-1"></i>
+Filter
+
+</button>
+
+</form>
+
+</div>
+
+<div class="row mb-4">
+
+<div class="col-lg-4 col-md-6 col-12">
+
+<div class="profit-card shadow">
+
+<div class="d-flex justify-content-between align-items-start">
+
+<div>
+
+<small class="text-uppercase fw-bold" style="opacity:.8;">
+Total Monthly Profit
+</small>
+
+<h2 class="fw-bold mb-0 mt-1">
+₹ {{ total_monthly_profit|floatformat:2 }}
+</h2>
+
+</div>
+
+<i class="fa fa-wallet"
+style="font-size:2.2rem;opacity:.3;"></i>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card table-card shadow-sm">
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle mb-0">
+
+<thead class="table-dark">
+
+<tr>
+<th class="ps-4 py-3">Date</th>
+<th class="py-3">Invoice No</th>
+<th class="py-3">Customer</th>
+<th class="text-end py-3">Total Amount</th>
+<th class="text-end py-3">Calculated Profit</th>
+<th class="text-center py-3">Action</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for data in sales_data %}
+
+<tr>
+
+<td class="ps-4">
+{{ data.sale.date|date:"d M Y" }}
+</td>
+
+<td>
+<span class="fw-bold text-primary">
+{{ data.sale.invoice_no }}
+</span>
+</td>
+
+<td>
+{{ data.sale.customer.name }}
+</td>
+
+<td class="text-end fw-bold">
+₹ {{ data.sale.total_amount|floatformat:2 }}
+</td>
+
+<td class="text-end">
+
+<span class="badge
+{% if data.profit > 0 %}
+bg-success-subtle text-success
+{% elif data.profit < 0 %}
+bg-danger-subtle text-danger
+{% else %}
+bg-secondary-subtle text-secondary
+{% endif %}
+badge-profit fw-bold shadow-sm">
+
+₹ {{ data.profit|floatformat:2 }}
+
+</span>
+
+{% if data.has_return %}
+
+<span class="return-indicator">
+
+<i class="fa fa-undo-alt"></i>
+Return Adjusted
+
+</span>
+
+{% endif %}
+
+</td>
+
+<td class="text-center">
+
+<a href="{% url 'profit_update' data.sale.id %}"
+class="btn btn-sm btn-light border rounded-pill px-3 shadow-sm">
+
+<i class="fa fa-eye me-1 text-primary"></i>
+Details
+
+</a>
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="6"
+class="text-center py-5 text-muted">
+
+<i class="fa fa-folder-open d-block mb-2"
+style="font-size:2rem;opacity:.5;"></i>
+
+No sales found for this period.
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

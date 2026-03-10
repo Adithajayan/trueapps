@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* ===== PAGE TITLE ===== */
+.page-title{
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+/* ===== FORM CARD ===== */
+.form-wrapper{
+    background:#ffffff;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 12px 28px rgba(0,0,0,0.07);
+}
+
+/* ===== LABEL ===== */
+.form-wrapper label{
+    font-weight:600;
+    margin-bottom:5px;
+}
+
+/* ===== INPUT ===== */
+.form-wrapper .form-control{
+    border-radius:10px;
+    padding:10px 12px;
+}
+
+/* ===== BUTTON ===== */
+.save-btn{
+    border-radius:30px;
+    padding:8px 20px;
+    font-weight:600;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media(max-width:768px){
+
+    .page-title{
+        font-size:18px;
+    }
+
+    .form-wrapper{
+        padding:18px;
+    }
+
+    .form-wrapper label{
+        font-size:14px;
+    }
+
+    .form-wrapper .form-control{
+        font-size:14px;
+    }
+
+    .save-btn{
+        width:100%;
+        padding:10px;
+        font-size:14px;
+    }
+
+    .back-btn{
+        font-size:13px;
+        padding:7px 14px;
+    }
+
+}
+
+</style>
+
+<!-- BACK BUTTON -->
+<a href="javascript:history.back()" class="back-btn">
+    ← Back
+</a>
+
+<h4 class="page-title">Add Advance</h4>
+
+<div class="form-wrapper">
+
+<form method="post">
+{% csrf_token %}
+
+<div class="row">
+
+    <div class="col-md-4 mb-3">
+        <label>Staff</label>
+        <select name="staff" class="form-control" required>
+            {% for s in staffs %}
+                <option value="{{ s.id }}">{{ s.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label>Date</label>
+        <input type="date" name="date" class="form-control" required>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label>Amount</label>
+        <input type="number" name="amount" class="form-control" required>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label>Payment Mode</label>
+        <select name="payment_mode" class="form-control">
+            <option>Cash</option>
+            <option>UPI</option>
+            <option>GPay</option>
+            <option>PhonePe</option>
+            <option>Bank</option>
+        </select>
+    </div>
+
+    <div class="col-md-8 mb-3">
+        <label>Note</label>
+        <textarea name="note" class="form-control"></textarea>
+    </div>
+
+</div>
+
+<button class="btn btn-success save-btn">Save Advance</button>
+
+</form>
+
+</div>
+
+{% endblock %}

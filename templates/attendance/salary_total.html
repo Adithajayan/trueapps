@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* ===== PDF BUTTON ===== */
+.pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #dc3545;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    transition: .3s;
+    border: none;
+}
+
+.pdf-btn:hover {
+    background: #bb2d3b;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(220, 53, 69, 0.3);
+}
+
+/* ===== PAGE TITLE ===== */
+.page-title{
+    font-weight:700;
+    margin-bottom:15px;
+}
+
+/* ===== TABLE CARD ===== */
+.table-wrapper{
+    background:#ffffff;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 12px 28px rgba(0,0,0,0.07);
+}
+
+/* RESPONSIVE TABLE */
+.responsive-table{
+    overflow-x:auto;
+}
+
+/* SUMMARY BOX STYLING */
+.summary-container {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    display: inline-block;
+    min-width: 300px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.total-box{
+    font-weight:800;
+    font-size: 1.2rem;
+    color: #28a745;
+    border-top: 1px solid #dee2e6;
+    padding-top: 10px;
+    margin-top: 5px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+    .page-title{
+        font-size:18px;
+    }
+
+    table th,
+    table td{
+        font-size:13px;
+        white-space:nowrap;
+    }
+
+    .summary-container {
+        width: 100%;
+        text-align: left !important;
+    }
+
+    .total-box{
+        font-size:18px;
+    }
+
+    .btn-group-responsive {
+        display: flex;
+        flex-direction: column;
+    }
+}
+</style>
+
+<div class="d-flex justify-content-between align-items-center btn-group-responsive">
+    <a href="javascript:history.back()" class="back-btn">
+        ← Back
+    </a>
+
+    <a href="{% url 'export_salary_total_pdf' %}?month={{ month }}&year={{ year }}" class="pdf-btn">
+        <i class="fas fa-file-pdf"></i> Download PDF Report
+    </a>
+</div>
+
+<h4 class="page-title">
+    Salary Total - {{ month }}/{{ year }}
+</h4>
+
+<div class="table-wrapper">
+    <div class="responsive-table">
+        <table class="table table-bordered text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Staff</th>
+                    <th>Present</th>
+                    <th>Half</th>
+                    <th>Advance</th>
+                    <th>Final Salary</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for r in rows %}
+                <tr>
+                    <td>{{ r.staff.name }}</td>
+                    <td>{{ r.present }}</td>
+                    <td>{{ r.half }}</td>
+                    <td>₹ {{ r.advance }}</td>
+                    <td><strong>₹ {{ r.salary }}</strong></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="text-end mt-4">
+    <div class="summary-container">
+        <div class="summary-item">
+            <span>Total Gross Salary:</span>
+            <span>₹ {{ total_actual_salary }}</span>
+        </div>
+        <div class="summary-item text-danger">
+            <span>Total Advance:</span>
+            <span>- ₹ {{ total_advance_given }}</span>
+        </div>
+        <div class="total-box d-flex justify-content-between">
+            <span>Net Expense:</span>
+            <span>₹ {{ grand_total }}</span>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

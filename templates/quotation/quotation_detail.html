@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- BACK BUTTON -->
+<div class="mb-3">
+    <a href="{% url 'quotation_list' %}" class="btn btn-outline-secondary btn-sm">
+        ← Back
+    </a>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+
+        <h4 class="text-center mb-4">QUOTATION</h4>
+
+        <div class="row mb-3">
+
+            <div class="col-12 col-md-6">
+                <p><b>Customer:</b> {{ quotation.customer.name }}</p>
+                <p><b>Date:</b> {{ quotation.quotation_date }}</p>
+            </div>
+
+            <div class="col-12 col-md-6 text-md-end">
+                <p><b>Quotation No:</b> QT-{{ quotation.id }}</p>
+            </div>
+
+        </div>
+
+        <!-- RESPONSIVE TABLE -->
+        <div class="table-responsive">
+            <table class="table table-bordered">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Rate</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.selling_rate }}</td>
+                        <td>{{ item.total_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+        <div class="text-end mt-3">
+            <p><b>Total:</b> ₹ {{ quotation.total_amount }}</p>
+            <p><b>Advance:</b> ₹ {{ quotation.advance_amount }}</p>
+            <p><b>Balance:</b> ₹ {{ quotation.balance_amount }}</p>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

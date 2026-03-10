@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card shadow p-4 rounded-4 text-center">
+
+    <h5 class="mb-3 text-danger fw-bold">
+        Delete Ledger Entry?
+    </h5>
+
+    <p>{{ ledger.particular }}</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button class="btn btn-danger px-4">Yes Delete</button>
+        <a href="{% url 'supplier_ledger_detail' ledger.supplier.id %}"
+           class="btn btn-secondary px-4">
+           Cancel
+        </a>
+    </form>
+
+</div>
+
+{% endblock %}

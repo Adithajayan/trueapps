@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .stock-card { border-radius: 18px; border: none; }
+
+    .badge-low { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+    .badge-ok { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+
+    /* Filter Section Styles */
+    .filter-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .search-container { position: relative; flex-grow: 1; }
+
+    .search-container i {
+        position: absolute;
+        left: 12px;
+        top: 12px;
+        color: #aaa;
+    }
+
+    .search-input {
+        padding-left: 38px !important;
+        border-radius: 10px;
+        height: 45px;
+    }
+
+    .month-input {
+        border-radius: 10px;
+        height: 45px;
+    }
+
+    .action-btn {
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Mobile responsive improvements */
+    @media (max-width:768px){
+
+        .stock-card{
+            padding:18px !important;
+        }
+
+        h4{
+            font-size:18px;
+        }
+
+    }
+
+</style>
+
+
+<div class="container-fluid px-2 px-md-3">
+
+<div class="card shadow stock-card p-4">
+
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+
+        <h4 class="fw-bold mb-0">
+            📦 Stock Inventory Summary
+        </h4>
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <!-- Back Button -->
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-pill px-3">
+                ← Back
+            </a>
+
+            <a href="{% url 'opening_stock_add' %}" class="btn btn-primary rounded-pill px-3">
+                ➕ Add Opening
+            </a>
+
+            <a href="{% url 'opening_stock_history' %}" class="btn btn-outline-secondary rounded-pill px-3">
+                📘 History
+            </a>
+
+            <a href="{% url 'detailed_stock_register' %}" class="btn btn-success rounded-pill px-3">
+                📊 Detailed View
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="filter-section border">
+
+        <form method="GET" action="{% url 'stock_list' %}" class="row g-2 align-items-center">
+
+            <div class="col-12 col-md-6">
+
+                <div class="search-container">
+
+                    <i class="fa fa-search"></i>
+
+                    <input type="text"
+                           id="liveSearch"
+                           class="form-control search-input"
+                           placeholder="Quick Search Product Name..."
+                           value="{{ query }}">
+
+                </div>
+
+            </div>
+
+
+            <div class="col-6 col-md-4">
+
+                <input type="month"
+                       name="month"
+                       class="form-control month-input"
+                       value="{{ selected_month }}">
+
+            </div>
+
+
+            <div class="col-6 col-md-2 d-flex gap-1">
+
+                <button type="submit"
+                        class="btn btn-dark w-100 action-btn justify-content-center">
+
+                    Filter
+
+                </button>
+
+                <a href="{% url 'stock_list' %}"
+                   class="btn btn-light border w-100 action-btn justify-content-center"
+                   title="Clear All">
+
+                    🧹
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle text-center border" id="inventoryTable">
+
+            <thead class="table-light">
+
+                <tr>
+
+                    <th class="text-start px-4 py-3">
+                        Product Name
+                    </th>
+
+                    <th width="180">
+                        Current Stock
+                    </th>
+
+                    <th width="180">
+                        Stock Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for s in stocks %}
+
+                <tr>
+
+                    <td class="text-start px-4 fw-semibold text-dark">
+                        {{ s.product.name }}
+                    </td>
+
+                    <td class="fw-bold text-primary fs-5">
+                        {{ s.quantity }}
+                    </td>
+
+                    <td>
+
+                        {% if s.quantity <= 5 %}
+
+                            <span class="badge badge-low px-3 py-2 w-75">
+                                Low Stock
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-ok px-3 py-2 w-75">
+                                In Stock
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+
+                    <td colspan="3" class="text-muted py-5">
+
+                        <i class="fa fa-info-circle mb-2"></i><br>
+
+                        No products found in inventory for the selected criteria.
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+// Logic for Real-time Table Filtering
+document.getElementById("liveSearch").addEventListener("keyup", function() {
+
+    let filter = this.value.toLowerCase();
+
+    let rows = document.querySelectorAll("#inventoryTable tbody tr");
+
+    rows.forEach(row => {
+
+        let firstCell = row.querySelector("td");
+
+        if (firstCell) {
+
+            let text = firstCell.textContent.toLowerCase();
+
+            row.style.display = text.includes(filter) ? "" : "none";
+
+        }
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

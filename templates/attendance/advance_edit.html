@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* ===== PAGE TITLE ===== */
+.page-title{
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+/* ===== FORM CARD ===== */
+.form-wrapper{
+    background:#ffffff;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 12px 28px rgba(0,0,0,0.08);
+}
+
+/* ===== LABEL ===== */
+.form-wrapper label{
+    font-weight:600;
+    margin-bottom:6px;
+}
+
+/* ===== INPUT ===== */
+.form-wrapper .form-control{
+    border-radius:10px;
+    padding:10px 12px;
+}
+
+/* ===== BUTTON ===== */
+.update-btn{
+    border-radius:30px;
+    padding:8px 20px;
+    font-weight:600;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media(max-width:768px){
+
+    .page-title{
+        font-size:18px;
+    }
+
+    .form-wrapper{
+        padding:18px;
+    }
+
+    .form-wrapper label{
+        font-size:14px;
+    }
+
+    .form-wrapper .form-control{
+        font-size:14px;
+    }
+
+    .update-btn{
+        width:100%;
+        padding:10px;
+        font-size:14px;
+    }
+
+    .back-btn{
+        font-size:13px;
+        padding:7px 14px;
+    }
+
+}
+
+</style>
+
+<!-- BACK BUTTON -->
+<a href="javascript:history.back()" class="back-btn">
+    ← Back
+</a>
+
+<h4 class="page-title">Edit Advance</h4>
+
+<div class="form-wrapper">
+
+<form method="post">
+{% csrf_token %}
+
+<div class="row">
+
+    <div class="col-md-4 mb-3">
+        <label>Staff</label>
+        <select name="staff" class="form-control">
+            {% for s in staffs %}
+                <option value="{{ s.id }}"
+                    {% if s.id == adv.staff.id %}selected{% endif %}>
+                    {{ s.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label>Date</label>
+        <input type="date" name="date"
+               value="{{ adv.date|date:'Y-m-d' }}"
+               class="form-control">
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label>Amount</label>
+        <input type="number" name="amount"
+               value="{{ adv.amount }}"
+               class="form-control">
+    </div>
+
+    <!-- ✅ FIXED PAYMENT MODE -->
+    <div class="col-md-4 mb-3">
+        <label>Payment Mode</label>
+        <select name="payment_mode" class="form-control">
+
+            <option value="Cash"
+            {% if adv.payment_mode == "Cash" %}selected{% endif %}>
+            Cash
+            </option>
+
+            <option value="UPI"
+            {% if adv.payment_mode == "UPI" %}selected{% endif %}>
+            UPI
+            </option>
+
+            <option value="GPay"
+            {% if adv.payment_mode == "GPay" %}selected{% endif %}>
+            GPay
+            </option>
+
+            <option value="PhonePe"
+            {% if adv.payment_mode == "PhonePe" %}selected{% endif %}>
+            PhonePe
+            </option>
+
+            <option value="Bank"
+            {% if adv.payment_mode == "Bank" %}selected{% endif %}>
+            Bank
+            </option>
+
+        </select>
+    </div>
+
+    <div class="col-md-8 mb-3">
+        <label>Note</label>
+        <textarea name="note" class="form-control">{{ adv.note }}</textarea>
+    </div>
+
+</div>
+
+<button class="btn btn-primary update-btn">Update Advance</button>
+
+</form>
+
+</div>
+
+{% endblock %}

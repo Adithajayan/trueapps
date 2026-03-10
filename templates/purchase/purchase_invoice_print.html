@@ -1,0 +1,259 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Tax Invoice</title>
+
+<style>
+
+/* ================= PAGE SETUP ================= */
+/* ================= OTHER PAGES (2,3,4...) ================= */
+@page {
+    size: A4;
+
+    /* small top margin because no header */
+    margin: 20mm 12mm 25mm 12mm;
+
+    @bottom-center {
+        content: element(page-footer);
+    }
+}
+
+/* ================= FIRST PAGE ONLY ================= */
+@page:first {
+    size: A4;
+
+    /* big space for company header */
+    margin: 45mm 12mm 25mm 12mm;
+
+    @top-center {
+        content: element(page-header);
+    }
+
+    @bottom-center {
+        content: element(page-footer);
+    }
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    margin:0;
+}
+
+/* ================= RUNNING HEADER ================= */
+.page-header{
+    position: running(page-header);
+    height:40mm;   /* VERY IMPORTANT */
+}
+
+/* ================= RUNNING FOOTER ================= */
+.page-footer{
+    position: running(page-footer);
+    text-align:center;
+    font-size:10px;
+    border-top:1px solid #000;
+    padding-top:4px;
+}
+
+.page-number:before{
+    content:"Page " counter(page) " of " counter(pages);
+}
+
+/* ================= SCREEN PREVIEW ================= */
+@media screen{
+    body{
+        background:#f0f2f5;
+        padding:30px;
+    }
+    .preview{
+        width:210mm;
+        margin:auto;
+        background:#fff;
+        padding:15mm;
+        box-shadow:0 0 10px rgba(0,0,0,.15);
+    }
+}
+
+/* ================= COMMON ================= */
+.bold{font-weight:bold;}
+.right{text-align:right;}
+.center{text-align:center;}
+
+.company-name{
+    font-size:16px;
+    font-weight:bold;
+}
+
+.invoice-title{
+    font-size:20px;
+    font-weight:bold;
+    color:#4b2e83;
+}
+
+/* ================= TABLE FIX ================= */
+table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    margin-bottom:12px;
+    page-break-inside:auto;
+}
+
+thead{display:table-header-group;}
+tr{page-break-inside:avoid;}
+
+th,td{
+    border:1px solid #000;
+    padding:8px;
+}
+
+.no-border td{border:none!important;}
+
+.customer-title{
+    background:#8B4513;
+    color:#fff;
+    font-weight:bold;
+    padding:7px;
+    page-break-inside:avoid;
+}
+
+.box{
+    border:1px solid #000;
+    padding:10px;
+    margin-bottom:12px;
+    page-break-inside:avoid;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= HEADER (REPEATS EVERY PAGE) ================= -->
+<div class="page-header">
+
+<table class="no-border">
+<tr>
+<td width="65%">
+<div class="company-name">
+TRUEBIT TECHNOLOGIES AND INVENTIONS PVT LTD
+</div>
+P.O KAIPAMANGALAM, KOPRAKALAM, MATHILAKAM<br>
+Kerala [32]<br>
+Contact : 7558877703, 7561837208<br>
+Email : truebittechnologies@gmail.com<br>
+GSTIN : 32AAGCT4153J1ZD
+</td>
+
+<td width="35%" class="right">
+<div class="invoice-title">Tax Invoice</div><br>
+<b>Invoice No :</b> {{ purchase.invoice_no }}<br>
+<b>Date :</b> {{ purchase.purchase_date }}<br>
+<b>Tax :</b> {{ purchase.tax_type }}
+</td>
+</tr>
+</table>
+
+<hr style="border:0.6px solid #000;margin:10px 0;">
+</div>
+
+
+<!-- ================= FOOTER ================= -->
+<div class="page-footer">
+TRUEBIT TECHNOLOGIES & INVENTIONS PVT LTD |
+<span class="page-number"></span>
+</div>
+
+
+<div class="preview">
+
+<!-- ================= CUSTOMER ================= -->
+<div class="customer-title">Customer Details</div>
+<div class="box">
+<div class="bold">{{ purchase.supplier.name }}</div>
+
+{% if purchase.supplier.contact_number %}
+Contact : {{ purchase.supplier.contact_number }}<br>
+{% endif %}
+
+{% if purchase.supplier.address %}
+Address : {{ purchase.supplier.address }}<br>
+{% endif %}
+
+{% if purchase.supplier.gstin %}
+GSTIN : {{ purchase.supplier.gstin }}
+{% endif %}
+</div>
+
+<!-- ================= PRODUCT TABLE ================= -->
+<table>
+<thead>
+<tr style="background:#f2f2f2;">
+<th width="6%">No</th>
+<th width="34%">Product Name</th>
+<th width="10%">HSN</th>
+<th width="10%">Qty</th>
+<th width="10%">Rate</th>
+<th width="8%">SGST%</th>
+<th width="8%">CGST%</th>
+<th width="14%">Total</th>
+</tr>
+</thead>
+
+<tbody>
+{% for i in purchase.items.all %}
+<tr>
+<td class="center">{{ forloop.counter }}</td>
+<td class="bold">{{ i.product.name }}</td>
+<td class="center">{{ i.product.hsn_code }}</td>
+<td class="center">{{ i.qty }}</td>
+<td class="right">{{ i.rate }}</td>
+<td class="center">{{ i.sgst }}</td>
+<td class="center">{{ i.cgst }}</td>
+<td class="right">{{ i.total }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<!-- ================= TOTAL ================= -->
+<table class="no-border">
+<tr>
+<td width="55%">
+<div style="margin-top:45px;border-top:1px solid #000;width:160px;">
+<b>Authorised Signatory</b>
+</div>
+</td>
+
+<td width="45%">
+<table>
+<tr><td>Taxable Amount</td><td class="right">{{ taxable_total }}</td></tr>
+<tr><td>SGST Amount</td><td class="right">{{ total_sgst }}</td></tr>
+<tr><td>CGST Amount</td><td class="right">{{ total_cgst }}</td></tr>
+
+{% if discount > 0 %}
+<tr><td>Discount</td><td class="right">- {{ discount }}</td></tr>
+{% endif %}
+
+<tr class="bold" style="background:#f2f2f2;">
+<td>Grand Total</td>
+<td class="right">{{ purchase.total_amount }}</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+<div class="box" style="width:60%;">
+<b>COMPANY ACCOUNT DETAILS</b><br>
+TRUEBIT TECHNOLOGIES & INVENTIONS PVT LTD<br>
+A/C No : 15170200016305<br>
+IFSC : FDRL0001517<br>
+Branch : MOONUPEEDIKA
+</div>
+
+</div>
+</body>
+</html>

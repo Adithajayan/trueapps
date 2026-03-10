@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+<h3>Daily Tasks</h3>
+
+<form method="GET" class="mb-3">
+    <input type="date" name="date"
+           value="{{ selected_date|date:'Y-m-d' }}">
+    <button class="btn btn-primary btn-sm">View</button>
+</form>
+
+<hr>
+
+<h5>Add Task</h5>
+
+<form method="POST" class="mb-4">
+    {% csrf_token %}
+
+    <input type="text" name="title"
+           class="form-control mb-2"
+           placeholder="Task title" required>
+
+    <textarea name="description"
+              class="form-control mb-2"
+              placeholder="Description"></textarea>
+
+    <select name="priority"
+            class="form-control mb-2">
+        <option value="normal">Normal</option>
+        <option value="reminder">Reminder</option>
+        <option value="payment">Payment</option>
+        <option value="important">Important</option>
+    </select>
+
+    <label>Choose Background Color</label>
+    <input type="color"
+           name="color"
+           value="#ffffff"
+           class="form-control form-control-color mb-2">
+
+    <button type="submit"
+            class="btn btn-success btn-sm">
+        Add Task
+    </button>
+
+</form>
+
+<hr>
+
+<h5>Tasks</h5>
+
+{% for task in tasks %}
+<div class="card mb-3 shadow-sm"
+     style="background-color: {{ task.color }};">
+
+    <div class="card-body">
+
+        <h5 {% if task.status == 'completed' %}
+                style="text-decoration: line-through;"
+            {% endif %}>
+            {{ task.title }}
+        </h5>
+
+        <p>{{ task.description }}</p>
+
+        <span class="badge bg-secondary">
+            {{ task.priority|title }}
+        </span>
+
+        {% if task.status == 'completed' %}
+            <span class="badge bg-success">Completed</span>
+        {% endif %}
+
+        <div class="mt-2">
+
+            {% if task.status != 'completed' %}
+            <a href="{% url 'mark_complete' task.id %}"
+               class="btn btn-sm btn-success">
+                Complete
+            </a>
+            {% endif %}
+
+            <a href="{% url 'edit_task' task.id %}"
+               class="btn btn-sm btn-warning">
+                Edit
+            </a>
+
+            <a href="{% url 'delete_task' task.id %}"
+               class="btn btn-sm btn-danger">
+                Delete
+            </a>
+
+        </div>
+
+    </div>
+</div>
+{% empty %}
+<p>No tasks for this date.</p>
+{% endfor %}
+
+</div>
+
+{% endblock %}

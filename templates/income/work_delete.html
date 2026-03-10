@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <button onclick="history.back()" class="btn btn-secondary btn-sm">
+            ← Back
+        </button>
+    </div>
+
+    <div class="card p-4 shadow-sm mx-auto text-center" style="max-width:450px;">
+
+        <h5 class="text-danger mb-3">
+            Delete Work
+        </h5>
+
+        <p class="mb-4">
+            Are you sure you want to delete
+            <b>{{ work.title }}</b> ?
+        </p>
+
+        <form method="post">
+        {% csrf_token %}
+
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+
+            <button class="btn btn-danger">
+                Yes Delete
+            </button>
+
+            <a href="{% url 'work_list' work.customer.id %}"
+               class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

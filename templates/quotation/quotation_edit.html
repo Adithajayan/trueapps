@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- BACK BUTTON -->
+<div class="mb-3">
+    <a href="{% url 'quotation_list' %}" class="btn btn-outline-secondary btn-sm">
+        ← Back
+    </a>
+</div>
+
+<h4 class="mb-3">✏️ Edit Quotation</h4>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="row mb-3 g-3">
+
+        <div class="col-12 col-md-4">
+            <label>Customer</label>
+            <select name="customer" class="form-select">
+                {% for c in customers %}
+                <option value="{{ c.id }}" {% if c.id == quotation.customer.id %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12 col-md-3">
+            <label>Date</label>
+            <input type="date"
+                   name="quotation_date"
+                   value="{{ quotation.quotation_date|date:'Y-m-d' }}"
+                   class="form-control">
+        </div>
+
+    </div>
+
+    <!-- RESPONSIVE TABLE -->
+    <div class="table-responsive">
+        <table class="table table-bordered" id="itemsTable">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>Product</th>
+                    <th width="100">Qty</th>
+                    <th width="120">Rate</th>
+                    <th width="120">Total</th>
+                    <th width="40"></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+                <tr>
+                    <td>
+                        <select name="product[]" class="form-select product-select">
+                            <option value="{{ item.product.id }}" selected>
+                                {{ item.product.name }}
+                            </option>
+                        </select>
+                    </td>
+
+                    <td>
+                        <input type="number" name="qty[]" value="{{ item.quantity }}"
+                               class="form-control" step="0.01" oninput="calc(this)">
+                    </td>
+
+                    <td>
+                        <input type="number" name="rate[]" value="{{ item.selling_rate }}"
+                               class="form-control" step="0.01" oninput="calc(this)">
+                    </td>
+
+                    <td>
+                        <input type="number" name="total[]" value="{{ item.total_price }}"
+                               class="form-control" readonly>
+                    </td>
+
+                    <td>
+                        <button type="button"
+                                class="btn btn-danger btn-sm"
+                                onclick="$(this).closest('tr').remove(); calcAll();">
+                            ✖
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+    <button type="button" class="btn btn-primary btn-sm" onclick="addRow()">➕ Add Item</button>
+
+    <hr>
+
+    <div class="row g-3">
+
+        <div class="col-12 col-md-3">
+            <label>Total</label>
+            <input id="grandTotal" class="form-control" readonly value="{{ quotation.total_amount }}">
+        </div>
+
+        <div class="col-12 col-md-3">
+            <label>Advance</label>
+            <input type="number" name="advance_amount" id="advance"
+                   class="form-control" value="{{ quotation.advance_amount }}">
+        </div>
+
+        <div class="col-12 col-md-3">
+            <label>Balance</label>
+            <input id="balance" class="form-control" readonly
+                   value="{{ quotation.balance_amount }}">
+        </div>
+
+    </div>
+
+    <br>
+
+    <button class="btn btn-success px-4">
+        Update Quotation
+    </button>
+
+</form>
+
+<!-- ================= JS ================= -->
+
+<script>
+function addRow() {
+    let row = `
+    <tr>
+        <td><select name="product[]" class="form-select product-select"></select></td>
+        <td><input type="number" name="qty[]" value="1" class="form-control" oninput="calc(this)"></td>
+        <td><input type="number" name="rate[]" value="0" class="form-control" oninput="calc(this)"></td>
+        <td><input type="number" name="total[]" class="form-control" readonly></td>
+        <td><button type="button" class="btn btn-danger btn-sm"
+            onclick="$(this).closest('tr').remove(); calcAll();">✖</button></td>
+    </tr>`;
+    $("#itemsTable tbody").append(row);
+}
+
+function calc(el) {
+    let row = $(el).closest("tr");
+    let qty = parseFloat(row.find('[name="qty[]"]').val()) || 0;
+    let rate = parseFloat(row.find('[name="rate[]"]').val()) || 0;
+    row.find('[name="total[]"]').val((qty * rate).toFixed(2));
+    calcAll();
+}
+
+function calcAll() {
+    let total = 0;
+    $('[name="total[]"]').each(function () {
+        total += parseFloat($(this).val()) || 0;
+    });
+
+    $("#grandTotal").val(total.toFixed(2));
+
+    let adv = parseFloat($("#advance").val()) || 0;
+    $("#balance").val((total - adv).toFixed(2));
+}
+
+$(document).on("input", "#advance", calcAll);
+</script>
+
+{% endblock %}

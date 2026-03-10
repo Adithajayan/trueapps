@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card shadow p-4 rounded-4">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h4>📒 Supplier Ledger</h4>
+
+        <div>
+            <a href="?filter=all"
+               class="btn btn-outline-primary {% if filter == 'all' %}active{% endif %}">
+                All
+            </a>
+
+            <a href="?filter=pending"
+               class="btn btn-outline-danger {% if filter == 'pending' %}active{% endif %}">
+                Pending
+            </a>
+
+            <a href="?filter=finished"
+               class="btn btn-outline-success {% if filter == 'finished' %}active{% endif %}">
+                Finished
+            </a>
+        </div>
+    </div>
+
+    <!-- SEARCH -->
+    <input type="text"
+           id="search"
+           class="form-control mb-3"
+           placeholder="🔍 Search supplier...">
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center" id="ledgerTable">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Supplier</th>
+                    <th>Total Debit</th>
+                    <th>Total Credit</th>
+                    <th>Balance</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{ row.supplier.name }}</td>
+
+                    <td class="text-primary fw-bold">
+                        ₹ {{ row.debit }}
+                    </td>
+
+                    <td class="text-success fw-bold">
+                        ₹ {{ row.credit }}
+                    </td>
+
+                    <td class="{% if row.balance > 0 %}text-danger{% else %}text-success{% endif %} fw-bold">
+                        ₹ {{ row.balance }}
+                    </td>
+
+                    <td>
+                        <a href="{% url 'supplier_ledger_detail' row.supplier.id %}"
+                           class="btn btn-sm btn-outline-dark">
+                            👁
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No data</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+    <div class="mt-3 text-end">
+        <a href="{% url 'ledger_manual_add' %}" class="btn btn-success">
+            ➕ Manual Ledger Entry
+        </a>
+    </div>
+
+</div>
+
+<script>
+document.getElementById("search").addEventListener("keyup", function () {
+    let value = this.value.toLowerCase();
+    document.querySelectorAll("#ledgerTable tbody tr").forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(value)
+            ? ""
+            : "none";
+    });
+});
+</script>
+
+{% endblock %}

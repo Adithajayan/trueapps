@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+<a href="{% url 'job_dashboard' %}"
+class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+← Back
+</a>
+<h3 class="fw-bold mb-4">🔔 Reminder Management</h3>
+
+<!-- ================= PENDING ================= -->
+<h4 class="mb-3 text-warning">⏳ Pending</h4>
+
+<div class="row g-4">
+
+{% for r in pending_reminders %}
+<div class="col-12 col-md-6 col-xl-3">
+
+<div class="card shadow border-0 reminder-card
+{% if r.reminder_date < today %}
+overdue-card
+{% elif r.reminder_date == today %}
+today-card
+{% endif %}
+">
+
+<div class="card-body">
+
+<h5>{{ r.title }}</h5>
+
+<span class="badge bg-dark">
+{{ r.get_reminder_type_display }}
+</span>
+
+<p class="text-muted mt-2">
+📅 {{ r.reminder_date }}
+</p>
+
+<p class="small">{{ r.notes }}</p>
+
+</div>
+
+<div class="card-footer bg-white border-0">
+
+<a href="{% url 'toggle_reminder_status' r.id %}"
+class="btn btn-success btn-sm w-100 mb-2">
+✔ Mark Completed
+</a>
+
+<a href="{% url 'edit_reminder' r.id %}"
+class="btn btn-outline-primary btn-sm w-100 mb-2">
+✏ Edit
+</a>
+
+<a href="{% url 'delete_reminder' r.id %}"
+class="btn btn-outline-danger btn-sm w-100">
+🗑 Delete
+</a>
+
+</div>
+
+</div>
+</div>
+{% empty %}
+<div class="col-12">
+<p class="text-muted text-center">No pending reminders</p>
+</div>
+{% endfor %}
+
+</div>
+
+
+<hr class="my-5">
+
+<!-- ================= COMPLETED ================= -->
+<h4 class="mb-3 text-success">✅ Completed</h4>
+
+<div class="row g-4">
+
+{% for r in completed_reminders %}
+<div class="col-12 col-md-6 col-xl-3">
+
+<div class="card shadow-sm border-0 bg-light completed-card">
+
+<div class="card-body">
+<h6 class="text-decoration-line-through">{{ r.title }}</h6>
+<p class="text-muted">📅 {{ r.reminder_date }}</p>
+</div>
+
+<div class="card-footer bg-light border-0">
+<a href="{% url 'toggle_reminder_status' r.id %}"
+class="btn btn-warning btn-sm w-100">
+↩ Move to Pending
+</a>
+</div>
+
+</div>
+</div>
+{% empty %}
+<div class="col-12">
+<p class="text-muted text-center">No completed reminders</p>
+</div>
+{% endfor %}
+
+</div>
+
+</div>
+
+<style>
+
+.reminder-card{
+border-radius:16px;
+transition:.3s;
+}
+
+.reminder-card:hover{
+transform:translateY(-5px);
+box-shadow:0 15px 30px rgba(0,0,0,.15);
+}
+
+.completed-card{
+border-radius:16px;
+}
+
+.overdue-card{
+border-left:5px solid #dc3545;
+animation:pulseRed 1.2s infinite;
+}
+
+.today-card{
+border-left:5px solid #ffc107;
+}
+
+@keyframes pulseRed{
+0%{box-shadow:0 0 0 rgba(220,53,69,.5);}
+50%{box-shadow:0 0 18px rgba(220,53,69,.9);}
+100%{box-shadow:0 0 0 rgba(220,53,69,.5);}
+}
+
+/* MOBILE IMPROVEMENT */
+@media(max-width:768px){
+
+h3{
+font-size:22px;
+}
+
+}
+
+</style>
+
+{% endblock %}

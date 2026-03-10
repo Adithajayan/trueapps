@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+<div class="row justify-content-center">
+<div class="col-12 col-md-10 col-lg-7">
+
+<!-- HEADER -->
+<div class="d-flex align-items-center gap-3 mb-4">
+
+<a href="{% url 'job_dashboard' %}"
+class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+← Back
+</a>
+
+<h4 class="fw-bold mb-0">
+👁 Maintenance Details
+</h4>
+
+</div>
+
+<div class="card shadow-lg border-0">
+
+<div class="card-body">
+
+<div class="row mb-3">
+
+<div class="col-12 col-md-6">
+<label class="text-muted">Customer</label>
+<h5>{{ job.name }}</h5>
+</div>
+
+<div class="col-12 col-md-6">
+<label class="text-muted">Place</label>
+<h5>{{ job.place }}</h5>
+</div>
+
+</div>
+
+<div class="row mb-3">
+
+<div class="col-12 col-md-6">
+<label class="text-muted">Date</label>
+<h6>{{ job.date }}</h6>
+</div>
+
+<div class="col-12 col-md-6">
+<label class="text-muted">Status</label>
+
+{% if job.status == "COMPLETED" %}
+<span class="badge bg-success">Completed</span>
+{% else %}
+<span class="badge bg-warning text-dark">Pending</span>
+{% endif %}
+
+</div>
+
+</div>
+
+<hr>
+
+<label class="text-muted">Maintenance Details</label>
+
+<div class="p-3 bg-light rounded details-box">
+{{ job.maintenance_details|default:"No details added" }}
+</div>
+
+<div class="mt-4 d-flex flex-column flex-sm-row gap-2">
+
+<a href="{% url 'edit_maintenance' job.id %}"
+class="btn btn-primary w-100">
+✏ Edit
+</a>
+
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<style>
+
+.card{
+border-radius:16px;
+}
+
+.details-box{
+border-radius:12px;
+}
+
+/* MOBILE IMPROVEMENT */
+@media(max-width:768px){
+
+h4{
+font-size:22px;
+}
+
+}
+
+</style>
+
+{% endblock %}

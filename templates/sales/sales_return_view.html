@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'sales_return' %}" class="btn btn-secondary btn-sm shadow-sm">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="card shadow border-0 rounded-3">
+
+        <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center py-3 gap-2">
+
+            <h5 class="mb-0 fw-bold text-danger">
+                <i class="fa fa-file-invoice me-2"></i>
+                Return Details: #{{ return_obj.id }}
+            </h5>
+
+            <a href="{% url 'sales_return' %}" class="btn btn-sm btn-secondary">
+                Back to List
+            </a>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-4 p-3 bg-light rounded mx-0">
+
+                <div class="col-md-4 col-12 mb-2">
+
+                    <p class="text-muted mb-1">Customer</p>
+
+                    <h6 class="fw-bold">
+                        {{ return_obj.sale.customer.name }}
+                    </h6>
+
+                </div>
+
+                <div class="col-md-4 col-12 mb-2">
+
+                    <p class="text-muted mb-1">Original Invoice</p>
+
+                    <h6 class="fw-bold text-primary">
+                        {{ return_obj.sale.invoice_no }}
+                    </h6>
+
+                </div>
+
+                <div class="col-md-4 col-12 text-md-end">
+
+                    <p class="text-muted mb-1">Return Date</p>
+
+                    <h6 class="fw-bold">
+                        {{ return_obj.date|date:"d-m-Y" }}
+                    </h6>
+
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+                            <th>Product Name</th>
+                            <th class="text-center">Returned Qty</th>
+                            <th class="text-end">Rate</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in return_items %}
+
+                        <tr>
+
+                            <td>
+                                {{ item.product.name }}
+                            </td>
+
+                            <td class="text-center fw-bold">
+                                {{ item.qty_returned }}
+                            </td>
+
+                            <td class="text-end">
+                                ₹ {{ item.rate }}
+                            </td>
+
+                            <td class="text-end fw-bold text-danger">
+                                ₹ {{ item.total }}
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                    <tfoot>
+
+                        <tr>
+
+                            <td colspan="3" class="text-end fw-bold">
+                                Total Returned Amount:
+                            </td>
+
+                            <td class="text-end fw-bold h5 text-danger">
+                                ₹ {{ return_obj.total_return_amount }}
+                            </td>
+
+                        </tr>
+
+                    </tfoot>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

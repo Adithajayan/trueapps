@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== PAGE TITLE ===== */
+
+.page-title{
+font-size:26px;
+font-weight:700;
+margin-bottom:20px;
+display:flex;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+}
+
+/* ===== SUMMARY CARDS ===== */
+
+.summary-cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
+.summary-card{
+background:#ffffff;
+border-radius:18px;
+padding:25px;
+box-shadow:0 10px 25px rgba(0,0,0,0.06);
+position:relative;
+overflow:hidden;
+}
+
+.summary-card::after{
+content:"";
+position:absolute;
+width:120px;
+height:120px;
+right:-40px;
+top:-40px;
+border-radius:50%;
+opacity:.12;
+}
+
+.total-card::after{background:#0d6efd;}
+.received-card::after{background:#198754;}
+.balance-card::after{background:#dc3545;}
+
+.summary-title{
+font-size:13px;
+text-transform:uppercase;
+letter-spacing:1px;
+color:#6c757d;
+font-weight:600;
+}
+
+.summary-amount{
+font-size:30px;
+font-weight:800;
+margin-top:6px;
+}
+
+.total-card .summary-amount{color:#0d6efd;}
+.received-card .summary-amount{color:#198754;}
+.balance-card .summary-amount{color:#dc3545;}
+
+/* ===== PAYMENT CARD ===== */
+
+.payment-card{
+background:#ffffff;
+border-radius:18px;
+padding:25px;
+box-shadow:0 10px 25px rgba(0,0,0,0.06);
+}
+
+/* table */
+
+.table th{
+background:#f5f7fb;
+font-size:14px;
+font-weight:600;
+}
+
+.table td{
+font-size:15px;
+vertical-align:middle;
+}
+
+/* ===== ACTION BUTTONS ===== */
+
+.action-btns{
+display:flex;
+gap:10px;
+justify-content:center;
+align-items:center;
+flex-wrap:wrap;
+}
+
+.btn-edit{
+border:1px solid #0d6efd;
+color:#0d6efd;
+padding:6px 16px;
+border-radius:20px;
+font-size:13px;
+text-decoration:none;
+transition:.2s;
+background:#fff;
+}
+
+.btn-edit:hover{
+background:#0d6efd;
+color:#fff;
+}
+
+.btn-delete{
+border:1px solid #dc3545;
+color:#dc3545;
+padding:6px 16px;
+border-radius:20px;
+font-size:13px;
+text-decoration:none;
+transition:.2s;
+background:#fff;
+}
+
+.btn-delete:hover{
+background:#dc3545;
+color:#fff;
+}
+
+/* ===== MOBILE FIX ===== */
+
+@media(max-width:768px){
+
+.page-title{
+font-size:20px;
+}
+
+.summary-amount{
+font-size:24px;
+}
+
+.payment-card{
+padding:18px;
+}
+
+.table th,
+.table td{
+font-size:13px;
+}
+
+}
+
+</style>
+
+<div class="container mt-3">
+
+<!-- ================= TITLE ================= -->
+
+<div class="page-title">
+💼 {{ work.title }}
+</div>
+
+<!-- CUSTOMER INFO -->
+
+<p class="text-muted mb-3">
+👤 {{ work.customer.name }} |
+📞 {{ work.customer.phone }} |
+📍 {{ work.customer.address }}
+</p>
+
+<!-- ================= SUMMARY ================= -->
+
+<div class="summary-cards">
+
+<div class="summary-card total-card">
+<div class="summary-title">Total Amount</div>
+<div class="summary-amount">₹ {{ work.total_amount }}</div>
+</div>
+
+<div class="summary-card received-card">
+<div class="summary-title">Received</div>
+<div class="summary-amount">₹ {{ received }}</div>
+</div>
+
+<div class="summary-card balance-card">
+<div class="summary-title">Balance</div>
+<div class="summary-amount">₹ {{ balance }}</div>
+</div>
+
+</div>
+
+<!-- ================= PAYMENT HISTORY ================= -->
+
+<div class="payment-card">
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+
+<h5 class="fw-bold mb-0">
+💳 Payment History
+</h5>
+
+<a href="{% url 'payment_add' work.id %}"
+class="btn btn-primary rounded-pill px-4">
++ Add Payment
+</a>
+
+</div>
+
+<div class="table-responsive">
+
+<table class="table table-bordered align-middle text-center">
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>Mode</th>
+<th>Amount</th>
+<th>Note</th>
+<th width="180">Action</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for p in payments %}
+
+<tr>
+
+<td>{{ p.date }}</td>
+
+<td>{{ p.mode }}</td>
+
+<td class="fw-bold text-success">
+₹ {{ p.amount }}
+</td>
+
+<td>{{ p.note|default:"—" }}</td>
+
+<td>
+
+<div class="action-btns">
+
+<a href="{% url 'payment_edit' p.id %}"
+class="btn-edit">
+✏️ Edit
+</a>
+
+<a href="{% url 'payment_delete' p.id %}" class="btn-delete">
+   🗑 Delete
+</a>
+
+</div>
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="5"
+class="text-muted text-center">
+No payments added yet
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

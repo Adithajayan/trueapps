@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* Mobile responsive improvements */
+@media (max-width:768px){
+
+    h3{
+        font-size:20px;
+    }
+
+    table{
+        font-size:14px;
+    }
+
+    .btn-back{
+        font-size:12px;
+        padding:4px 10px;
+    }
+
+}
+
+</style>
+
+<div class="container-fluid px-2 px-md-3">
+
+<!-- Heading + Back Button -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+<h3 class="fw-bold mb-0">🚨 Low Stock Alert</h3>
+
+<a href="{% url 'reports_home' %}" class="btn btn-outline-secondary btn-sm rounded-pill btn-back">
+← Back
+</a>
+
+</div>
+
+
+<div class="card shadow-sm rounded-4">
+<div class="card-body p-2 p-md-3">
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle mb-0">
+
+<thead class="table-dark">
+<tr>
+    <th>Product</th>
+    <th>Minimum Stock</th>
+    <th>Available Qty</th>
+    <th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for item in low_stocks %}
+<tr class="table-danger">
+
+    <td class="fw-semibold">
+        {{ item.product.name }}
+    </td>
+
+    <td>
+        {{ item.product.minimum_stock }}
+    </td>
+
+    <td class="fw-bold text-danger">
+        {{ item.quantity }}
+    </td>
+
+    <td>
+        <span class="badge bg-danger">
+            LOW STOCK
+        </span>
+    </td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="4" class="text-center text-success fw-bold py-3">
+✅ All Products Stock Healthy
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+</div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+<!-- PAGE TITLE -->
+<div class="mb-4">
+    <h3 class="fw-bold">🧰 Job Management Dashboard</h3>
+    <p class="text-muted">Overview of enquiries, services and reminders</p>
+</div>
+
+<!-- 🔴 OVERDUE ALERT -->
+{% if overdue_count > 0 %}
+<div class="alert alert-danger shadow-sm d-flex justify-content-between align-items-center">
+    <div>
+        🚨 <strong>{{ overdue_count }}</strong> overdue reminders pending!
+    </div>
+    <a href="{% url 'reminders' %}" class="btn btn-sm btn-light">
+        View Now
+    </a>
+</div>
+{% endif %}
+
+
+<!-- ================= MAIN CARDS ================= -->
+<div class="row g-4">
+
+    <!-- ENQUIRY -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card border-0 shadow-lg h-100">
+            <div class="card-body text-center">
+
+                <h6 class="text-muted">New Enquiries</h6>
+
+                <h1 class="display-5 text-primary fw-bold">
+                    {{ enquiry_count }}
+                </h1>
+
+                <p class="text-muted">Pending enquiries</p>
+
+                <a href="{% url 'add_enquiry' %}"
+                   class="btn btn-primary w-100 mb-2">
+                    + Add Enquiry
+                </a>
+
+                <a href="{% url 'enquiry_list' %}"
+                   class="btn btn-outline-dark w-100">
+                    View List
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MAINTENANCE -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card border-0 shadow-lg h-100">
+            <div class="card-body text-center">
+
+                <h6 class="text-muted">Maintenance Works</h6>
+
+                <h1 class="display-5 text-warning fw-bold">
+                    {{ maintenance_count }}
+                </h1>
+
+                <p class="text-muted">Pending maintenance</p>
+
+                <a href="{% url 'add_maintenance' %}"
+                   class="btn btn-warning w-100 mb-2">
+                    + Add Maintenance
+                </a>
+
+                <a href="{% url 'maintenance_list' %}"
+                   class="btn btn-outline-dark w-100">
+                    View List
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- SERVICE -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card border-0 shadow-lg h-100">
+            <div class="card-body text-center">
+
+                <h6 class="text-muted">Service Calls</h6>
+
+                <h1 class="display-5 text-success fw-bold">
+                    {{ service_count }}
+                </h1>
+
+                <p class="text-muted">Pending services</p>
+
+                <a href="{% url 'add_service' %}"
+                   class="btn btn-success w-100 mb-2">
+                    + Add Service
+                </a>
+
+                <a href="{% url 'service_list' %}"
+                   class="btn btn-outline-dark w-100">
+                    View List
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- REMINDERS -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card border-0 shadow-lg h-100 reminder-main-card">
+            <div class="card-body text-center">
+
+                <h6 class="text-muted">Reminders</h6>
+
+                <h1 class="display-5 text-danger fw-bold">
+                    {{ reminder_count }}
+                </h1>
+
+                <p class="text-muted">Pending reminders</p>
+
+                <a href="{% url 'add_reminder' %}"
+                   class="btn btn-danger w-100 mb-2">
+                    + Create Reminder
+                </a>
+
+                <a href="{% url 'reminders' %}"
+                   class="btn btn-outline-dark w-100">
+                    View List
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ================= TODAY REMINDERS ================= -->
+<div class="mt-5">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold">🔔 Today Reminders</h4>
+
+    <a href="{% url 'today_reminders' %}"
+       class="btn btn-outline-danger btn-sm">
+        View All
+    </a>
+</div>
+
+<div class="row g-4">
+
+{% for r in today_reminders %}
+<div class="col-xl-3 col-lg-4 col-md-6">
+
+<div class="card reminder-card border-0 shadow h-100 today-highlight">
+
+<div class="card-body">
+
+<h5 class="fw-bold">{{ r.title }}</h5>
+
+<span class="badge bg-dark mb-2">
+{{ r.get_reminder_type_display }}
+</span>
+
+<p class="text-muted mb-2">
+📅 {{ r.reminder_date }}
+</p>
+
+<p class="small">{{ r.notes }}</p>
+
+</div>
+
+</div>
+</div>
+
+{% empty %}
+<div class="col-12">
+<div class="alert alert-success shadow-sm">
+✅ No reminders for today
+</div>
+</div>
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+
+<style>
+
+/* DASHBOARD CARD */
+.dashboard-card{
+border-radius:18px;
+transition:.3s ease;
+}
+.dashboard-card:hover{
+transform:translateY(-6px);
+box-shadow:0 18px 35px rgba(0,0,0,.15);
+}
+
+/* REMINDER MAIN CARD GLOW */
+.reminder-main-card{
+border-left:5px solid #dc3545;
+}
+
+/* TODAY CARD */
+.today-highlight{
+border-left:5px solid #ffc107;
+}
+
+/* REMINDER SMALL CARDS */
+.reminder-card{
+border-radius:16px;
+transition:.3s;
+}
+.reminder-card:hover{
+transform:translateY(-5px);
+}
+
+/* MOBILE */
+@media(max-width:768px){
+h1.display-5{
+font-size:2rem;
+}
+}
+
+</style>
+
+{% endblock %}

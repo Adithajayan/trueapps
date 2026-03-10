@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* FORM CARD */
+.form-card{
+    background:#ffffff;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* MOBILE RESPONSIVE */
+@media(max-width:768px){
+
+    .container{
+        padding-left:10px;
+        padding-right:10px;
+    }
+
+    .form-card{
+        padding:18px;
+    }
+
+    .form-card h3{
+        font-size:20px;
+    }
+
+    .form-card label{
+        font-size:14px;
+    }
+
+    .form-card input,
+    .form-card select,
+    .form-card textarea{
+        font-size:14px;
+    }
+
+    .form-card .btn{
+        font-size:13px;
+        padding:8px 12px;
+    }
+
+}
+
+/* EXTRA SMALL MOBILE */
+@media(max-width:480px){
+
+    .form-card .btn{
+        width:100%;
+        margin-bottom:8px;
+    }
+
+}
+
+</style>
+
+<div class="container mt-4">
+
+    <!-- BACK BUTTON -->
+    <a href="{% url 'expense_home' %}" class="back-btn">
+        ← Back
+    </a>
+
+<div class="form-card">
+
+    <h3>Edit Expense</h3>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Date</label>
+                <input type="date" name="date"
+                       value="{{ expense.date|date:'Y-m-d' }}"
+                       class="form-control" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Amount</label>
+                <input type="number" step="0.01"
+                       name="amount"
+                       value="{{ expense.amount }}"
+                       class="form-control" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Category</label>
+            <select name="category" class="form-select">
+                <option value="">-- None --</option>
+                {% for c in categories %}
+                <option value="{{ c.id }}"
+                        {% if expense.category and expense.category.id == c.id %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Paid By</label>
+            <select name="partner" class="form-select">
+                <option value="">-- None --</option>
+                {% for p in partners %}
+                <option value="{{ p.id }}"
+                        {% if expense.partner and expense.partner.id == p.id %}selected{% endif %}>
+                    {{ p.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Note</label>
+            <textarea name="note"
+                      class="form-control">{{ expense.note }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Status</label>
+            <select name="status" class="form-select">
+                <option value="PAID" {% if expense.status == 'PAID' %}selected{% endif %}>Paid</option>
+                <option value="PENDING" {% if expense.status == 'PENDING' %}selected{% endif %}>Pending</option>
+            </select>
+        </div>
+
+        <button class="btn btn-success">Update</button>
+        <a href="{% url 'expense_home' %}" class="btn btn-secondary">Cancel</a>
+
+    </form>
+
+</div>
+</div>
+
+{% endblock %}

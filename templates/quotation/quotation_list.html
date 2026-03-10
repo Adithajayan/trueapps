@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- BACK BUTTON -->
+<div class="mb-3">
+    <a href="{% url 'quotation_add' %}" class="btn btn-outline-secondary btn-sm">
+        ← Back
+    </a>
+</div>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <h4 class="fw-bold mb-0">📄 Quotation List</h4>
+
+    <a href="{% url 'quotation_add' %}" class="btn btn-success shadow-sm">
+        ➕ New Quotation
+    </a>
+</div>
+
+<!-- ================= FILTER CARD ================= -->
+<div class="card shadow-sm mb-4 border-0">
+    <div class="card-body">
+
+        <form method="get" class="row g-3 align-items-end">
+
+            <div class="col-12 col-md-3">
+                <label class="fw-semibold">Filter by Month</label>
+                <input type="month"
+                       name="month"
+                       value="{{ selected_month }}"
+                       class="form-control">
+            </div>
+
+            <div class="col-12 col-md-4">
+                <button class="btn btn-dark px-4">🔍 Filter</button>
+
+                <a href="{% url 'quotation_list' %}"
+                   class="btn btn-outline-secondary px-4 ms-md-2 mt-2 mt-md-0">
+                    Reset
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- ================= TABLE ================= -->
+<div class="card shadow border-0">
+    <div class="card-body p-0">
+
+        <!-- RESPONSIVE TABLE WRAPPER -->
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th width="50">#</th>
+                        <th>Document</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th class="text-end">Total</th>
+                        <th width="480" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for q in quotations %}
+                    <tr>
+
+                        <td>{{ forloop.counter }}</td>
+
+                        <td>
+                            {% if q.status == "INVOICE" %}
+                                <span class="badge bg-success px-3 py-2">
+                                    🧾 INV-{{ q.id }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-primary px-3 py-2">
+                                    📄 QT-{{ q.id }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="fw-semibold">
+                            {{ q.customer.name }}
+                        </td>
+
+                        <td>
+                            {{ q.quotation_date|date:"d M Y" }}
+                        </td>
+
+                        <td class="text-end fw-bold text-success">
+                            ₹ {{ q.total_amount }}
+                        </td>
+
+                        <!-- ACTION BUTTONS -->
+                        <td class="text-center">
+
+                            <div class="d-flex flex-wrap justify-content-center gap-2">
+
+                                <!-- VIEW -->
+                                <a href="{% url 'quotation_detail' q.id %}"
+                                   class="btn btn-sm btn-outline-primary rounded-pill">
+                                    👁 View
+                                </a>
+
+                                <!-- EDIT -->
+                                <a href="{% url 'quotation_edit' q.id %}"
+                                   class="btn btn-sm btn-outline-warning rounded-pill">
+                                    ✏ Edit
+                                </a>
+
+                                <!-- DELETE -->
+                                <a href="{% url 'quotation_delete' q.id %}"
+                                   class="btn btn-sm btn-outline-danger rounded-pill">
+                                    🗑 Delete
+                                </a>
+
+                                <!-- QUOTATION PDF VIEW -->
+<!--                                <a href="{% url 'quotation_pdf_view' q.id %}"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-secondary rounded-pill">
+                                    📄 PDF
+                                </a>-->
+
+                                <!-- QUOTATION DOWNLOAD -->
+                                <a href="{% url 'quotation_pdf_download' q.id %}"
+                                   class="btn btn-sm btn-dark rounded-pill">
+                                    ⬇ Download
+                                </a>
+
+                                {% if q.status == "QUOTATION" %}
+
+                                    <!-- CONVERT -->
+                                    <a href="{% url 'quotation_convert_invoice' q.id %}"
+                                       class="btn btn-sm btn-success rounded-pill shadow-sm">
+                                        ✅ Invoice
+                                    </a>
+
+                                {% else %}
+
+                                    <!-- INVOICE PDF -->
+                                    <a href="{% url 'invoice_pdf_download' q.id %}"
+                                       class="btn btn-sm btn-success rounded-pill shadow-sm">
+                                        🧾 Invoice PDF
+                                    </a>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted p-5">
+                            🚫 No quotations found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

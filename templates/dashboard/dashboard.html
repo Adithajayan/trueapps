@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Bootstrap Icons CDN (must-have for icons) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    /* ---------- GLOBAL DARK THEME ---------- */
+    .dashboard-black {
+        background-color: #FFFFFF;
+        min-height: 100vh;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        padding: 1.5rem 0;
+    }
+
+    /* ---------- HEADER / FILTER BAR ---------- */
+    .dashboard-header {
+        background: #000000;
+        border-radius: 20px;
+        padding: 1.2rem 1.8rem;
+        border: 1px solid #2d333b;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h4 {
+        color: #f0f6fc;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+    }
+
+    .dashboard-header h4 i {
+        color: #FF0000;  /* red */
+        margin-right: 8px;
+    }
+
+    .filter-input {
+        background: #FFFFFF;
+        border: 1px solid #30363d;
+        border-radius: 12px;
+        color: #FF0000;
+        padding: 0.5rem 1rem;
+        transition: all 0.2s;
+    }
+
+    .filter-input:focus {
+        border-color: #FF0000;
+        box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.3);
+        outline: none;
+    }
+
+    .filter-btn {
+        background:#FF0000;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1.8rem;
+        transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+        background: #f80000;
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(248, 81, 73, 0.4);
+    }
+
+    /* ---------- CARDS (BLACK & RED THEME) ---------- */
+    .kpi-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+        flex: 1 1 calc(20% - 1.5rem);  /* 5 cards per row on large */
+        background: #FFFFFF;
+        border: 1px solid #2d333b;
+        border-radius: 24px;
+        padding: 1.8rem 1.2rem;
+        transition: all 0.25s ease-in-out;
+        position: relative;
+        overflow: hidden;
+        min-width: 180px;
+    }
+
+    /* Red accent on top */
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: #FF0000;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-6px);
+        border-color: #FF0000;
+        box-shadow: 0 12px 28px rgba(248, 81, 73, 0.25);
+    }
+
+    .kpi-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    /* Icon circle */
+    .card-icon {
+        width: 56px;
+        height: 56px;
+        background: #000000;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #FF0000;
+        margin-bottom: 1rem;
+        transition: 0.2s;
+    }
+
+    .kpi-card:hover .card-icon {
+        background: #FF0000;
+        color: #0a0c0f;
+    }
+
+    .card-title {
+        color: #000000;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.4rem;
+    }
+
+    .card-value {
+        color: #FF0000;
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    /* Badge for profit margin */
+    .status-badge {
+        background: #2d333b;
+        color: #f0f6fc;
+        font-size: 0.7rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 30px;
+        margin-left: 8px;
+        border: 1px solid #3d444d;
+    }
+
+    .status-badge.bg-success { background: #238636 !important; border-color: #2ea043; }
+    .status-badge.bg-danger { background: #da3633 !important; border-color: #FF0000; }
+    .status-badge.bg-warning { background: #9e6a03 !important; border-color: #d29922; color: #fff; }
+    .status-badge.bg-info { background: #1f6feb !important; border-color: #388bfd; }
+
+    /* Responsive card grid */
+    @media (max-width: 1200px) {
+        .kpi-card { flex: 1 1 calc(25% - 1.5rem); }
+    }
+    @media (max-width: 992px) {
+        .kpi-card { flex: 1 1 calc(33.333% - 1.5rem); }
+    }
+    @media (max-width: 768px) {
+        .kpi-card { flex: 1 1 calc(50% - 1.5rem); }
+    }
+    @media (max-width: 480px) {
+        .kpi-card { flex: 1 1 100%; }
+    }
+
+    /* Supplier / Customer cards (double width) */
+    .kpi-card.double-width {
+        flex: 1 1 calc(40% - 1.5rem);
+    }
+
+    /* No graph section */
+    .graph-container {
+        display: none;
+    }
+
+    /* Additional spacing */
+    .mt-2 { margin-top: 0.5rem; }
+    .text-small { font-size: 0.85rem; color: #8b949e; }
+</style>
+
+<div class="dashboard-black">
+    <div class="container-fluid px-4">
+
+        <!-- ========== HEADER with FILTER ========== -->
+        <div class="dashboard-header d-flex flex-wrap align-items-center justify-content-between">
+            <h4 class="m-0">
+                <i class="bi bi-lightning-charge-fill"></i> TRUEBIT DASHBOARD
+            </h4>
+            <form method="get" class="d-flex gap-2">
+                <input type="month" name="month" value="{{ selected_month }}" class="filter-input">
+                <button type="submit" class="filter-btn">APPLY</button>
+            </form>
+        </div>
+
+        <!-- ========== FIRST ROW (5 CARDS) ========== -->
+        <div class="kpi-grid">
+            <!-- Total Sales -->
+            <div class="kpi-card">
+                <div class="card-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                <div class="card-title">TOTAL SALES</div>
+                <div class="card-value">₹{{ total_sales|floatformat:2 }}</div>
+            </div>
+            <!-- Total Purchase -->
+            <div class="kpi-card">
+                <div class="card-icon"><i class="bi bi-cart-check"></i></div>
+                <div class="card-title">TOTAL PURCHASE</div>
+                <div class="card-value">₹{{ total_purchase|floatformat:2 }}</div>
+            </div>
+            <!-- Stock Value -->
+            <div class="kpi-card">
+                <div class="card-icon"><i class="bi bi-boxes"></i></div>
+                <div class="card-title">STOCK VALUE</div>
+                <div class="card-value">₹{{ total_stock_value|floatformat:2 }}</div>
+            </div>
+            <!-- Net Profit -->
+            <div class="kpi-card">
+                <div class="card-icon"><i class="bi bi-pie-chart"></i></div>
+                <div class="card-title">NET PROFIT</div>
+                <div class="card-value">₹{{ net_profit|floatformat:2 }}</div>
+            </div>
+            <!-- Profit Margin + Status -->
+            <div class="kpi-card">
+                <div class="card-icon"><i class="bi {{ status_icon }}"></i></div>
+                <div class="card-title d-flex align-items-center">
+                    PROFIT MARGIN
+                    <span class="status-badge bg-{{ status_color }} ms-2">{{ business_status }}</span>
+                </div>
+                <div class="card-value">{{ profit_percentage }}%</div>
+            </div>
+        </div>
+
+        <!-- ========== SECOND ROW (4 CARDS) ========== -->
+        <div class="kpi-grid">
+            <!-- Today Present -->
+            <div class="kpi-card">
+                <div class="card-icon"><i class="bi bi-person-badge"></i></div>
+                <div class="card-title">STAFF PRESENT (TODAY)</div>
+                <div class="card-value">{{ today_present }}</div>
+            </div>
+            <!-- Sales Count (month) -->
+            <div class="kpi-card">
+                <div class="card-icon"><i class="bi bi-receipt"></i></div>
+                <div class="card-title">SALES COUNT (MONTH)</div>
+                <div class="card-value">{{ month_sales_count }}</div>
+            </div>
+            <!-- Expense (month) -->
+            <div class="kpi-card">
+                <div class="card-icon"><i class="bi bi-wallet2"></i></div>
+                <div class="card-title">EXPENSE (MONTH)</div>
+                <div class="card-value">₹{{ month_expense_total }}</div>
+            </div>
+            <!-- Quotations (month) -->
+            <div class="kpi-card">
+                <div class="card-icon"><i class="bi bi-file-text"></i></div>
+                <div class="card-title">QUOTATIONS (MONTH)</div>
+                <div class="card-value">{{ month_quotation_count }}</div>
+            </div>
+        </div>
+
+        <!-- ========== THIRD ROW (LEDGER CARDS) ========== -->
+        <div class="kpi-grid">
+            <!-- Supplier Ledger - wider card (optional) -->
+            <div class="kpi-card double-width">
+                <div class="card-icon"><i class="bi bi-truck-front"></i></div>
+                <div class="card-title">SUPPLIER BALANCE (OUTSTANDING)</div>
+                <div class="card-value">₹{{ supplier_ledger_total }}</div>
+                <div class="text-small mt-2">Total due to suppliers</div>
+            </div>
+            <!-- Customer Ledger - wider card (optional) -->
+            <div class="kpi-card double-width">
+                <div class="card-icon"><i class="bi bi-people"></i></div>
+                <div class="card-title">CUSTOMER OUTSTANDING</div>
+                <div class="card-value">₹{{ customer_ledger_total }}</div>
+                <div class="text-small mt-2">Total receivable from customers</div>
+            </div>
+        </div>
+
+        <!-- Graph section removed as requested -->
+
+    </div> <!-- container-fluid -->
+</div> <!-- dashboard-black -->
+
+<!-- Chart.js script removed (graph not needed) -->
+
+{% endblock %}

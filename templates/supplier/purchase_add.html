@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.form-card{
+    background:#fff;
+    border-radius:16px;
+    padding:30px;
+    max-width:520px;
+    margin:auto;
+    box-shadow:0 10px 25px rgba(0,0,0,.06);
+}
+</style>
+
+<h5 class="fw-bold mb-4 text-center">
+    ➕ Add Purchase — {{ supplier.name }}
+</h5>
+
+<div class="form-card">
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label class="form-label">Bill Number</label>
+        <input type="text" name="bill_no" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Purchase Date</label>
+        <input type="date" name="purchase_date" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Total Amount</label>
+        <input type="number" step="0.01" name="total_amount" class="form-control" required>
+    </div>
+
+    <button class="btn btn-primary w-100 btn-rounded">
+        Save Purchase
+    </button>
+
+</form>
+
+</div>
+
+{% endblock %}

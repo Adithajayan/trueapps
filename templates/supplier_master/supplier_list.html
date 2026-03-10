@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card p-4 shadow rounded-4">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h4>🏭 Supplier Master</h4>
+
+        <a href="{% url 'supplier_master_add' %}"
+           class="btn btn-primary rounded-pill">
+            + Add Supplier
+        </a>
+    </div>
+
+    <form method="get" class="mb-3">
+        <input type="text"
+               name="search"
+               value="{{ search }}"
+               class="form-control"
+               placeholder="Search supplier name / code / phone">
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Contact</th>
+                    <th>Opening Balance</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for s in suppliers %}
+                <tr>
+                    <td><b>{{ s.supplier_code }}</b></td>
+                    <td>{{ s.name }}</td>
+                    <td>{{ s.contact_number }}</td>
+                    <td class="text-danger fw-bold">
+                        ₹ {{ s.opening_balance }}
+                    </td>
+                    <td>
+                        <a href="{% url 'supplier_master_edit' s.id %}"
+                           class="btn btn-sm btn-warning">Edit</a>
+
+                        <a href="{% url 'supplier_master_delete' s.id %}"
+                           class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-muted text-center">
+                        No suppliers found
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

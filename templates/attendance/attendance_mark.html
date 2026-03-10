@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h4 class="mb-3">
+    Attendance - {{ month_name }} {{ year }}
+</h4>
+
+<form method="get" class="row g-2 mb-3">
+
+    <div class="col-md-3">
+        <select name="month" class="form-control">
+            {% for m, name in months %}
+                <option value="{{ m }}" {% if m == month %}selected{% endif %}>
+                    {{ name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <select name="year" class="form-control">
+            {% for y in years %}
+                <option value="{{ y }}" {% if y == year %}selected{% endif %}>
+                    {{ y }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <button class="btn btn-primary w-100">View</button>
+    </div>
+
+</form>
+
+
+<div class="mb-3">
+    <a href="{% url 'attendance_mark' %}?month={{ month }}&year={{ year }}"
+       class="btn btn-primary btn-sm">Attendance</a>
+
+    <a href="{% url 'attendance_summary' %}?month={{ month }}&year={{ year }}"
+       class="btn btn-outline-primary btn-sm">Summary</a>
+
+    <a href="{% url 'advance_list' %}?month={{ month }}&year={{ year }}"
+       class="btn btn-outline-primary btn-sm">Advance</a>
+
+    <a href="{% url 'salary_total' %}?month={{ month }}&year={{ year }}"
+       class="btn btn-outline-primary btn-sm">Salary</a>
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered text-center align-middle">
+
+    <thead class="table-light">
+        <tr>
+            <th>Staff</th>
+            {% for d in days %}
+                <th>{{ d }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {% for row in attendance_rows %}
+    <tr>
+
+        <td><strong>{{ row.staff.name }}</strong></td>
+
+        {% for cell in row.days %}
+        <td>
+            <button class="btn btn-sm {% if cell.status == 'P' %}btn-success{% elif cell.status == 'A' %}btn-danger{% elif cell.status == 'H' %}btn-warning{% else %}btn-outline-secondary{% endif %}"
+                    onclick="openAttendanceModal({{ row.staff.id }}, {{ cell.day }}, this)">
+                {{ cell.status|default:"+" }}
+            </button>
+        </td>
+        {% endfor %}
+
+    </tr>
+    {% endfor %}
+
+    </tbody>
+
+</table>
+</div>
+
+<div class="modal fade" id="attendanceModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Mark Attendance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body text-center">
+
+                <button class="btn btn-success w-100 mb-2"
+                        onclick="saveAttendance('P')">Present</button>
+
+                <button class="btn btn-danger w-100 mb-2"
+                        onclick="saveAttendance('A')">Absent</button>
+
+                <button class="btn btn-warning w-100 mb-2"
+                        onclick="saveAttendance('H')">Half Day</button>
+
+                <button class="btn btn-outline-dark w-100"
+                        onclick="saveAttendance('')">Remove</button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+let staffId = null;
+let day = null;
+let currentBtn = null;
+let isSaving = false;   // ✅ request running undo check
+
+function openAttendanceModal(sid, d, btnElement) {
+
+    // saving nadakkumbo modal open cheyyaruthu
+    if (isSaving) return;
+
+    staffId = sid;
+    day = d;
+    currentBtn = btnElement;
+
+    let myModal = new bootstrap.Modal(
+        document.getElementById('attendanceModal')
+    );
+    myModal.show();
+}
+
+function saveAttendance(status) {
+
+    // ✅ double click / fast click prevent
+    if (isSaving) return;
+    isSaving = true;
+
+    const month = "{{ month }}";
+    const year = "{{ year }}";
+
+    // button loading feel
+    if (currentBtn) {
+        currentBtn.disabled = true;
+        currentBtn.innerText = "...";
+    }
+
+    fetch("/attendance/mark/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body:
+            "staff_id=" + staffId +
+            "&day=" + day +
+            "&month=" + month +
+            "&year=" + year +
+            "&status=" + status
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        // modal close
+        let modalElement = document.getElementById('attendanceModal');
+        let modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) modalInstance.hide();
+
+        // ✅ button UI update
+        if (currentBtn) {
+
+            currentBtn.className = "btn btn-sm";
+
+            if (status === 'P') {
+                currentBtn.classList.add("btn-success");
+                currentBtn.innerText = "P";
+            }
+            else if (status === 'A') {
+                currentBtn.classList.add("btn-danger");
+                currentBtn.innerText = "A";
+            }
+            else if (status === 'H') {
+                currentBtn.classList.add("btn-warning");
+                currentBtn.innerText = "H";
+            }
+            else {
+                currentBtn.classList.add("btn-outline-secondary");
+                currentBtn.innerText = "+";
+            }
+
+            currentBtn.disabled = false;
+        }
+
+        isSaving = false; // ✅ next click allow
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        isSaving = false;
+
+        if (currentBtn) {
+            currentBtn.disabled = false;
+            currentBtn.innerText = "+";
+        }
+    });
+}
+
+</script>
+
+
+{% endblock %}

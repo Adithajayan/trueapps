@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* FORM CARD */
+.form-card {
+    max-width: 500px;
+    margin: auto;
+    background: #1e1e2f;
+    padding: 25px;
+    border-radius: 12px;
+    color: #fff;
+}
+
+.form-card input {
+    background: #2a2a3d;
+    color: #fff;
+    border: none;
+}
+
+.form-card input:focus {
+    background: #2a2a3d;
+    color: #fff;
+}
+
+/* MOBILE RESPONSIVE */
+@media(max-width:768px){
+
+    .container{
+        padding-left:12px;
+        padding-right:12px;
+    }
+
+    .form-card{
+        padding:18px;
+    }
+
+    .form-card h5{
+        font-size:16px;
+    }
+
+    .form-card input{
+        font-size:14px;
+    }
+
+    .form-card .btn{
+        font-size:13px;
+        padding:7px 12px;
+    }
+
+}
+
+/* EXTRA SMALL MOBILE */
+@media(max-width:480px){
+
+    .form-card{
+        padding:15px;
+    }
+
+    .form-card .d-flex{
+        flex-direction:column;
+        gap:10px;
+    }
+
+    .form-card .btn{
+        width:100%;
+    }
+
+}
+
+</style>
+
+<div class="container mt-5">
+
+    <!-- BACK BUTTON -->
+    <a href="{% url 'expense_category_grid' expense_type.id %}" class="back-btn">
+        ← Back
+    </a>
+
+    <div class="form-card shadow-lg">
+        <h5 class="mb-3">
+            {{ title }} – {{ expense_type.name }}
+        </h5>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label>Category Name</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       required
+                       placeholder="Eg: Petrol, Food, Vegetables"
+                       value="{{ category.name|default:'' }}">
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'expense_category_grid' expense_type.id %}"
+                   class="btn btn-secondary">
+                   Cancel
+                </a>
+
+                <button class="btn btn-success">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

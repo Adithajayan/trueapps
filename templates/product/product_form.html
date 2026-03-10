@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* BACK BUTTON */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:7px 16px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* CARD */
+.form-card{
+    background:#ffffff;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.06);
+}
+
+/* LABEL */
+label{
+    font-weight:600;
+    font-size:14px;
+}
+
+/* IMAGE PREVIEW */
+.product-img{
+    max-width:80px;
+    border-radius:10px;
+    margin-top:6px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+    .form-card{
+        padding:18px;
+    }
+
+    .form-card h4{
+        font-size:20px;
+    }
+
+    label{
+        font-size:13px;
+    }
+
+    .form-control{
+        font-size:13px;
+    }
+
+    .btn{
+        font-size:13px;
+        padding:7px 12px;
+    }
+
+}
+
+</style>
+
+<div class="container mt-4">
+
+<!-- BACK BUTTON -->
+<a href="{% url 'product_list' %}" class="back-btn">
+    ← Back
+</a>
+
+<div class="form-card">
+
+<h4 class="mb-4">
+    {% if product %}✏ Edit Product{% else %}➕ Add Product{% endif %}
+</h4>
+
+
+<!-- ✅ ALERT MESSAGE -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="row g-3">
+
+<div class="col-md-4">
+<label>HSN Code</label>
+<input type="text"
+       name="hsn_code"
+       class="form-control"
+       value="{{ product.hsn_code|default:'' }}">
+</div>
+
+<div class="col-md-4">
+<label>Unit</label>
+<select name="unit" class="form-control">
+<option value="PCS" {% if product.unit == "PCS" %}selected{% endif %}>PCS</option>
+<option value="LTR" {% if product.unit == "LTR" %}selected{% endif %}>LTR</option>
+<option value="MTR" {% if product.unit == "MTR" %}selected{% endif %}>MTR</option>
+</select>
+</div>
+
+<div class="col-md-4">
+<label>Product Name</label>
+<input type="text"
+       name="name"
+       class="form-control"
+       value="{{ product.name|default:'' }}"
+       required>
+</div>
+
+<div class="col-md-6">
+<label>Description</label>
+<input type="text"
+       name="description"
+       class="form-control"
+       value="{{ product.description|default:'' }}">
+</div>
+
+<div class="col-md-3">
+<label>Purchase Rate</label>
+<input type="number"
+       step="0.01"
+       name="purchase_rate"
+       class="form-control"
+       value="{{ product.purchase_rate|default:0 }}"
+       required>
+</div>
+
+<div class="col-md-3">
+<label>Sales Rate</label>
+<input type="number"
+       step="0.01"
+       name="sales_rate"
+       class="form-control"
+       value="{{ product.sales_rate|default:0 }}"
+       required>
+</div>
+
+<div class="col-md-3">
+<label>MRP</label>
+<input type="number"
+       step="0.01"
+       name="mrp"
+       class="form-control"
+       value="{{ product.mrp|default:0 }}">
+</div>
+
+<div class="col-md-3">
+<label>Discount (%)</label>
+<input type="number"
+       step="0.01"
+       name="discount"
+       class="form-control"
+       value="{{ product.discount|default:0 }}">
+</div>
+
+<div class="col-md-3">
+<label>CGST (%)</label>
+<input type="number"
+       step="0.01"
+       name="cgst"
+       class="form-control"
+       value="{{ product.cgst|default:0 }}">
+</div>
+
+<div class="col-md-3">
+<label>SGST (%)</label>
+<input type="number"
+       step="0.01"
+       name="sgst"
+       class="form-control"
+       value="{{ product.sgst|default:0 }}">
+</div>
+
+<div class="col-md-3">
+<label>Image</label>
+<input type="file"
+       name="image"
+       class="form-control">
+
+{% if product.image %}
+<img src="{{ product.image.url }}" class="product-img">
+{% endif %}
+
+</div>
+
+</div>
+
+<div class="mt-4">
+
+<button class="btn btn-primary rounded-pill px-4">
+💾 Save Product
+</button>
+
+<a href="{% url 'product_list' %}"
+   class="btn btn-secondary ms-2">
+Back
+</a>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}

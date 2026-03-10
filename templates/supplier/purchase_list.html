@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.page-title{
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+.card-box{
+    background:#fff;
+    border-radius:16px;
+    padding:25px;
+    box-shadow:0 10px 25px rgba(0,0,0,.06);
+}
+
+.amount{
+    font-weight:700;
+    color:#0d6efd;
+}
+
+.btn-rounded{
+    border-radius:25px;
+    padding:6px 18px;
+}
+</style>
+
+<div class="page-title">
+    🧾 {{ supplier.name }} — Purchases
+</div>
+
+<div class="card-box">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h6 class="fw-bold mb-0">Purchase Bills</h6>
+
+        <a href="{% url 'purchase_add' supplier.id %}"
+           class="btn btn-primary btn-rounded">
+            + Add Purchase
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+
+            <thead>
+                <tr>
+                    <th>Bill No</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for p in purchases %}
+                <tr>
+                    <td>{{ p.bill_no }}</td>
+                    <td>{{ p.purchase_date }}</td>
+                    <td class="amount">₹ {{ p.total_amount }}</td>
+                    <td>
+                        <a href="#"
+                           class="btn btn-sm btn-outline-primary btn-rounded">
+                            Payments
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        No purchases found
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

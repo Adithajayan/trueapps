@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    /* Select2 ninte page style-umayi match aakkan vendi */
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+</style>
+
+<div class="card shadow p-4 rounded-4">
+    <h4 class="fw-bold mb-4">✍ Manual Ledger Entry</h4>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="mb-1">Supplier</label>
+                <select name="supplier" class="form-control select-search" required>
+                    <option value="">Search Supplier...</option>
+                    {% for s in suppliers %}
+                    <option value="{{ s.id }}">{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="mb-1">Date</label>
+                <input type="date" name="date" class="form-control" value="{% now 'Y-m-d' %}" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="mb-1">Type</label>
+                <select name="entry_type" class="form-control">
+                    <option value="DEBIT">Debit (Purchase)</option>
+                    <option value="CREDIT">Credit (Payment)</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="mb-1">Amount</label>
+                <input type="number" step="0.01" name="amount" class="form-control" placeholder="0.00" required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="mb-1">Remark</label>
+                <input type="text" name="remark" class="form-control" placeholder="Enter details..." required>
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-4 px-5 rounded-pill">
+            Save Entry
+        </button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Select2 activate aakkunnu
+        $('.select-search').select2({
+            placeholder: "Type supplier name...",
+            allowClear: true,
+            width: '100%' // Form control field-inte full width kittaan
+        });
+    });
+</script>
+
+{% endblock %}

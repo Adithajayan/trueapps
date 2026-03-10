@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <button onclick="history.back()" class="btn btn-secondary btn-sm">
+            ← Back
+        </button>
+    </div>
+
+    <div class="card shadow-sm p-4 mx-auto" style="max-width:600px">
+
+        <h4 class="mb-4 text-center">✏ Edit Payment</h4>
+
+        <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input type="date"
+                   name="date"
+                   value="{{ payment.date }}"
+                   class="form-control"
+                   required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Mode</label>
+            <select name="mode" class="form-select" required>
+                <option value="Cash" {% if payment.mode == "Cash" %}selected{% endif %}>Cash</option>
+                <option value="UPI" {% if payment.mode == "UPI" %}selected{% endif %}>UPI</option>
+                <option value="Bank" {% if payment.mode == "Bank" %}selected{% endif %}>Bank</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Amount</label>
+            <input type="number"
+                   name="amount"
+                   value="{{ payment.amount }}"
+                   class="form-control"
+                   required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Note</label>
+            <input type="text"
+                   name="note"
+                   value="{{ payment.note }}"
+                   class="form-control">
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-3">
+
+            <button class="btn btn-primary">
+                Update Payment
+            </button>
+
+            <a href="{% url 'payment_list' payment.work.id %}"
+               class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

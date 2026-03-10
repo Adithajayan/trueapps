@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+<!-- Back Button -->
+<div class="mb-3">
+<a href="{% url 'job_dashboard' %}" class="btn btn-secondary btn-sm">
+← Back
+</a>
+</div>
+
+<div class="row justify-content-center">
+<div class="col-12 col-md-10 col-lg-8">
+
+<div class="card shadow-lg border-0">
+<div class="card-body">
+
+<h4 class="fw-bold mb-4">🛠 Add Service Call</h4>
+
+<form method="POST">
+{% csrf_token %}
+
+<div class="row g-3">
+
+<div class="col-12 col-md-6">
+<label>Customer Name</label>
+<input type="text" name="name" class="form-control" required>
+</div>
+
+<div class="col-12 col-md-6">
+<label>Place</label>
+<input type="text" name="place" class="form-control" required>
+</div>
+
+<div class="col-12 col-md-6">
+<label>Service Date</label>
+<input type="date" name="date" class="form-control" required>
+</div>
+
+<div class="col-12 col-md-6">
+<label>Next Service Date</label>
+<input type="date" name="next_date" class="form-control">
+</div>
+
+<div class="col-12">
+<label>Service Details</label>
+<textarea name="details" class="form-control"></textarea>
+</div>
+
+</div>
+
+<button class="btn btn-success mt-4 w-100">
+💾 Save Service
+</button>
+
+</form>
+
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<style>
+
+/* Card styling */
+.card{
+border-radius:18px;
+}
+
+/* Inputs */
+.form-control{
+border-radius:10px;
+}
+
+/* Button */
+.btn{
+border-radius:10px;
+font-weight:600;
+}
+
+/* Mobile improvement */
+@media (max-width:576px){
+
+.card-body{
+padding:22px;
+}
+
+h4{
+font-size:20px;
+}
+
+}
+
+</style>
+
+{% endblock %}

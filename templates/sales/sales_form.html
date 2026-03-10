@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  .product-container { position: relative; min-width: 220px; }
+  .product_suggestions {
+    position: absolute; top: 100%; left: 0; width: 100%;
+    z-index: 9999; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,.1);
+    max-height: 200px; overflow-y: auto;
+  }
+  .list-group-item { cursor: pointer; font-size: 14px; padding: 10px; }
+  .list-group-item:hover { background-color: #f8f9fa; }
+  .table-responsive { overflow: visible !important; padding-bottom: 60px; }
+  .msg-container { line-height: 1.2; margin-top: 4px; }
+  .error-text { font-size: 0.75rem; color: #dc3545; font-weight: bold; }
+  .info-text { font-size: 0.75rem; color: #0dcaf0; font-weight: bold; }
+
+  /* Sale Type Toggle Style */
+  .sale-type-radio input:checked + label {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+  }
+
+  /* --- RESPONSIVE MOBILE OPTIMIZATION --- */
+  @media (max-width: 768px) {
+    /* Table-ne card style-leiku maattunnu */
+    .table thead { display: none; } /* Mobile-il header venda */
+    .table, .table tbody, .table tr, .table td {
+      display: block;
+      width: 100%;
+    }
+    .table tr {
+      margin-bottom: 15px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .table td {
+      text-align: right;
+      padding-left: 50%;
+      position: relative;
+      border: none !important;
+    }
+    /* Label add cheyyunnu manual aayi */
+    .table td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 10px;
+      width: 45%;
+      font-weight: bold;
+      text-align: left;
+    }
+    .product-container { min-width: 100%; }
+    .grand-total-card { width: 100% !important; text-align: center !important; margin-top: 15px; }
+    .btn-group-mobile { display: flex; flex-direction: column; gap: 10px; }
+  }
+</style>
+
+<div class="container-fluid mt-3">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card shadow-sm p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+      <h4 class="text-primary fw-bold mb-2">🛒 POS</h4>
+      <span class="badge bg-soft-primary text-primary">FIFO Batch Selection Enabled</span>
+    </div>
+
+    <form method="post" action="{% url 'sales_create' %}" id="salesForm">
+      {% csrf_token %}
+
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-2">
+            <label class="fw-bold d-block">Sale Type</label>
+            <div class="btn-group w-100 mt-1" role="group">
+                <input type="radio" class="btn-check" name="sale_type" id="b2c" value="B2C" checked>
+                <label class="btn btn-outline-primary" for="b2c">B2C</label>
+
+                <input type="radio" class="btn-check" name="sale_type" id="b2b" value="B2B">
+                <label class="btn btn-outline-primary" for="b2b">B2B</label>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <label class="fw-bold">Invoice Date</label>
+          <input type="date" name="date" class="form-control" value="{% now 'Y-m-d' %}" required>
+        </div>
+
+        <div class="col-12 col-md-8 position-relative">
+          <label class="fw-bold">Customer</label>
+          <input type="text" id="customer_input" class="form-control" placeholder="Search customer by name..." autocomplete="off" required>
+          <input type="hidden" name="customer_id" id="customer_id">
+          <div id="customer_list" class="list-group product_suggestions"></div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>Product Details</th>
+              <th width="100">Qty</th>
+              <th width="140">Sales Rate (Excl)</th>
+              <th width="90">CGST%</th>
+              <th width="90">SGST%</th>
+              <th width="160">Total (Incl GST)</th>
+              <th width="50"></th>
+            </tr>
+          </thead>
+          <tbody id="sales-body">
+            <tr class="sales-row">
+              <td data-label="Product">
+                <div class="product-container text-start">
+                  <input type="text" class="form-control product" placeholder="Type product name..." autocomplete="off">
+                  <input type="hidden" name="product_id[]" class="product_id">
+                  <div class="product_suggestions list-group"></div>
+                  <div class="msg-container">
+                    <small class="stock-info badge bg-light text-success border d-none"></small>
+                    <small class="status-msg d-block"></small>
+                    <small class="batch-preview text-muted d-block" style="font-size: 0.7rem;"></small>
+                  </div>
+                </div>
+              </td>
+              <td data-label="Qty">
+                <input type="number" name="qty[]" class="form-control qty text-center" value="1" min="0" step="any">
+              </td>
+              <td data-label="Rate">
+                <div class="input-group">
+                  <span class="input-group-text">₹</span>
+                  <input type="number" name="rate[]" class="form-control rate text-end" step="any" required>
+                </div>
+              </td>
+              <td data-label="CGST %"><input type="number" name="cgst[]" class="form-control cgst text-center" step="any" value="0"></td>
+              <td data-label="SGST %"><input type="number" name="sgst[]" class="form-control sgst text-center" step="any" value="0"></td>
+              <td data-label="Total" class="text-end fw-bold bg-light">₹ <span class="row-total">0.00</span></td>
+              <td class="text-end"><button type="button" class="btn btn-outline-danger btn-sm remove-row">✖</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row mt-4 align-items-center btn-group-mobile">
+        <div class="col-md-6">
+          <button type="button" id="add-row" class="btn btn-outline-primary w-mobile-100 mb-2">➕ Add Item</button>
+          <button type="submit" id="submitBtn" class="btn btn-success ms-md-2 px-4 shadow-sm w-mobile-100 mb-2">💾 Save Invoice</button>
+        </div>
+        <div class="col-md-6 text-end">
+          <div class="card p-3 border-primary d-inline-block bg-light grand-total-card">
+            <h4 class="mb-0 fw-bold text-primary">Grand Total : ₹ <span id="grand_total">0.00</span></h4>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+/** * Ninte script-il oru mattavum njan varuthiyitilla.
+ * Script full same to same retain cheythirikkunnu.
+ */
+function validateAllStock() {
+    let isValid = true;
+    document.querySelectorAll('.sales-row').forEach(row => {
+        const qty = parseFloat(row.querySelector('.qty').value) || 0;
+        const stock = parseFloat(row.dataset.totalStock) || 0;
+        const msg = row.querySelector('.status-msg');
+
+        if (qty > stock) {
+            msg.innerHTML = `<span class="error-text">⚠️ Insufficient Stock! Max: ${stock}</span>`;
+            isValid = false;
+        } else if (stock > 0) {
+            msg.innerHTML = '';
+        }
+    });
+
+    document.getElementById('submitBtn').disabled = !isValid;
+    return isValid;
+}
+
+const customerInput = document.getElementById('customer_input');
+const customerList  = document.getElementById('customer_list');
+const customerId    = document.getElementById('customer_id');
+
+customerInput.addEventListener('keyup', () => {
+  const term = customerInput.value.trim();
+  if (!term) return customerList.innerHTML = '';
+  fetch(`/sales/customer-search/?term=${term}`)
+    .then(r => r.json())
+    .then(data => {
+      customerList.innerHTML = '';
+      data.forEach(c => {
+        let d = document.createElement('div');
+        d.className = 'list-group-item';
+        d.innerText = c.name;
+        d.onclick = () => {
+          customerInput.value = c.name;
+          customerId.value = c.id;
+          customerList.innerHTML = '';
+        };
+        customerList.appendChild(d);
+      });
+    });
+});
+
+document.addEventListener('keyup', e => {
+  if (!e.target.classList.contains('product')) return;
+  const row = e.target.closest('tr');
+  const box = row.querySelector('.product_suggestions');
+  const term = e.target.value.trim();
+  if (!term) return box.innerHTML = '';
+
+  fetch(`/sales/product-search/?term=${term}`)
+    .then(r => r.json())
+    .then(data => {
+      box.innerHTML = '';
+      data.forEach(p => {
+        let d = document.createElement('div');
+        d.className = 'list-group-item d-flex justify-content-between align-items-center';
+        d.innerHTML = `<b>${p.name}</b> <span class="badge bg-info">Stock: ${p.stock}</span>`;
+        d.onclick = () => selectProduct(row, p);
+        box.appendChild(d);
+      });
+    });
+});
+
+function selectProduct(row, p) {
+  row.querySelector('.product').value = p.name;
+  row.querySelector('.product_id').value = p.id;
+  row.querySelector('.product_suggestions').innerHTML = '';
+  row.querySelector('.rate').value = p.rate;
+  row.querySelector('.cgst').value = p.cgst;
+  row.querySelector('.sgst').value = p.sgst;
+
+  fetch(`/sales/product-batch-info/${p.id}/`)
+    .then(r => r.json())
+    .then(data => {
+      const stockBadge = row.querySelector('.stock-info');
+      stockBadge.innerText = `Stock: ${data.total_stock}`;
+      stockBadge.classList.remove('d-none');
+
+      row.dataset.totalStock = data.total_stock;
+      row.dataset.batches = JSON.stringify(data.batches);
+
+      if (data.batches.length > 0 && data.batches[0].selling_rate > 0) {
+          row.querySelector('.rate').value = data.batches[0].selling_rate;
+      }
+
+      calculateRowTotal(row);
+      validateAllStock();
+    });
+}
+
+function calculateRowTotal(row) {
+  const qty = parseFloat(row.querySelector('.qty').value) || 0;
+  const rate = parseFloat(row.querySelector('.rate').value) || 0;
+  const cgst = parseFloat(row.querySelector('.cgst').value) || 0;
+  const sgst = parseFloat(row.querySelector('.sgst').value) || 0;
+
+  const baseTotal = qty * rate;
+  const totalWithGst = baseTotal + (baseTotal * ((cgst + sgst) / 100));
+  row.querySelector('.row-total').innerText = totalWithGst.toFixed(2);
+  calculateGrand();
+}
+
+function calculateGrand() {
+  let grandTotal = 0;
+  document.querySelectorAll('.row-total').forEach(el => {
+    grandTotal += parseFloat(el.innerText) || 0;
+  });
+  document.getElementById('grand_total').innerText = grandTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+document.addEventListener('input', e => {
+  const row = e.target.closest('tr');
+  if (!row) return;
+  if (e.target.matches('.qty, .rate, .cgst, .sgst')) {
+    calculateRowTotal(row);
+    validateAllStock();
+  }
+});
+
+document.getElementById('add-row').onclick = () => {
+  const tbody = document.getElementById('sales-body');
+  const newRow = tbody.querySelector('.sales-row').cloneNode(true);
+  newRow.querySelectorAll('input').forEach(i => {
+      if(i.classList.contains('qty')) i.value = 1;
+      else if(i.classList.contains('cgst') || i.classList.contains('sgst')) i.value = 0;
+      else i.value = '';
+  });
+  newRow.querySelector('.stock-info').classList.add('d-none');
+  newRow.querySelector('.status-msg').innerHTML = '';
+  newRow.querySelector('.row-total').innerText = '0.00';
+  newRow.dataset.totalStock = 0;
+  tbody.appendChild(newRow);
+  validateAllStock();
+};
+
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('remove-row')) {
+    if (document.querySelectorAll('.sales-row').length > 1) {
+      e.target.closest('tr').remove();
+      calculateGrand();
+      validateAllStock();
+    }
+  }
+});
+
+document.getElementById('salesForm').onsubmit = function() {
+    return validateAllStock();
+};
+</script>
+
+{% endblock %}

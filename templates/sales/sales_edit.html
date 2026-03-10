@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+.product-container{
+position:relative;
+min-width:200px;
+}
+
+.product_suggestions{
+position:absolute;
+top:100%;
+left:0;
+width:100%;
+z-index:9999;
+background:white;
+box-shadow:0 4px 6px rgba(0,0,0,0.1);
+max-height:200px;
+overflow-y:auto;
+}
+
+.list-group-item{
+cursor:pointer;
+font-size:14px;
+padding:10px;
+}
+
+.list-group-item:hover{
+background-color:#f8f9fa;
+color:#007bff;
+}
+
+.table-responsive{
+overflow-x:auto;
+padding-bottom:40px;
+}
+
+.error-text{
+font-size:0.75rem;
+color:#dc3545;
+font-weight:bold;
+}
+
+@media (max-width:768px){
+
+h4{
+font-size:18px;
+}
+
+.btn{
+margin-top:6px;
+}
+
+}
+
+</style>
+
+<div class="container-fluid mt-3">
+
+<!-- Back Button -->
+<div class="mb-3">
+<a href="{% url 'sales_list' %}" class="btn btn-secondary btn-sm">
+<i class="fa fa-arrow-left"></i> Back
+</a>
+</div>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show">
+{{ message }}
+<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<h4 class="mb-4">✏ Edit Sale: {{ sale.invoice_no }}</h4>
+
+<form method="post" id="editSalesForm">
+
+{% csrf_token %}
+
+<div class="row g-3 mb-4">
+
+<div class="col-md-2 col-12">
+<label class="form-label fw-bold">Date</label>
+<input type="date" name="date" class="form-control"
+value="{{ sale.date|date:'Y-m-d' }}">
+</div>
+
+<div class="col-md-2 col-12">
+<label class="form-label fw-bold">Sale Type</label>
+<select name="sale_type" class="form-select">
+<option value="B2C" {% if sale.sale_type == 'B2C' %}selected{% endif %}>B2C (Retail)</option>
+<option value="B2B" {% if sale.sale_type == 'B2B' %}selected{% endif %}>B2B (Business)</option>
+</select>
+</div>
+
+<div class="col-md-8 col-12">
+<label class="form-label fw-bold">Customer</label>
+<input type="text" class="form-control bg-light"
+value="{{ sale.customer.name }}" readonly>
+<input type="hidden" name="customer_id" value="{{ sale.customer.id }}">
+</div>
+
+</div>
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle border">
+
+<thead class="table-dark">
+
+<tr class="text-center">
+<th style="min-width:250px;">Product</th>
+<th style="width:100px;">Qty</th>
+<th style="width:150px;">Rate</th>
+<th style="width:100px;">CGST%</th>
+<th style="width:100px;">SGST%</th>
+<th style="width:150px;">Total</th>
+<th style="width:50px;"></th>
+</tr>
+
+</thead>
+
+<tbody id="sales-body">
+
+{% for item in items %}
+
+<tr class="sales-row">
+
+<td>
+<div class="product-container">
+
+<input type="text"
+class="form-control product"
+value="{{ item.product.name }}"
+autocomplete="off">
+
+<input type="hidden"
+name="product_id[]"
+class="product_id"
+value="{{ item.product.id }}">
+
+<div class="product_suggestions list-group"></div>
+<small class="status-msg d-block"></small>
+
+</div>
+</td>
+
+<td>
+<input type="number"
+name="qty[]"
+class="form-control qty text-center"
+value="{{ item.qty }}">
+</td>
+
+<td>
+<input type="number"
+name="rate[]"
+class="form-control rate text-end"
+value="{{ item.selling_price }}"
+step="0.01">
+</td>
+
+<td>
+<input type="number"
+name="cgst[]"
+class="form-control cgst text-center"
+value="{{ item.cgst }}">
+</td>
+
+<td>
+<input type="number"
+name="sgst[]"
+class="form-control sgst text-center"
+value="{{ item.sgst }}">
+</td>
+
+<td class="text-end fw-bold">
+₹ <span class="row-total">{{ item.total }}</span>
+</td>
+
+<td>
+<button type="button"
+class="btn btn-outline-danger btn-sm remove">✖</button>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="row mt-4 align-items-center">
+
+<div class="col-md-6">
+
+<button type="button"
+id="add-row"
+class="btn btn-primary">
+
+➕ Add New Item
+
+</button>
+
+<button type="submit"
+id="submitBtn"
+class="btn btn-success ms-md-2">
+
+💾 Update & Save Changes
+
+</button>
+
+<a href="{% url 'sales_list' %}"
+class="btn btn-light border ms-md-2">
+
+Cancel
+
+</a>
+
+</div>
+
+<div class="col-md-6 text-md-end mt-3 mt-md-0">
+
+<h3 class="fw-bold">
+Grand Total:
+<span class="text-primary">
+₹ <span id="grand">{{ sale.total_amount }}</span>
+</span>
+</h3>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+{% endblock %}

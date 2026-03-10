@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+<!-- ================= TITLE ================= -->
+<a href="{% url 'job_dashboard' %}"
+class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+← Back
+</a>
+<h3 class="fw-bold mb-3">🛠 Service Calls</h3>
+
+
+<!-- ================= FILTER BAR ================= -->
+<form method="GET" class="card shadow-sm border-0 p-3 mb-4">
+
+<div class="row g-3 align-items-end">
+
+    <!-- SEARCH -->
+    <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Search</label>
+        <input type="text"
+               name="q"
+               value="{{ search }}"
+               placeholder="Customer / Place..."
+               class="form-control">
+    </div>
+
+    <!-- MONTH -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label">Month</label>
+
+        <select name="month" class="form-select">
+            <option value="">All Months</option>
+
+            <option value="1" {% if month == "1" %}selected{% endif %}>January</option>
+            <option value="2" {% if month == "2" %}selected{% endif %}>February</option>
+            <option value="3" {% if month == "3" %}selected{% endif %}>March</option>
+            <option value="4" {% if month == "4" %}selected{% endif %}>April</option>
+            <option value="5" {% if month == "5" %}selected{% endif %}>May</option>
+            <option value="6" {% if month == "6" %}selected{% endif %}>June</option>
+            <option value="7" {% if month == "7" %}selected{% endif %}>July</option>
+            <option value="8" {% if month == "8" %}selected{% endif %}>August</option>
+            <option value="9" {% if month == "9" %}selected{% endif %}>September</option>
+            <option value="10" {% if month == "10" %}selected{% endif %}>October</option>
+            <option value="11" {% if month == "11" %}selected{% endif %}>November</option>
+            <option value="12" {% if month == "12" %}selected{% endif %}>December</option>
+        </select>
+    </div>
+
+    <!-- STATUS -->
+    <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label">Status</label>
+
+        <select name="status" class="form-select">
+            <option value="">All Status</option>
+            <option value="PENDING" {% if status == "PENDING" %}selected{% endif %}>Pending</option>
+            <option value="COMPLETED" {% if status == "COMPLETED" %}selected{% endif %}>Completed</option>
+        </select>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="col-12 col-md-6 col-lg-2">
+        <button class="btn btn-success w-100">
+            🔎 Filter
+        </button>
+    </div>
+
+</div>
+</form>
+
+
+<!-- ================= TABLE ================= -->
+<div class="card border-0 shadow-sm">
+
+<div class="table-responsive">
+
+<table class="table align-middle mb-0 service-table">
+
+<thead class="table-light">
+<tr>
+    <th>Date</th>
+    <th>Name</th>
+    <th>Place</th>
+    <th>Status</th>
+    <th width="220">Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for job in services %}
+<tr>
+
+<td>{{ job.date }}</td>
+
+<td class="fw-semibold">
+{{ job.name }}
+</td>
+
+<td>{{ job.place }}</td>
+
+<!-- STATUS -->
+<td>
+{% if job.status == "COMPLETED" %}
+<span class="badge bg-success">Completed</span>
+{% else %}
+<span class="badge bg-warning text-dark">Pending</span>
+{% endif %}
+</td>
+
+<!-- ACTION -->
+<td>
+
+<a href="{% url 'view_service' job.id %}"
+class="btn btn-sm btn-dark mb-1"
+title="View">
+👁
+</a>
+
+<a href="{% url 'toggle_status' job.id %}"
+class="btn btn-sm btn-success mb-1"
+title="Toggle Status">
+✔
+</a>
+
+<a href="{% url 'edit_service' job.id %}"
+class="btn btn-sm btn-primary mb-1"
+title="Edit">
+✏
+</a>
+
+<a href="{% url 'delete_service' job.id %}"
+class="btn btn-sm btn-danger mb-1"
+title="Delete">
+🗑
+</a>
+
+</td>
+
+</tr>
+
+{% empty %}
+<tr>
+<td colspan="5" class="text-center text-muted py-4">
+No service records found
+</td>
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+
+</div>
+</div>
+
+</div>
+
+
+<!-- ================= STYLE ================= -->
+<style>
+
+.table td, .table th{
+vertical-align: middle;
+}
+
+.service-table tbody tr:hover{
+background:#f8f9fa;
+}
+
+.card{
+border-radius:14px;
+}
+
+/* mobile optimization */
+@media(max-width:768px){
+
+h3{
+font-size:20px;
+}
+
+.btn{
+margin-bottom:4px;
+}
+
+}
+
+</style>
+
+{% endblock %}

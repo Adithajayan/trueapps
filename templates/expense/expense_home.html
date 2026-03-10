@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* HEADER */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* CARD */
+.expense-card {
+    background: linear-gradient(145deg, #1e1e2f, #2a2a44);
+    color: #fff;
+    border-radius: 18px;
+    padding: 22px 18px;
+    text-align: center;
+    transition: all 0.35s ease;
+    height: 100%;
+}
+
+.expense-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0,0,0,.45);
+}
+
+.expense-icon {
+    font-size: 36px;
+    color: #4fd1c5;
+    margin-bottom: 12px;
+}
+
+.expense-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.expense-actions a,
+.expense-actions button {
+    margin: 4px;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media(max-width:768px){
+
+    .container{
+        padding-left:10px;
+        padding-right:10px;
+    }
+
+    .page-header h3{
+        font-size:20px;
+    }
+
+    .expense-card{
+        padding:16px 12px;
+    }
+
+    .expense-icon{
+        font-size:28px;
+    }
+
+    .expense-title{
+        font-size:14px;
+    }
+
+    .expense-actions{
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    .expense-actions .btn{
+        font-size:12px;
+        padding:5px 8px;
+    }
+
+}
+
+/* EXTRA SMALL MOBILE */
+@media(max-width:480px){
+
+    .expense-actions{
+        flex-direction:column;
+        gap:6px;
+    }
+
+    .expense-actions .btn{
+        width:100%;
+    }
+
+}
+
+</style>
+
+<div class="container mt-4">
+
+    <!-- BACK BUTTON -->
+    <a href="{% url 'dashboard' %}" class="back-btn">
+        ← Back
+    </a>
+
+    <!-- HEADER -->
+    <div class="page-header mb-4">
+        <h3>
+            <i class="fa fa-wallet"></i> Expense
+        </h3>
+
+        <div>
+            <!-- SUMMARY BUTTON -->
+            <a href="{% url 'expense_summary' %}"
+               class="btn btn-outline-dark me-2">
+                <i class="fa fa-chart-pie"></i> Summary
+            </a>
+
+            <!-- PARTNER BUTTON -->
+            <a href="{% url 'partner_list' %}"
+               class="btn btn-outline-primary me-2">
+                <i class="fa fa-users"></i> Partners
+            </a>
+
+            <!-- ADD EXPENSE TYPE -->
+            <a href="{% url 'expense_type_add' %}"
+               class="btn btn-success">
+                + Add Expense Type
+            </a>
+        </div>
+    </div>
+
+    <!-- EXPENSE TYPE CARDS -->
+    <div class="row">
+
+        {% for et in expense_types %}
+        <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-4">
+
+            <div class="expense-card">
+
+                <div class="expense-icon">
+                    <i class="fa fa-layer-group"></i>
+                </div>
+
+                <div class="expense-title">
+                    {{ et.name }}
+                </div>
+
+                <div class="expense-actions">
+
+                    <!-- ADD EXPENSE -->
+                    <a href="{% url 'expense_add' et.id %}"
+                       class="btn btn-sm btn-primary">
+                        + Add Expense
+                    </a>
+
+                    <!-- TYPE WISE LIST -->
+                    <a href="{% url 'expense_type_list' et.id %}"
+                       class="btn btn-sm btn-outline-light">
+                        <i class="fa fa-list"></i>
+                    </a>
+
+                    <!-- MANAGE CATEGORIES -->
+                    <a href="{% url 'expense_category_grid' et.id %}"
+                       class="btn btn-sm btn-warning">
+                        <i class="fa fa-tags"></i>
+                    </a>
+
+                    <!-- EDIT -->
+                    <a href="{% url 'expense_type_edit' et.id %}"
+                       class="btn btn-sm btn-info">
+                        <i class="fa fa-edit"></i>
+                    </a>
+
+                    <!-- DELETE -->
+                    <button class="btn btn-sm btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal"
+                            data-id="{{ et.id }}"
+                            data-name="{{ et.name }}">
+                        <i class="fa fa-trash"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                No Expense Types found.
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                Are you sure you want to delete
+                <b id="deleteName"></b> ?
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">
+                    Delete
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- DELETE MODAL SCRIPT -->
+<script>
+const deleteModal = document.getElementById('deleteModal');
+
+deleteModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const id = button.getAttribute('data-id');
+    const name = button.getAttribute('data-name');
+
+    document.getElementById('deleteName').innerText = name;
+    const deleteUrl = "{% url 'expense_type_delete' 0 %}".replace('0', id);
+    document.getElementById('confirmDeleteBtn').href = deleteUrl;
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+    /* Select2 ninte Bootstrap input-inte athe height kittaan */
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+    }
+</style>
+
+<select id="productMaster" style="display:none;">
+    <option value="">Search Product...</option>
+    {% for p in products %}
+        <option value="{{ p.id }}" data-price="{{ p.sales_rate }}">{{ p.name }}</option>
+    {% endfor %}
+</select>
+
+<datalist id="customerSuggestions">
+    {% for c in customers %}
+        <option value="{{ c.name }}" data-id="{{ c.id }}">
+    {% endfor %}
+</datalist>
+
+<div class="mb-3">
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+</div>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+    <h4 class="mb-0">➕ Create Quotation</h4>
+    <a href="{% url 'template_add' %}" class="btn btn-outline-secondary btn-sm" target="_blank">⚙️ Manage Templates</a>
+</div>
+
+<form method="post" id="quotationForm">
+    {% csrf_token %}
+
+    <div class="row mb-3 g-3">
+        <div class="col-12 col-md-4">
+            <label class="fw-bold">Customer</label>
+            <input list="customerSuggestions" id="customerInput" class="form-control" placeholder="Search Customer..." required autocomplete="off">
+            <input type="hidden" name="customer" id="customerID">
+        </div>
+
+        <div class="col-12 col-md-3">
+            <label class="fw-bold">Date</label>
+            <input type="date" name="quotation_date" class="form-control" value="{{ today }}" required>
+        </div>
+
+        <div class="col-12 col-md-5">
+            <label class="fw-bold">Apply Template</label>
+            <div class="input-group">
+                <select id="templateSelect" class="form-select">
+                    <option value="">-- Manual Selection (Clear) --</option>
+                    {% for t in templates %}
+                        <option value="{{ t.id }}">{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-dark" type="button" id="applyTemplateBtn">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive" style="overflow: visible;">
+        <table class="table table-bordered" id="itemsTable">
+            <thead class="table-dark">
+                <tr>
+                    <th style="min-width: 300px;">Product</th>
+                    <th width="100">Qty</th>
+                    <th width="120">Rate</th>
+                    <th width="120">Total</th>
+                    <th width="40"></th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
+    <button type="button" class="btn btn-sm btn-primary" onclick="addRow()">➕ Add Item</button>
+    <hr>
+
+    <div class="row g-3">
+        <div class="col-12 col-md-3">
+            <label class="fw-bold">Grand Total</label>
+            <input id="grandTotal" class="form-control fw-bold" readonly value="0.00">
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="fw-bold">Advance</label>
+            <input type="number" id="advance" name="advance_amount" class="form-control" value="0" step="0.01">
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="fw-bold">Balance</label>
+            <input id="balance" class="form-control fw-bold text-danger" readonly value="0.00">
+        </div>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-success px-5">Save Quotation</button>
+</form>
+
+<script>
+$(document).ready(function() {
+    addRow();
+
+    // Customer Selection Logic
+    $('#customerInput').on('input', function() {
+        let val = $(this).val();
+        let option = $('#customerSuggestions option').filter(function() {
+            return this.value === val;
+        });
+        $('#customerID').val(option.length ? option.data('id') : "");
+    });
+
+    $('#advance').on('input', calcAll);
+});
+
+function addRow(pId = null, pQty = 1, pRate = 0) {
+    let options = $('#productMaster').html();
+    let rowId = Date.now(); // Unique ID for each row
+
+    let row = `
+    <tr>
+        <td>
+            <select name="product[]" class="form-control select2-product" required>
+                ${options}
+            </select>
+        </td>
+        <td><input type="number" name="qty[]" value="${pQty}" class="form-control qty-field" step="0.01"></td>
+        <td><input type="number" name="rate[]" value="${pRate}" class="form-control rate-field" step="0.01"></td>
+        <td><input type="number" name="total[]" class="form-control total-field" readonly value="0.00"></td>
+        <td><button type="button" class="btn btn-danger btn-sm" onclick="$(this).closest('tr').remove(); calcAll();">✖</button></td>
+    </tr>`;
+
+    let $newRow = $(row);
+    $("#itemsTable tbody").append($newRow);
+
+    // Initialize Select2 for the new row
+    let $select = $newRow.find('.select2-product');
+    $select.select2({
+        width: '100%',
+        placeholder: "Search Product..."
+    });
+
+    // If data comes from template
+    if(pId) {
+        $select.val(pId).trigger('change');
+    }
+
+    updateRowTotal($newRow);
+}
+
+// Product Selection Logic for Select2
+$(document).on('select2:select', '.select2-product', function(e) {
+    let $row = $(this).closest('tr');
+    let selectedOption = e.params.data.element;
+    let price = $(selectedOption).data('price') || 0;
+
+    $row.find('.rate-field').val(price);
+    updateRowTotal($row);
+});
+
+$(document).on('input', '.qty-field, .rate-field', function() {
+    updateRowTotal($(this).closest('tr'));
+});
+
+function updateRowTotal($row) {
+    let qty = parseFloat($row.find('.qty-field').val()) || 0;
+    let rate = parseFloat($row.find('.rate-field').val()) || 0;
+    $row.find('.total-field').val((qty * rate).toFixed(2));
+    calcAll();
+}
+
+function calcAll() {
+    let grandTotal = 0;
+    $('.total-field').each(function() {
+        grandTotal += parseFloat($(this).val()) || 0;
+    });
+    $("#grandTotal").val(grandTotal.toFixed(2));
+    let advance = parseFloat($("#advance").val()) || 0;
+    $("#balance").val((grandTotal - advance).toFixed(2));
+}
+
+// Template Logic
+$("#applyTemplateBtn").click(function() {
+    let templateId = $("#templateSelect").val();
+    if (!templateId) return;
+
+    $("#itemsTable tbody").empty();
+
+    $.get("{% url 'load_template_items' %}", { template_id: templateId }, function(data) {
+        data.forEach(item => {
+            addRow(item.product_id, item.qty, item.rate);
+        });
+    });
+});
+</script>
+
+{% endblock %}

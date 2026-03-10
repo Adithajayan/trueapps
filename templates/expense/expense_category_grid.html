@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* ===== CATEGORY GRID UI ===== */
+.category-card {
+    background: #1e1e2f;
+    border-radius: 14px;
+    padding: 22px 18px;
+    text-align: center;
+    color: #ffffff;
+    transition: all 0.3s ease;
+    position: relative;
+    height: 100%;
+}
+
+.category-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+
+.category-icon {
+    font-size: 34px;
+    margin-bottom: 10px;
+    color: #4fd1c5;
+}
+
+.category-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.category-actions a,
+.category-actions button {
+    margin: 2px;
+}
+
+/* HEADER */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media(max-width:768px){
+
+    .container{
+        padding-left:10px;
+        padding-right:10px;
+    }
+
+    .page-header h4{
+        font-size:18px;
+    }
+
+    .category-card{
+        padding:16px 12px;
+    }
+
+    .category-icon{
+        font-size:26px;
+    }
+
+    .category-name{
+        font-size:14px;
+    }
+
+    .category-actions .btn{
+        font-size:12px;
+        padding:5px 8px;
+    }
+
+}
+
+/* EXTRA SMALL */
+@media(max-width:480px){
+
+    .category-card{
+        padding:14px 10px;
+    }
+
+    .category-actions{
+        display:flex;
+        flex-direction:column;
+        gap:6px;
+    }
+
+    .category-actions .btn{
+        width:100%;
+    }
+
+}
+
+</style>
+
+<div class="container mt-4">
+
+    <!-- BACK BUTTON -->
+    <a href="{% url 'expense_home' %}" class="back-btn">
+        ← Back
+    </a>
+
+    <!-- HEADER -->
+    <div class="page-header mb-4">
+        <h4 class="mb-0">
+            <i class="fa fa-layer-group"></i>
+            {{ expense_type.name }} – Categories
+        </h4>
+
+        <a href="{% url 'expense_category_add' expense_type.id %}"
+           class="btn btn-success">
+            + Add Category
+        </a>
+    </div>
+
+    <!-- CATEGORY GRID -->
+    <div class="row">
+
+        {% for cat in categories %}
+        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-6 mb-4">
+            <div class="category-card">
+
+                <div class="category-icon">
+                    <i class="fa fa-tags"></i>
+                </div>
+
+                <div class="category-name">
+                    {{ cat.name }}
+                </div>
+
+                <div class="category-actions">
+                    <a href="{% url 'expense_category_edit' cat.id %}"
+                       class="btn btn-sm btn-warning">
+                        Edit
+                    </a>
+
+                    <button class="btn btn-sm btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal"
+                            data-id="{{ cat.id }}"
+                            data-name="{{ cat.name }}">
+                        Delete
+                    </button>
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                No categories found.
+                Click <b>Add Category</b> to create one.
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Category</h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                Are you sure you want to delete
+                <b id="deleteName"></b> ?
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <a href="#" id="confirmDeleteBtn"
+                   class="btn btn-danger"
+                   data-base-url="{% url 'expense_category_delete' 0 %}">
+                   Yes, Delete
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- DELETE MODAL SCRIPT -->
+<script>
+const deleteModal = document.getElementById('deleteModal');
+
+deleteModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+
+    const categoryId = button.getAttribute('data-id');
+    const categoryName = button.getAttribute('data-name');
+
+    document.getElementById('deleteName').innerText = categoryName;
+
+    const deleteBtn = document.getElementById('confirmDeleteBtn');
+    const baseUrl = deleteBtn.getAttribute('data-base-url');
+
+    deleteBtn.href = baseUrl.replace('0', categoryId);
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<style>
+
+/* Mobile improvements */
+@media (max-width:768px){
+
+    h3{
+        font-size:20px;
+    }
+
+    .btn{
+        font-size:14px;
+    }
+
+}
+
+/* Back button styling */
+.back-btn{
+    border-radius:8px;
+    padding:6px 14px;
+}
+
+</style>
+
+<div class="container-fluid">
+
+<!-- TITLE + BACK BUTTON -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+<h3 class="fw-bold mb-0">📦 Purchase Report</h3>
+
+<a href="{% url 'reports_home' %}" class="btn btn-outline-secondary back-btn">
+← Back
+</a>
+
+</div>
+
+
+<div class="card shadow-sm mb-4">
+<div class="card-body">
+
+<form method="get" class="row g-3">
+
+<div class="col-md-3">
+<label>From Date</label>
+<input type="date" name="from_date" value="{{ from_date }}" class="form-control">
+</div>
+
+<div class="col-md-3">
+<label>To Date</label>
+<input type="date" name="to_date" value="{{ to_date }}" class="form-control">
+</div>
+
+<div class="col-md-3">
+<label>Supplier</label>
+<select name="supplier" id="supplier_select" class="form-select">
+<option value="" {% if not selected_supplier %}selected{% endif %}>All Suppliers</option>
+{% for sup in suppliers %}
+<option value="{{ sup.id }}" {% if selected_supplier == sup.id|stringformat:"s" %}selected{% endif %}>
+{{ sup.name }}
+</option>
+{% endfor %}
+</select>
+</div>
+
+<div class="col-md-3">
+<label>Payment Type</label>
+<select name="payment_type" class="form-select">
+<option value="ALL" {% if selected_payment == "ALL" %}selected{% endif %}>All</option>
+<option value="CASH" {% if selected_payment == "CASH" %}selected{% endif %}>Cash</option>
+<option value="CREDIT" {% if selected_payment == "CREDIT" %}selected{% endif %}>Credit</option>
+<option value="UPI" {% if selected_payment == "UPI" %}selected{% endif %}>UPI</option>
+<option value="BANK" {% if selected_payment == "BANK" %}selected{% endif %}>Bank</option>
+</select>
+</div>
+
+<div class="col-md-12 text-end">
+<button type="submit" class="btn btn-primary mt-2">
+View Report
+</button>
+
+<a href="{% url 'purchase_report_pdf' %}?from_date={{ from_date }}&to_date={{ to_date }}&supplier={{ selected_supplier }}&payment_type={{ selected_payment }}"
+class="btn btn-danger mt-2">
+Download PDF
+</a>
+</div>
+
+</form>
+
+</div>
+</div>
+
+
+<div class="row mb-4">
+
+<div class="col-lg-3 col-md-6 mb-3">
+<div class="card shadow border-0 text-center">
+<div class="card-body">
+<h6 class="text-muted">Total Purchase</h6>
+<h4 class="text-success fw-bold">
+₹ {{ total_purchase|floatformat:2 }}
+</h4>
+</div>
+</div>
+</div>
+
+<div class="col-lg-3 col-md-6 mb-3">
+<div class="card shadow border-0 text-center">
+<div class="card-body">
+<h6 class="text-muted">Total Bills</h6>
+<h4 class="fw-bold">{{ bill_count }}</h4>
+</div>
+</div>
+</div>
+
+<div class="col-lg-3 col-md-6 mb-3">
+<div class="card shadow border-0 text-center">
+<div class="card-body">
+<h6 class="text-muted">Average Bill</h6>
+<h4 class="text-primary fw-bold">
+₹ {{ avg_bill|floatformat:2 }}
+</h4>
+</div>
+</div>
+</div>
+
+<div class="col-lg-3 col-md-6 mb-3">
+<div class="card shadow border-0 text-center">
+<div class="card-body">
+<h6 class="text-muted">Suppliers</h6>
+<h4 class="fw-bold">{{ supplier_count }}</h4>
+</div>
+</div>
+</div>
+
+</div>
+
+
+<div class="card shadow-sm">
+<div class="card-body">
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle">
+
+<thead class="table-dark">
+<tr>
+<th>Invoice</th>
+<th>Date</th>
+<th>Supplier</th>
+<th>Payment</th>
+<th>Items</th>
+<th class="text-end">Amount</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for p in purchases %}
+<tr>
+
+<td class="fw-semibold">{{ p.invoice_no }}</td>
+<td>{{ p.purchase_date }}</td>
+<td>{{ p.supplier.name }}</td>
+
+<td>
+{% if p.payment_type == "CASH" %}
+<span class="badge bg-success">Cash</span>
+{% elif p.payment_type == "CREDIT" %}
+<span class="badge bg-warning text-dark">Credit</span>
+{% elif p.payment_type == "UPI" %}
+<span class="badge bg-info text-dark">UPI</span>
+{% else %}
+<span class="badge bg-primary">Bank</span>
+{% endif %}
+</td>
+
+<td>{{ p.items.count }}</td>
+
+<td class="text-end fw-bold">
+₹ {{ p.total_amount|floatformat:2 }}
+</td>
+
+</tr>
+
+{% empty %}
+<tr>
+<td colspan="6" class="text-center text-muted">
+No Purchase Records Found
+</td>
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+</div>
+
+
+<div class="row mt-4">
+
+<div class="col-lg-6 mb-4">
+<div class="card shadow-sm">
+<div class="card-body">
+<h6>📈 Daily Purchase Trend</h6>
+<canvas id="purchaseChart" style="max-height:220px;"></canvas>
+</div>
+</div>
+</div>
+
+<div class="col-lg-6 mb-4">
+<div class="card shadow-sm">
+<div class="card-body">
+<h6>📦 Top Purchased Products</h6>
+<canvas id="productChart" style="max-height:220px;"></canvas>
+</div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+// Searchable Dropdown
+$(document).ready(function() {
+$('#supplier_select').select2({
+placeholder: "Search or Select Supplier",
+allowClear: true,
+width: '100%'
+});
+});
+
+// Daily Purchase Graph
+new Chart(document.getElementById('purchaseChart'), {
+type: 'line',
+data: {
+labels: {{ purchase_graph_labels|safe }},
+datasets: [{
+label: 'Purchase Amount',
+data: {{ purchase_graph_values|safe }},
+borderColor: '#0d6efd',
+borderWidth: 2,
+tension: 0.4,
+fill: true,
+backgroundColor: 'rgba(13, 110, 253, 0.1)'
+}]
+},
+options: { responsive:true, maintainAspectRatio:false }
+});
+
+// Top Products Graph
+new Chart(document.getElementById('productChart'), {
+type: 'bar',
+data: {
+labels: {{ product_labels|safe }},
+datasets: [{
+label: 'Quantity Sold',
+data: {{ product_values|safe }},
+backgroundColor: '#5bc0de',
+borderWidth: 1
+}]
+},
+options: { responsive:true, maintainAspectRatio:false }
+});
+
+</script>
+
+<style>
+/* Select2 styling */
+.select2-container--default .select2-selection--single {
+height: 38px;
+border: 1px solid #dee2e6;
+border-radius: 0.375rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+line-height: 36px;
+padding-left: 12px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+height: 36px;
+}
+</style>
+
+{% endblock %}

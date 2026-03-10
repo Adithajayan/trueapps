@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+<!-- PAGE TITLE -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+
+<div class="d-flex align-items-center gap-3">
+
+<a href="{% url 'job_dashboard' %}"
+class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+← Back
+</a>
+
+<h3 class="fw-bold mb-0">🔔 Today's Reminders</h3>
+
+</div>
+
+<a href="{% url 'reminders' %}"
+class="btn btn-outline-dark">
+View All Reminders
+</a>
+
+</div>
+
+
+<!-- ================= REMINDER LIST ================= -->
+<div class="row g-4">
+
+{% for r in today_reminders %}
+<div class="col-12 col-md-6 col-lg-4 col-xl-3">
+
+<div class="card reminder-card border-0 shadow h-100">
+
+<!-- CARD BODY -->
+<div class="card-body">
+
+<h5 class="fw-bold">{{ r.title }}</h5>
+
+<span class="badge bg-dark mb-2">
+{{ r.get_reminder_type_display }}
+</span>
+
+<p class="text-muted mb-2">
+📅 {{ r.reminder_date }}
+</p>
+
+{% if r.notes %}
+<p class="small text-muted">
+{{ r.notes }}
+</p>
+{% endif %}
+
+</div>
+
+
+<!-- ACTION BUTTONS -->
+<div class="card-footer bg-white border-0">
+
+<a href="{% url 'toggle_reminder_status' r.id %}"
+class="btn btn-success btn-sm w-100 mb-2">
+✔ Mark Completed
+</a>
+
+<a href="{% url 'edit_reminder' r.id %}"
+class="btn btn-outline-primary btn-sm w-100 mb-2">
+✏ Edit
+</a>
+
+<a href="{% url 'delete_reminder' r.id %}"
+class="btn btn-outline-danger btn-sm w-100">
+🗑 Delete
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+{% empty %}
+<!-- EMPTY STATE -->
+<div class="col-12">
+<div class="alert alert-success shadow-sm text-center p-4">
+✅ No reminders scheduled for today.
+</div>
+</div>
+{% endfor %}
+
+</div>
+
+</div>
+
+
+<!-- ================= STYLING ================= -->
+<style>
+
+.reminder-card{
+border-radius:16px;
+transition:0.3s ease;
+}
+
+.reminder-card:hover{
+transform:translateY(-6px);
+box-shadow:0 18px 35px rgba(0,0,0,0.15);
+}
+
+/* TODAY ALERT FEEL */
+.reminder-card{
+border-left:5px solid #dc3545;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+h3{
+font-size:1.4rem;
+}
+
+}
+
+</style>
+
+{% endblock %}

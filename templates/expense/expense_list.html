@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:7px 16px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* HEADER */
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+    .page-header h3{
+        font-size:20px;
+    }
+
+    table th,
+    table td{
+        font-size:13px;
+        white-space:nowrap;
+    }
+
+}
+
+</style>
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="page-header mb-3">
+        <h3>
+            <i class="fa fa-list"></i> Expense List
+        </h3>
+
+        <a href="{% url 'expense_home' %}"
+           class="back-btn">
+            ← Back
+        </a>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Expense Type</th>
+                    <th>Category</th>
+                    <th>Paid By</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for e in expenses %}
+                <tr>
+                    <td>{{ e.date }}</td>
+                    <td>{{ e.expense_type.name }}</td>
+
+                    <td>
+                        {% if e.category %}
+                            {{ e.category.name }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if e.partner %}
+                            {{ e.partner.name }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+
+                    <td>₹ {{ e.amount }}</td>
+
+                    <td>
+                        {% if e.status == 'PAID' %}
+                            <span class="badge bg-success">Paid</span>
+                        {% else %}
+                            <span class="badge bg-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="6"
+                        class="text-center text-muted">
+                        No expenses found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

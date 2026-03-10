@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <button onclick="history.back()" class="btn btn-secondary btn-sm">
+            ← Back
+        </button>
+    </div>
+
+    <h4 class="mb-3 text-center">
+        {{ customer.name }} - Works
+    </h4>
+
+    <div class="text-center mb-3">
+        <a href="{% url 'work_add' customer.id %}"
+           class="btn btn-primary rounded-pill px-4">
+            + Add Work
+        </a>
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table table-bordered align-middle">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Work</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                    <th width="260">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for w in works %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ w.title }}</strong>
+                    </td>
+
+                    <td>
+                        ₹ {{ w.total_amount }}
+                    </td>
+
+                    <td>
+                        {{ w.work_date }}
+                    </td>
+
+                    <td>
+
+                        <div class="d-flex gap-2 flex-wrap">
+
+                            <a href="{% url 'payment_list' w.id %}"
+                               class="btn btn-success btn-sm rounded-pill">
+                                Payments
+                            </a>
+
+                            <a href="{% url 'work_edit' w.id %}"
+                               class="btn btn-outline-primary btn-sm rounded-pill">
+                                ✏ Edit
+                            </a>
+
+                            <form method="post"
+                                  action="{% url 'work_delete' w.id %}"
+                                  onsubmit="return confirm('Delete this work?')">
+                                {% csrf_token %}
+
+                                <button class="btn btn-outline-danger btn-sm rounded-pill">
+                                    🗑 Delete
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+
+                    <td colspan="4" class="text-center text-muted">
+                        No works added
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

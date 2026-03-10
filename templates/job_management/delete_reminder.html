@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+
+<!-- Back Button -->
+<div class="mb-3">
+<a href="{% url 'reminders' %}" class="btn btn-secondary btn-sm">
+← Back
+</a>
+</div>
+
+<div class="row justify-content-center">
+<div class="col-12 col-md-8 col-lg-6">
+
+<div class="card shadow border-0 text-center p-4 delete-card">
+
+<h4 class="fw-bold text-danger mb-3">
+⚠ Delete Reminder
+</h4>
+
+<p>
+Are you sure you want to delete:
+</p>
+
+<h5 class="fw-bold">{{ r.title }}</h5>
+
+<p class="text-muted">
+📅 {{ r.reminder_date }}
+</p>
+
+<form method="POST">
+{% csrf_token %}
+
+<button class="btn btn-danger w-100 mb-2">
+Yes, Delete
+</button>
+
+<a href="{% url 'reminders' %}"
+class="btn btn-outline-dark w-100">
+Cancel
+</a>
+
+</form>
+
+</div>
+
+</div>
+</div>
+
+</div>
+
+<style>
+
+.delete-card{
+border-radius:18px;
+}
+
+/* Buttons */
+.btn{
+border-radius:10px;
+font-weight:600;
+}
+
+/* Mobile improvement */
+@media (max-width:576px){
+
+.delete-card{
+padding:25px;
+}
+
+h4{
+font-size:20px;
+}
+
+}
+
+</style>
+
+{% endblock %}

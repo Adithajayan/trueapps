@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid px-2 px-md-3 mt-4">
+
+<div class="card shadow p-4 rounded-4 col-md-6 mx-auto text-center">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+
+        <h4 class="fw-bold text-danger m-0">
+            Delete Opening Stock?
+        </h4>
+
+        <!-- Back Button -->
+        <a href="{% url 'opening_stock_history' %}" class="btn btn-outline-secondary rounded-pill px-3">
+            ← Back
+        </a>
+
+    </div>
+
+    <p>
+        {{ history.product.name }} — Qty {{ history.qty }}
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
+
+            <button class="btn btn-danger w-100">
+                Yes Delete
+            </button>
+
+            <a href="{% url 'opening_stock_history' %}" class="btn btn-secondary w-100">
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+{% endblock %}

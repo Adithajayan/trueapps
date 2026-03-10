@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.return-card { border-radius: 16px; }
+.batch-stock { color: #0d6efd; font-weight: bold; }
+.input-qty { width: 100px; text-align: center; margin: 0 auto; }
+</style>
+
+<div class="card shadow return-card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>🔙 Purchase Return (Inv: {{ purchase.invoice_no }})</h4>
+        <span class="badge bg-info text-dark">Supplier: {{ purchase.supplier.name }}</span>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Return Date</label>
+                <input type="date" name="return_date" class="form-control rounded-pill" value="{% now 'Y-m-d' %}" required>
+            </div>
+            <div class="col-md-9">
+                <label class="form-label fw-bold">Reason for Return</label>
+                <input type="text" name="reason" class="form-control rounded-pill" placeholder="Enter reason (e.g. Damaged goods)">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th>Purchased Qty</th>
+                        <th>In Stock (Batch)</th>
+                        <th>Rate</th>
+                        <th width="150">Return Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.qty }}</td>
+                        <td class="batch-stock">{{ item.quantity_at_hand }}</td>
+                        <td>₹ {{ item.rate }}</td>
+                        <td>
+                            <input type="hidden" name="item_id[]" value="{{ item.id }}">
+                            <input type="number" name="return_qty[]" 
+                                   class="form-control input-qty rounded-pill border-danger" 
+                                   min="0" max="{{ item.quantity_at_hand }}" step="0.01" value="0">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 text-end">
+            <a href="{% url 'purchase_list' %}" class="btn btn-outline-secondary rounded-pill me-2">Cancel</a>
+            <button type="submit" class="btn btn-danger rounded-pill px-4">Confirm Return</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

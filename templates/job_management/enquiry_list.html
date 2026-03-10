@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+
+        <div class="d-flex align-items-center gap-3">
+
+            <!-- BACK BUTTON -->
+            <a href="{% url 'job_dashboard' %}"
+               class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+               ← Back
+            </a>
+
+            <h3 class="fw-bold mb-0">🆕 Enquiry List</h3>
+
+        </div>
+
+        <a href="{% url 'add_enquiry' %}" class="btn btn-primary shadow-sm">
+            + New Enquiry
+        </a>
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+    <div class="row text-center mb-4 g-3">
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow border-0 p-3 summary-card">
+                <h6 class="text-muted">Total</h6>
+                <h2 class="fw-bold">{{ total_count }}</h2>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow border-0 p-3 summary-card">
+                <h6 class="text-warning">Pending</h6>
+                <h2 class="fw-bold text-warning">{{ pending_count }}</h2>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card shadow border-0 p-3 summary-card">
+                <h6 class="text-success">Finished</h6>
+                <h2 class="fw-bold text-success">{{ completed_count }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH -->
+    <form method="GET" class="mb-3">
+
+        {% if status_filter %}
+            <input type="hidden" name="status" value="{{ status_filter }}">
+        {% endif %}
+
+        <div class="input-group shadow-sm">
+            <input type="text"
+                   name="q"
+                   value="{{ search_query }}"
+                   class="form-control"
+                   placeholder="🔍 Search by name or place...">
+
+            <button class="btn btn-dark">Search</button>
+        </div>
+    </form>
+
+
+    <!-- FILTER BUTTONS -->
+    <div class="mb-4 d-flex flex-wrap gap-2">
+
+        <a href="{% url 'enquiry_list' %}"
+           class="btn {% if not status_filter %}btn-dark{% else %}btn-outline-dark{% endif %}">
+            All
+        </a>
+
+        <a href="?status=PENDING{% if search_query %}&q={{ search_query }}{% endif %}"
+           class="btn {% if status_filter == 'PENDING' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+            ⏳ Pending
+        </a>
+
+        <a href="?status=COMPLETED{% if search_query %}&q={{ search_query }}{% endif %}"
+           class="btn {% if status_filter == 'COMPLETED' %}btn-success{% else %}btn-outline-success{% endif %}">
+            ✅ Finished
+        </a>
+
+    </div>
+
+
+    <!-- ENQUIRY CARDS -->
+    <div class="row g-4">
+
+        {% for job in jobs %}
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+
+            <div class="card job-card border-0 shadow h-100
+                {% if job.date == today and job.status == 'PENDING' %}
+                    today-work
+                {% endif %}
+            ">
+
+                <div class="card-body">
+
+                    <h5 class="fw-bold">{{ job.name }}</h5>
+
+                    <p class="text-muted mb-1">
+                        📍 {{ job.place }}
+                    </p>
+
+                    <p class="text-muted">
+                        📅 {{ job.date }}
+                    </p>
+
+                    {% if job.status == "PENDING" %}
+                        <span class="badge bg-warning text-dark">
+                            Pending
+                        </span>
+                    {% else %}
+                        <span class="badge bg-success">
+                            Completed
+                        </span>
+                    {% endif %}
+
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="card-footer bg-white border-0">
+
+                    <a href="{% url 'toggle_status' job.id %}"
+                       class="btn btn-sm {% if job.status == 'PENDING' %}btn-success{% else %}btn-warning{% endif %} w-100 mb-2">
+
+                        {% if job.status == "PENDING" %}
+                            ✔ Mark Finished
+                        {% else %}
+                            ↩ Move to Pending
+                        {% endif %}
+                    </a>
+
+                    <a href="{% url 'edit_job' job.id %}"
+                       class="btn btn-outline-dark btn-sm w-100">
+                        ✏ Edit Details
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+            <div class="text-center mt-5">
+                <h5 class="text-muted">No enquiries found</h5>
+            </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<!-- PROFESSIONAL STYLE -->
+<style>
+
+.job-card{
+    border-radius:18px;
+    transition:0.3s;
+}
+
+.job-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 15px 35px rgba(0,0,0,0.15);
+}
+
+.summary-card{
+    border-radius:16px;
+}
+
+/* TODAY WORK ALERT */
+.today-work{
+    border:2px solid red !important;
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+    0%{box-shadow:0 0 0 rgba(255,0,0,0.6);}
+    50%{box-shadow:0 0 18px rgba(255,0,0,0.6);}
+    100%{box-shadow:0 0 0 rgba(255,0,0,0.6);}
+}
+
+/* MOBILE IMPROVEMENT */
+
+@media (max-width:576px){
+
+h3{
+font-size:22px;
+}
+
+.job-card{
+border-radius:16px;
+}
+
+}
+
+</style>
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+<!-- Back Button -->
+<div class="mb-3">
+<a href="{% url 'service_list' %}" class="btn btn-secondary btn-sm">
+← Back
+</a>
+</div>
+
+<div class="row justify-content-center">
+<div class="col-12 col-md-8 col-lg-6">
+
+<div class="card shadow-lg border-0 edit-service-card">
+<div class="card-body">
+
+<h4 class="fw-bold mb-3">✏ Edit Service</h4>
+
+<form method="POST">
+{% csrf_token %}
+
+<input name="name" value="{{ job.name }}" class="form-control mb-3">
+
+<input name="place" value="{{ job.place }}" class="form-control mb-3">
+
+<input type="date" name="date"
+value="{{ job.date|date:'Y-m-d' }}"
+class="form-control mb-3">
+
+<input type="date" name="next_date"
+value="{{ job.next_maintenance_date|date:'Y-m-d' }}"
+class="form-control mb-3">
+
+<button class="btn btn-success w-100">Update</button>
+
+</form>
+
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<style>
+
+.edit-service-card{
+border-radius:18px;
+}
+
+.form-control{
+border-radius:10px;
+}
+
+.btn{
+border-radius:10px;
+font-weight:600;
+}
+
+/* Mobile improvement */
+@media (max-width:576px){
+
+.card-body{
+padding:22px;
+}
+
+h4{
+font-size:20px;
+}
+
+}
+
+</style>
+
+{% endblock %}

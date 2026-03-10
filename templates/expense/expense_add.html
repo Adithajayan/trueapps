@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* FORM WRAPPER */
+.form-wrapper{
+    background:#fff;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* SELECT GRID */
+.select-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+}
+
+.select-item {
+    background: #1e1e2f;
+    color: #fff;
+    padding: 14px 8px;
+    border-radius: 14px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.25s;
+}
+
+.select-item.active {
+    border-color: #4fd1c5;
+    box-shadow: 0 0 0 2px rgba(79,209,197,.4);
+}
+
+.select-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+    .container{
+        padding-left:10px;
+        padding-right:10px;
+    }
+
+    .form-wrapper{
+        padding:18px;
+    }
+
+    .select-grid{
+        grid-template-columns: repeat(auto-fill, minmax(90px,1fr));
+        gap:8px;
+    }
+
+    .select-item{
+        font-size:13px;
+        padding:10px 6px;
+    }
+
+    .btn{
+        font-size:13px;
+        padding:8px 12px;
+    }
+
+}
+
+</style>
+
+<div class="container mt-4">
+
+<!-- BACK BUTTON -->
+<a href="{% url 'expense_home' %}" class="back-btn">
+    ← Back
+</a>
+
+<div class="form-wrapper">
+
+<h4>Add {{ expense_type.name }} Expense</h4>
+
+<form method="post">
+{% csrf_token %}
+
+<!-- DATE & AMOUNT -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label>Date</label>
+        <input type="date"
+               name="date"
+               class="form-control"
+               value="{{ today }}"
+               required>
+    </div>
+    <div class="col-md-6">
+        <label>Amount</label>
+        <input type="number"
+               name="amount"
+               class="form-control"
+               required>
+    </div>
+</div>
+
+<!-- CATEGORY (OPTIONAL) -->
+<div class="mb-3">
+    <div class="select-title">Category (optional)</div>
+    <div class="select-grid">
+        {% for cat in categories %}
+        <div class="select-item"
+             onclick="selectOne(this,'categoryInput')"
+             data-value="{{ cat.id }}">
+            {{ cat.name }}
+        </div>
+        {% endfor %}
+    </div>
+    <input type="hidden" name="category" id="categoryInput">
+</div>
+
+<!-- PARTNER (OPTIONAL) -->
+<div class="mb-3">
+    <div class="select-title">Paid By (optional)</div>
+    <div class="select-grid">
+        {% for p in partners %}
+        <div class="select-item"
+             onclick="selectOne(this,'partnerInput')"
+             data-value="{{ p.id }}">
+            {{ p.name }}
+        </div>
+        {% endfor %}
+    </div>
+    <input type="hidden" name="partner" id="partnerInput">
+</div>
+
+<!-- NOTE -->
+<div class="mb-3">
+    <label>Note</label>
+    <textarea name="note"
+              class="form-control"
+              rows="2"
+              required></textarea>
+</div>
+
+<!-- STATUS -->
+<div class="mb-3">
+    <label>Status</label>
+    <select name="status" class="form-select">
+        <option value="PAID">Paid</option>
+        <option value="PENDING">Pending</option>
+    </select>
+</div>
+
+<!-- ACTION -->
+<button class="btn btn-success">Save Expense</button>
+<a href="{% url 'expense_home' %}" class="btn btn-secondary">Cancel</a>
+
+</form>
+
+</div>
+</div>
+
+<script>
+function selectOne(el, inputId) {
+    const parent = el.parentElement;
+    parent.querySelectorAll('.select-item')
+          .forEach(i => i.classList.remove('active'));
+
+    el.classList.add('active');
+    document.getElementById(inputId).value = el.dataset.value;
+}
+</script>
+
+{% endblock %}

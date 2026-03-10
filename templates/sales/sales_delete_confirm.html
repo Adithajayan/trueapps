@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'sales_list' %}" class="btn btn-secondary btn-sm shadow-sm">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-4 col-md-5 col-sm-8 col-12">
+
+            <div class="card shadow-lg border-0 rounded-4">
+
+                <div class="card-body text-center p-4 p-md-5">
+
+                    <div class="mb-4">
+                        <i class="fa fa-exclamation-triangle text-danger"
+                           style="font-size:70px; opacity:0.2;"></i>
+                    </div>
+
+                    <h3 class="fw-bold text-dark mb-3">
+                        Confirm Delete?
+                    </h3>
+
+                    <p class="text-muted mb-4">
+                        Are you sure you want to delete invoice <br>
+
+                        <span class="badge bg-light text-primary border px-3 py-2 mt-2"
+                              style="font-size:1rem;">
+                            {{ sale.invoice_no }}
+                        </span>
+
+                    </p>
+
+                    <div class="alert alert-warning small border-0 py-2">
+                        <i class="fa fa-info-circle me-1"></i>
+                        Items in this invoice will be added back to stock.
+                    </div>
+
+                    <form method="post" class="mt-4">
+
+                        {% csrf_token %}
+
+                        <div class="d-grid gap-2">
+
+                            <button type="submit"
+                                    class="btn btn-danger btn-lg fw-bold shadow-sm">
+
+                                <i class="fa fa-trash-alt me-2"></i>
+                                Yes, Delete Now
+
+                            </button>
+
+                            <a href="{% url 'sales_list' %}"
+                               class="btn btn-light btn-lg text-secondary fw-semibold border">
+
+                                No, Keep Invoice
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

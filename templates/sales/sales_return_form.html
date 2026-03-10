@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'sales_list' %}" class="btn btn-secondary btn-sm shadow-sm">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="card shadow-lg border-0 rounded-3">
+
+        <div class="card-header bg-danger text-white p-3">
+            <h5 class="mb-0">
+                <i class="fa fa-undo-alt me-2"></i>
+                Sales Return: {{ sale.invoice_no }}
+            </h5>
+        </div>
+
+        <div class="card-body p-4">
+
+            <div class="row mb-4 bg-light p-3 rounded mx-1">
+
+                <div class="col-md-4 col-12 mb-2">
+                    <small class="text-muted d-block">Customer</small>
+                    <span class="fw-bold text-dark">
+                        {{ sale.customer.name }}
+                    </span>
+                </div>
+
+                <div class="col-md-4 col-12 mb-2">
+                    <small class="text-muted d-block">Original Invoice Date</small>
+                    <span class="fw-bold text-dark">
+                        {{ sale.date|date:"d-m-Y" }}
+                    </span>
+                </div>
+
+                <div class="col-md-4 col-12 text-md-end">
+                    <small class="text-muted d-block">Total Bill Amount</small>
+                    <h5 class="fw-bold text-primary mb-0">
+                        ₹ {{ sale.total_amount }}
+                    </h5>
+                </div>
+
+            </div>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered align-middle">
+
+                        <thead class="table-dark">
+
+                            <tr>
+                                <th>Product Name</th>
+                                <th class="text-center">Sold Qty</th>
+                                <th class="text-end">Rate</th>
+                                <th class="text-center" style="width:180px;">Return Qty</th>
+                                <th class="text-end">Return Total</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in items %}
+
+                            <tr class="item-row">
+
+                                <td>
+                                    {{ item.product.name }}
+
+                                    <input type="hidden"
+                                           name="product_id[]"
+                                           value="{{ item.product.id }}">
+                                </td>
+
+                                <td class="text-center fw-bold sold-qty">
+                                    {{ item.qty }}
+                                </td>
+
+                                <td class="text-end">
+
+                                    ₹ {{ item.selling_price }}
+
+                                    <input type="hidden"
+                                           name="rate[]"
+                                           value="{{ item.selling_price }}"
+                                           class="selling-price">
+
+                                </td>
+
+                                <td>
+
+                                    <input type="number"
+                                           name="return_qty[]"
+                                           class="form-control return-qty text-center border-danger"
+                                           min="0"
+                                           max="{{ item.qty }}"
+                                           value="0">
+
+                                    <small class="text-danger d-none validation-msg">
+                                        Cannot exceed sold qty!
+                                    </small>
+
+                                </td>
+
+                                <td class="text-end fw-bold text-danger">
+
+                                    ₹ <span class="row-total">0.00</span>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                        <tfoot>
+
+                            <tr class="table-light">
+
+                                <td colspan="4"
+                                    class="text-end fw-bold">
+
+                                    Total Return Value:
+
+                                </td>
+
+                                <td class="text-end fw-bold h5 text-danger">
+
+                                    ₹ <span id="grand-total">0.00</span>
+
+                                </td>
+
+                            </tr>
+
+                        </tfoot>
+
+                    </table>
+
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-between gap-2 mt-4">
+
+                    <a href="{% url 'sales_list' %}"
+                       class="btn btn-secondary px-4 shadow-sm">
+
+                        <i class="fa fa-times me-1"></i>
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger px-5 shadow-sm fw-bold">
+
+                        <i class="fa fa-check me-1"></i>
+                        Confirm & Process Return
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+// Live Calculation & Validation
+
+document.querySelectorAll('.return-qty').forEach(input => {
+
+input.addEventListener('input',function(){
+
+const row=this.closest('tr');
+
+const soldQty=parseInt(row.querySelector('.sold-qty').innerText);
+
+const returnQty=parseInt(this.value)||0;
+
+const price=parseFloat(row.querySelector('.selling-price').value);
+
+const validationMsg=row.querySelector('.validation-msg');
+
+if(returnQty>soldQty){
+
+this.classList.add('is-invalid');
+
+validationMsg.classList.remove('d-none');
+
+this.value=soldQty;
+
+}else{
+
+this.classList.remove('is-invalid');
+
+validationMsg.classList.add('d-none');
+
+}
+
+const updatedReturnQty=parseInt(this.value)||0;
+
+const rowTotal=updatedReturnQty*price;
+
+row.querySelector('.row-total').innerText=rowTotal.toFixed(2);
+
+calculateGrandTotal();
+
+});
+
+});
+
+function calculateGrandTotal(){
+
+let total=0;
+
+document.querySelectorAll('.row-total').forEach(span=>{
+
+total+=parseFloat(span.innerText);
+
+});
+
+document.getElementById('grand-total').innerText=total.toFixed(2);
+
+}
+
+</script>
+
+{% endblock %}

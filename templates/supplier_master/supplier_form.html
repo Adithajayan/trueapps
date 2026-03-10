@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card p-4 shadow rounded-4">
+
+    <h4 class="mb-3">
+        {% if supplier %}✏ Edit Supplier{% else %}➕ Add Supplier{% endif %}
+    </h4>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label>Name</label>
+                <input type="text" name="name"
+                       class="form-control"
+                       value="{{ supplier.name|default:'' }}" required>
+            </div>
+
+            <div class="col-md-6">
+                <label>Contact Number</label>
+                <input type="text" name="contact_number"
+                       class="form-control"
+                       value="{{ supplier.contact_number|default:'' }}" required>
+            </div>
+
+            <!-- 🔥 ADDRESS -->
+            <div class="col-md-12">
+                <label>Address</label>
+                <textarea name="address"
+                          class="form-control"
+                          rows="3"
+                          placeholder="Full supplier address">{{ supplier.address|default:'' }}</textarea>
+            </div>
+
+            <div class="col-md-6">
+                <label>Email</label>
+                <input type="email" name="email"
+                       class="form-control"
+                       value="{{ supplier.email|default:'' }}">
+            </div>
+
+            <div class="col-md-6">
+                <label>GSTIN / UDYAM</label>
+                <input type="text" name="gstin"
+                       class="form-control"
+                       value="{{ supplier.gstin|default:'' }}">
+            </div>
+
+            <div class="col-md-6">
+                <label>Opening Balance</label>
+                <input type="number" step="0.01"
+                       name="opening_balance"
+                       class="form-control"
+                       value="{{ supplier.opening_balance|default:0 }}">
+            </div>
+
+            <div class="col-md-6">
+                <label>Image</label>
+                <input type="file" name="image" class="form-control">
+            </div>
+
+        </div>
+
+        <button class="btn btn-primary mt-4 rounded-pill px-4">
+            Save
+        </button>
+
+        <a href="{% url 'supplier_master_list' %}"
+           class="btn btn-secondary mt-4">
+            Back
+        </a>
+
+    </form>
+</div>
+
+{% endblock %}

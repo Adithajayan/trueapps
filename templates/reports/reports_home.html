@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- ====== PAGE TITLE ====== -->
+<div class="container mt-4">
+
+    <!-- Title + Back Button -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+        <h2 class="fw-bold mb-0">📊 Reports Dashboard</h2>
+
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            ← Back
+        </a>
+
+    </div>
+
+    <hr>
+
+    <!-- ====== REPORT CARDS ====== -->
+    <div class="row g-4 mt-2">
+
+        <!-- Sales Report -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'sales_report' %}" class="report-card text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line report-icon text-primary"></i>
+                        <h5 class="mt-3">Sales Reports</h5>
+                        <p class="text-muted small">View sales performance & analytics</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Purchase Report -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'purchase_report' %}" class="report-card text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-box-open report-icon text-success"></i>
+                        <h5 class="mt-3">Purchase Reports</h5>
+                        <p class="text-muted small">Track purchase history</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Stock Report -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'low_stock_report' %}" class="report-card text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-warehouse report-icon text-warning"></i>
+                        <h5 class="mt-3">Stock Reports</h5>
+                        <p class="text-muted small">Monitor inventory status</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Profit Loss -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'profit_loss_report' %}" class="report-card text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-coins report-icon text-danger"></i>
+                        <h5 class="mt-3">Profit & Loss</h5>
+                        <p class="text-muted small">Financial summary overview</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Export Excel -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'export_all_excel' %}" class="report-card text-decoration-none">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-file-excel report-icon text-success"></i>
+                        <h5 class="mt-3">Export All Excel</h5>
+                        <p class="text-muted small">
+                            Download all reports in Excel
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Database Backup -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{% url 'manual_backup' %}" class="report-card text-decoration-none">
+                <div class="card shadow-sm border-0 h-100 border-top border-danger border-4">
+                    <div class="card-body text-center">
+                        <div class="mb-2">
+                            <i class="fas fa-database report-icon text-danger"></i>
+                        </div>
+                        <h5 class="mt-3">Database Backup</h5>
+                        <p class="text-muted small">
+                            Download full system SQLite database
+                        </p>
+                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">
+                            .sqlite3 format
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ====== CUSTOM CSS ====== -->
+<style>
+
+/* Card styling */
+.report-card .card {
+    border-radius: 15px;
+    transition: all 0.35s ease;
+    background: #ffffff;
+}
+
+/* Hover animation */
+.report-card:hover .card {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* Icon styling */
+.report-icon {
+    font-size: 45px;
+    transition: 0.3s;
+}
+
+/* Icon hover effect */
+.report-card:hover .report-icon {
+    transform: scale(1.15);
+}
+
+.card-body h5 {
+    font-weight: 600;
+}
+
+/* Mobile improvements */
+@media (max-width:768px){
+
+    h2{
+        font-size:20px;
+    }
+
+    .report-icon{
+        font-size:36px;
+    }
+
+}
+
+</style>
+
+<!-- ====== FONT AWESOME ICONS ====== -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+{% endblock %}

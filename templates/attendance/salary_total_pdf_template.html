@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<style>
+
+@page{
+size:A4;
+margin:20mm;
+}
+
+body{
+font-family:"Segoe UI",Arial,sans-serif;
+color:#222;
+margin:0;
+padding:0;
+}
+
+/* HEADER */
+
+.report-header{
+border-bottom:3px solid #111;
+padding-bottom:15px;
+margin-bottom:30px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.company-name{
+font-size:30px;
+font-weight:900;
+letter-spacing:1px;
+}
+
+.company-name .true{
+color:#000;
+}
+
+.company-name .bit{
+color:#e60023;
+}
+
+.report-title{
+text-align:right;
+}
+
+.report-title h2{
+margin:0;
+font-size:20px;
+font-weight:700;
+}
+
+.report-title p{
+margin-top:3px;
+font-size:13px;
+color:#555;
+}
+
+
+/* TABLE */
+
+.staff-table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+border:2px solid #111;
+}
+
+th{
+background:#111;
+color:#fff;
+font-size:12px;
+padding:12px;
+text-transform:uppercase;
+border:1px solid #111;
+}
+
+td{
+padding:11px;
+font-size:13px;
+border:1px solid #ccc;
+text-align:center;
+}
+
+.staff-name{
+text-align:left;
+font-weight:600;
+padding-left:15px;
+}
+
+tr:nth-child(even){
+background:#f1f1f1;
+}
+
+
+/* MONEY COLORS */
+
+.amt-red{
+color:#c62828;
+font-weight:700;
+}
+
+.amt-green{
+color:#1b5e20;
+font-weight:800;
+}
+
+
+/* HALF DAY BADGE */
+
+.half-badge{
+background:#ff9800;
+color:#fff;
+padding:3px 8px;
+border-radius:4px;
+font-weight:700;
+font-size:12px;
+}
+
+
+/* HALF DAY ROW HIGHLIGHT */
+
+.half-row{
+background:#fff4e5 !important;
+}
+
+
+/* SUMMARY */
+
+.summary-wrapper{
+margin-top:40px;
+}
+
+.summary-table{
+width:320px;
+margin-left:auto;
+}
+
+.summary-table td{
+padding:7px 0;
+border:none;
+}
+
+.summary-label{
+text-align:left;
+color:#444;
+}
+
+.summary-value{
+text-align:right;
+font-weight:600;
+}
+
+
+/* GROSS SALARY BIGGER */
+
+.gross{
+font-size:16px;
+font-weight:700;
+}
+
+
+/* TOTAL */
+
+.grand-total-row td{
+border-top:2px solid #111;
+padding-top:12px;
+}
+
+.total-label{
+font-size:18px;
+font-weight:800;
+}
+
+.total-amount{
+font-size:22px;
+font-weight:900;
+color:#1b5e20;
+}
+
+
+/* FOOTER */
+
+.footer{
+position:fixed;
+bottom:0;
+width:100%;
+text-align:center;
+font-size:10px;
+color:#888;
+border-top:1px solid #eee;
+padding-top:5px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="report-header">
+
+<div class="company-name">
+<span class="true">TRUE</span><span class="bit">BIT</span>
+</div>
+
+<div class="report-title">
+<h2>Monthly Salary Report</h2>
+<p>{{ month_name }} {{ year }}</p>
+</div>
+
+</div>
+
+
+
+<table class="staff-table">
+
+<thead>
+<tr>
+<th style="text-align:left;padding-left:15px;">Staff Member</th>
+<th>Present</th>
+<th>Half Day</th>
+<th>Advance Deducted</th>
+<th>Final Salary</th>
+</tr>
+</thead>
+
+
+<tbody>
+
+{% for r in rows %}
+
+<tr class="{% if r.half > 0 %}half-row{% endif %}">
+
+<td class="staff-name">{{ r.staff.name }}</td>
+
+<td>{{ r.present }}</td>
+
+<td>
+{% if r.half > 0 %}
+<span class="half-badge">{{ r.half }}</span>
+{% else %}
+{{ r.half }}
+{% endif %}
+</td>
+
+<td class="amt-red">₹ {{ r.advance }}</td>
+
+<td class="amt-green">₹ {{ r.salary }}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+
+
+<div class="summary-wrapper">
+
+<table class="summary-table">
+
+<tr>
+<td class="summary-label gross">Gross Salary Pool:</td>
+<td class="summary-value gross">₹ {{ total_actual_salary }}</td>
+</tr>
+
+<tr>
+<td class="summary-label" style="color:#c62828;">Total Advance (-)</td>
+<td class="summary-value" style="color:#c62828;">₹ {{ total_advance_given }}</td>
+</tr>
+
+<tr class="grand-total-row">
+<td class="total-label">Net Payable</td>
+<td class="total-amount">₹ {{ grand_total }}</td>
+</tr>
+
+</table>
+
+</div>
+
+
+
+<div class="footer">
+Generated on {% now "F j, Y, g:i a" %} | TRUEBIT Technologies & Inventions Pvt. Ltd.
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card p-4 shadow col-md-5 mx-auto text-center">
+
+    <h5>Delete customer?</h5>
+    <p class="fw-bold text-danger">{{ customer.name }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger">Yes Delete</button>
+        <a href="{% url 'customers_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+
+</div>
+
+{% endblock %}

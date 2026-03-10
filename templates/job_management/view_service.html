@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+<!-- PAGE HEADER -->
+<div class="d-flex align-items-center gap-3 mb-4">
+
+<a href="{% url 'job_dashboard' %}"
+class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+← Back
+</a>
+
+<h3 class="fw-bold mb-0">👁 Service Details</h3>
+
+</div>
+
+
+<div class="card shadow border-0 p-4 service-details-card">
+
+<div class="row g-4">
+
+<div class="col-12 col-md-6">
+<label class="text-muted">Customer Name</label>
+<h5>{{ service.name }}</h5>
+</div>
+
+<div class="col-12 col-md-6">
+<label class="text-muted">Place</label>
+<h5>{{ service.place }}</h5>
+</div>
+
+<div class="col-12 col-md-6">
+<label class="text-muted">Service Date</label>
+<h5>{{ service.date }}</h5>
+</div>
+
+<div class="col-12 col-md-6">
+<label class="text-muted">Next Maintenance</label>
+<h5>{{ service.next_maintenance_date }}</h5>
+</div>
+
+<div class="col-12 col-md-6">
+<label class="text-muted">Status</label><br>
+
+{% if service.status == "COMPLETED" %}
+<span class="badge bg-success fs-6">Completed</span>
+{% else %}
+<span class="badge bg-warning text-dark fs-6">Pending</span>
+{% endif %}
+
+</div>
+
+</div>
+
+<hr>
+
+<div class="d-flex flex-column flex-sm-row gap-2">
+
+<a href="{% url 'edit_service' service.id %}" class="btn btn-primary w-100">
+✏ Edit
+</a>
+
+<a href="{% url 'delete_service' service.id %}" class="btn btn-danger w-100">
+🗑 Delete
+</a>
+
+</div>
+
+</div>
+</div>
+
+<style>
+
+.service-details-card{
+border-radius:16px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+h3{
+font-size:22px;
+}
+
+}
+
+</style>
+
+{% endblock %}

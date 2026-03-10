@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+<!-- Back Button -->
+<div class="mb-3">
+<a href="{% url 'service_list' %}" class="btn btn-secondary btn-sm">
+← Back
+</a>
+</div>
+
+<h3 class="fw-bold mb-4">🔔 Upcoming Service Reminders</h3>
+
+<div class="row g-3">
+
+{% for job in reminders %}
+<div class="col-12 col-md-6 col-lg-4">
+
+<div class="card shadow border-0 reminder-card p-3 h-100">
+
+<h5 class="fw-bold">{{ job.name }}</h5>
+
+<p class="text-muted mb-1">
+📍 {{ job.place }}
+</p>
+
+<p class="mb-0">
+🛠 Service Date:
+<strong class="text-danger">
+{{ job.next_maintenance_date }}
+</strong>
+</p>
+
+</div>
+
+</div>
+
+{% empty %}
+<div class="col-12">
+<p class="text-muted text-center">No upcoming reminders.</p>
+</div>
+{% endfor %}
+
+</div>
+
+</div>
+
+<style>
+
+.reminder-card{
+border-radius:16px;
+transition:.3s;
+}
+
+.reminder-card:hover{
+transform:translateY(-5px);
+box-shadow:0 15px 30px rgba(0,0,0,.15);
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+h3{
+font-size:22px;
+}
+
+}
+
+</style>
+
+{% endblock %}

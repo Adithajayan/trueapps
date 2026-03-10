@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- 🔙 Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'purchase_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            ← Back
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7 col-sm-12">
+
+            <div class="card p-4 shadow rounded-4 border-0">
+
+                <h4 class="mb-3">🧾 Purchase Invoice Settings</h4>
+
+                <!-- ✅ RESPONSE MESSAGE -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success mt-2">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <label class="fw-semibold">Invoice Prefix</label>
+
+                    <input type="text"
+                           name="purchase_prefix"
+                           value="{{ settings.purchase_prefix }}"
+                           class="form-control mt-1"
+                           required>
+
+                    <small class="text-muted">
+                        Example: TBT-PUR, TBT-PRC
+                    </small>
+
+                    <button class="btn btn-success mt-3 w-100">
+                        💾 Save Prefix
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

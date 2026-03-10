@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.purchase-card {
+    border-radius: 16px;
+    border: none;
+}
+
+/* FILTER SECTION STYLES */
+.filter-box {
+    background: #fdfdfd;
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.filter-input {
+    border-radius: 8px;
+    border: 1px solid #d1d9e6;
+    padding: 8px 12px;
+}
+
+.filter-input:focus {
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    border-color: #0d6efd;
+}
+
+/* ACTION BUTTONS */
+.action-group {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+.action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: .2s;
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+.btn-view   { background: #e7f1ff; color: #0d6efd; }
+.btn-edit   { background: #fff3cd; color: #f39c12; }
+.btn-print  { background: #e6f4ea; color: #198754; }
+.btn-save   { background: #e8e3ff; color: #6f42c1; }
+.btn-delete { background: #fdecea; color: #dc3545; }
+.btn-return { background: #ffe8d6; color: #d35400; }
+
+.action-btn i {
+    pointer-events: none;
+}
+
+/* MOBILE RESPONSIVE IMPROVEMENTS */
+@media (max-width:768px){
+
+    .purchase-card{
+        padding:18px !important;
+    }
+
+    h4{
+        font-size:18px;
+    }
+
+    .filter-box{
+        padding:16px;
+    }
+
+    .action-group{
+        flex-wrap:wrap;
+    }
+
+}
+</style>
+
+<div class="container-fluid px-2 px-md-3">
+
+<div class="card shadow purchase-card p-4">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+
+        <h4 class="fw-bold m-0">📦 Purchase List</h4>
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a href="{% url 'purchase_return_list' %}" class="btn btn-outline-danger rounded-pill">
+                🔄 Return List
+            </a>
+
+<!--            <a href="{% url 'invoice_settings' %}" class="btn btn-outline-secondary rounded-pill">-->
+<!--                ⚙ Invoice Prefix-->
+<!--            </a>-->
+
+            <a href="{% url 'purchase_add' %}" class="btn btn-primary rounded-pill px-4">
+                ➕ Add Purchase
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="filter-box shadow-sm">
+
+        <form method="GET" action="{% url 'purchase_list' %}" class="row g-3 align-items-end">
+
+            <div class="col-12 col-md-4">
+
+                <label class="form-label small fw-bold text-muted">Search</label>
+
+                <input type="text"
+                       name="q"
+                       class="form-control filter-input"
+                       placeholder="Invoice No or Supplier Name..."
+                       value="{{ query }}">
+
+            </div>
+
+            <div class="col-6 col-md-2">
+
+                <label class="form-label small fw-bold text-muted">From Date</label>
+
+                <input type="date"
+                       name="start_date"
+                       class="form-control filter-input"
+                       value="{{ start_date }}">
+
+            </div>
+
+            <div class="col-6 col-md-2">
+
+                <label class="form-label small fw-bold text-muted">To Date</label>
+
+                <input type="date"
+                       name="end_date"
+                       class="form-control filter-input"
+                       value="{{ end_date }}">
+
+            </div>
+
+            <div class="col-12 col-md-4 d-flex gap-2">
+
+                <button type="submit"
+                        class="btn btn-dark rounded-pill flex-grow-1">
+
+                    🔍 Filter
+
+                </button>
+
+                <a href="{% url 'purchase_list' %}"
+                   class="btn btn-light border rounded-pill flex-grow-1">
+
+                    🧹 Clear
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle text-center border">
+
+            <thead class="table-light">
+
+                <tr class="text-secondary">
+
+                    <th>No</th>
+                    <th>Invoice</th>
+                    <th>Supplier</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th width="260">Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for p in purchases %}
+
+                <tr>
+
+                    <td>{{ forloop.counter }}</td>
+
+                    <td class="fw-bold text-primary">
+                        {{ p.invoice_no }}
+                    </td>
+
+                    <td>
+                        {{ p.supplier.name }}
+                    </td>
+
+                    <td class="text-muted">
+                        {{ p.purchase_date }}
+                    </td>
+
+                    <td class="fw-bold text-success">
+                        ₹ {{ p.total_amount }}
+                    </td>
+
+                    <td>
+
+                        <div class="action-group">
+
+                            <a href="{% url 'purchase_return_add' p.id %}"
+                               class="action-btn btn-return"
+                               title="Return Purchase">↩</a>
+
+                            <a href="{% url 'purchase_print' p.id %}"
+                               target="_blank"
+                               class="action-btn btn-view"
+                               title="View">👁</a>
+
+                            <a href="{% url 'purchase_print' p.id %}"
+                               target="_blank"
+                               class="action-btn btn-print"
+                               title="Print">🖨</a>
+
+                            <a href="{% url 'purchase_pdf' p.id %}"
+                               class="action-btn btn-save"
+                               title="Save PDF">💾</a>
+
+                            <a href="{% url 'purchase_edit' p.id %}"
+                               class="action-btn btn-edit"
+                               title="Edit">✏</a>
+
+                            <a href="{% url 'purchase_delete' p.id %}"
+                               class="action-btn btn-delete"
+                               title="Delete">🗑</a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="6" class="py-4 text-muted">
+                        No purchases found matching your criteria.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</div>
+
+{% endblock %}

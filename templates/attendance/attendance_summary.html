@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:8px 18px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+
+/* ===== PAGE TITLE ===== */
+.page-title{
+    font-weight:700;
+    margin-bottom:25px;
+    letter-spacing:.5px;
+}
+
+/* ===== WRAPPER CARD ===== */
+.summary-wrapper{
+    background:#ffffff;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 12px 28px rgba(0,0,0,0.07);
+    overflow-x:auto;
+}
+
+/* ===== TABLE ===== */
+.summary-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    min-width:700px;
+}
+
+/* HEADER */
+.summary-table thead{
+    background:linear-gradient(90deg,#111827,#1f2937);
+    color:white;
+}
+
+.summary-table th{
+    padding:15px;
+    font-size:14px;
+    border:none;
+}
+
+/* CELLS */
+.summary-table td{
+    padding:14px;
+    border-bottom:1px solid #eef2f7;
+    transition:.25s;
+}
+
+/* ROW HOVER */
+.summary-table tbody tr:hover{
+    background:#f9fafb;
+}
+
+/* STAFF NAME */
+.staff-name{
+    font-weight:600;
+    color:#111827;
+}
+
+/* STATUS BOX */
+.status{
+    padding:6px 14px;
+    border-radius:25px;
+    font-size:13px;
+    font-weight:600;
+    display:inline-block;
+}
+
+.present{
+    background:#e7f8ee;
+    color:#16a34a;
+}
+
+.absent{
+    background:#fdecec;
+    color:#dc2626;
+}
+
+.half{
+    background:#e8f0ff;
+    color:#2563eb;
+}
+
+.advance{
+    background:#fff5e6;
+    color:#f59e0b;
+}
+
+/* SALARY */
+.salary{
+    font-weight:700;
+    font-size:16px;
+    color:#111;
+}
+
+/* PDF BUTTON */
+.pdf-btn{
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    border:none;
+    border-radius:30px;
+    padding:7px 16px;
+    font-size:13px;
+    transition:.3s;
+}
+
+.pdf-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+
+    .page-title{
+        font-size:18px;
+    }
+
+    .summary-table th,
+    .summary-table td{
+        padding:10px;
+        font-size:13px;
+    }
+
+    .pdf-btn{
+        padding:6px 12px;
+        font-size:12px;
+    }
+
+    .back-btn{
+        font-size:13px;
+        padding:7px 14px;
+    }
+
+}
+
+</style>
+
+
+<!-- BACK BUTTON -->
+<a href="javascript:history.back()" class="back-btn">
+    ← Back
+</a>
+
+
+<h4 class="page-title">
+    📊 Attendance Summary - {{ month }}/{{ year }}
+</h4>
+
+<div class="summary-wrapper">
+
+<table class="summary-table">
+
+<thead>
+<tr>
+    <th>Staff Name</th>
+    <th>Present</th>
+    <th>Absent</th>
+    <th>Half Day</th>
+    <th>Advance</th>
+    <th>Salary</th>
+    <th>Salary Slip</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for row in summary_data %}
+<tr>
+
+<td class="staff-name">
+    👤 {{ row.staff.name }}
+</td>
+
+<td>
+    <span class="status present">
+        ✅ {{ row.present }}
+    </span>
+</td>
+
+<td>
+    <span class="status absent">
+        ❌ {{ row.absent }}
+    </span>
+</td>
+
+<td>
+    <span class="status half">
+        🌓 {{ row.halfday }}
+    </span>
+</td>
+
+<td>
+    <span class="status advance">
+        💰 ₹ {{ row.advance }}
+    </span>
+</td>
+
+<td class="salary">
+    ₹ {{ row.salary }}
+</td>
+
+<td>
+    <a href="{% url 'staff_salary_pdf' row.staff.id %}?month={{month}}&year={{year}}"
+       class="btn pdf-btn">
+       📄 Download
+    </a>
+</td>
+
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

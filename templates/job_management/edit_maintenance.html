@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+<!-- Back Button -->
+<div class="mb-3">
+<a href="{% url 'maintenance_list' %}" class="btn btn-secondary btn-sm">
+← Back
+</a>
+</div>
+
+<div class="row justify-content-center">
+<div class="col-12 col-md-10 col-lg-6">
+
+<div class="card shadow-lg border-0">
+
+<div class="card-body">
+
+<h4 class="fw-bold mb-4">
+🛠 Edit Maintenance Work
+</h4>
+
+<form method="POST">
+{% csrf_token %}
+
+<!-- NAME -->
+<div class="mb-3">
+<label class="form-label">Customer Name</label>
+<input type="text"
+       name="name"
+       value="{{ job.name }}"
+       class="form-control"
+       required>
+</div>
+
+<!-- PLACE -->
+<div class="mb-3">
+<label class="form-label">Place</label>
+<input type="text"
+       name="place"
+       value="{{ job.place }}"
+       class="form-control"
+       required>
+</div>
+
+<!-- DATE -->
+<div class="mb-3">
+<label class="form-label">Maintenance Date</label>
+<input type="date"
+       name="date"
+       value="{{ job.date|date:'Y-m-d' }}"
+       class="form-control"
+       required>
+</div>
+
+<!-- DETAILS -->
+<div class="mb-3">
+<label class="form-label">Maintenance Details</label>
+<textarea name="details"
+          rows="4"
+          class="form-control">{{ job.maintenance_details }}</textarea>
+</div>
+
+<!-- BUTTONS -->
+<div class="d-flex flex-column flex-sm-row gap-2">
+
+<button type="submit"
+        class="btn btn-warning w-100">
+    💾 Update Maintenance
+</button>
+
+<a href="{% url 'maintenance_list' %}"
+   class="btn btn-outline-dark w-100">
+    Cancel
+</a>
+
+</div>
+
+</form>
+
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<style>
+
+.card{
+    border-radius:16px;
+}
+
+.form-control{
+border-radius:10px;
+}
+
+.btn{
+border-radius:10px;
+font-weight:600;
+}
+
+/* Mobile improvement */
+@media (max-width:576px){
+
+.card-body{
+padding:22px;
+}
+
+h4{
+font-size:20px;
+}
+
+}
+
+</style>
+
+{% endblock %}

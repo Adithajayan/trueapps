@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* Mobile improvements */
+@media (max-width:768px){
+
+    h3{
+        font-size:20px;
+    }
+
+    .card h4{
+        font-size:18px;
+    }
+
+}
+
+/* Back button style */
+.back-btn{
+    border-radius:8px;
+    padding:6px 14px;
+}
+
+</style>
+
+<div class="container-fluid">
+
+<!-- TITLE + BACK BUTTON -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+<h3 class="fw-bold mb-0">📊 Sales Report</h3>
+
+<a href="{% url 'reports_home' %}" class="btn btn-outline-secondary back-btn">
+← Back
+</a>
+
+</div>
+
+<!-- FILTER -->
+<div class="card shadow-sm mb-4">
+<div class="card-body">
+
+<form method="get" class="row g-3">
+
+<div class="col-md-3">
+<label>From Date</label>
+<input type="date" name="from_date" class="form-control">
+</div>
+
+<div class="col-md-3">
+<label>To Date</label>
+<input type="date" name="to_date" class="form-control">
+</div>
+
+<div class="col-md-3">
+<label>Sale Type</label>
+<select name="sale_type" class="form-select">
+<option value="ALL">All</option>
+<option value="B2B">B2B</option>
+<option value="B2C">B2C</option>
+</select>
+</div>
+
+<div class="col-md-3 d-grid">
+
+<button class="btn btn-primary mt-4">
+View Report
+</button>
+
+<a href="{% url 'sales_report_pdf' %}?from_date={{ request.GET.from_date }}&to_date={{ request.GET.to_date }}&sale_type={{ request.GET.sale_type }}"
+class="btn btn-danger mt-2">
+Download PDF
+</a>
+
+</div>
+
+</form>
+
+</div>
+</div>
+
+
+<!-- SUMMARY CARDS -->
+<div class="row mb-4">
+
+<div class="col-lg-3 col-md-6 mb-3">
+<div class="card shadow border-0">
+<div class="card-body">
+<h6 class="text-muted">Total Sales</h6>
+<h4 class="text-success fw-bold">
+₹ {{ total_sales|floatformat:2 }}
+</h4>
+</div>
+</div>
+</div>
+
+<div class="col-lg-3 col-md-6 mb-3">
+<div class="card shadow border-0">
+<div class="card-body">
+<h6 class="text-muted">Total Profit</h6>
+<h4 class="text-danger fw-bold">
+₹ {{ total_profit|floatformat:2 }}
+</h4>
+</div>
+</div>
+</div>
+
+<div class="col-lg-3 col-md-6 mb-3">
+<div class="card shadow border-0">
+<div class="card-body">
+<h6 class="text-muted">Invoices</h6>
+<h4 class="fw-bold">
+{{ invoice_count }}
+</h4>
+</div>
+</div>
+</div>
+
+<div class="col-lg-3 col-md-6 mb-3">
+<div class="card shadow border-0">
+<div class="card-body">
+<h6 class="text-muted">Average Bill</h6>
+<h4 class="text-primary fw-bold">
+₹ {{ avg_bill|floatformat:2 }}
+</h4>
+</div>
+</div>
+</div>
+
+</div>
+
+
+<!-- SALES TABLE -->
+<div class="card shadow-sm mb-4">
+<div class="card-body">
+
+<div class="table-responsive">
+
+<table class="table table-hover align-middle">
+
+<thead class="table-dark">
+<tr>
+<th>Invoice</th>
+<th>Date</th>
+<th>Customer</th>
+<th>Type</th>
+<th class="text-end">Amount</th>
+<th class="text-end">Profit</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for sale in sales %}
+<tr>
+
+<td class="fw-semibold">{{ sale.invoice_no }}</td>
+<td>{{ sale.date }}</td>
+<td>{{ sale.customer.name }}</td>
+
+<td>
+{% if sale.sale_type == "B2B" %}
+<span class="badge bg-warning text-dark">B2B</span>
+{% else %}
+<span class="badge bg-success">B2C</span>
+{% endif %}
+</td>
+
+<td class="text-end fw-bold">
+₹ {{ sale.total_amount|floatformat:2 }}
+</td>
+
+<td class="text-end text-success fw-bold">
+₹ {{ sale.total_profit|floatformat:2 }}
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="6" class="text-center text-muted">
+No Sales Found
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+</div>
+
+
+<!-- SMALL ANALYTICS GRAPHS -->
+<div class="row">
+
+<div class="col-lg-4 mb-4">
+<div class="card shadow-sm">
+<div class="card-body">
+<h6>📈 Daily Sales</h6>
+<canvas id="salesChart" style="max-height:220px;"></canvas>
+</div>
+</div>
+</div>
+
+<div class="col-lg-4 mb-4">
+<div class="card shadow-sm">
+<div class="card-body">
+<h6>🔥 Top Products</h6>
+<canvas id="productChart" style="max-height:220px;"></canvas>
+</div>
+</div>
+</div>
+
+<div class="col-lg-4 mb-4">
+<div class="card shadow-sm">
+<div class="card-body">
+<h6>👥 Customer Sales</h6>
+<canvas id="customerChart" style="max-height:220px;"></canvas>
+</div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+new Chart(document.getElementById('salesChart'), {
+type: 'line',
+data: {
+labels: {{ graph_labels|safe }},
+datasets: [{
+data: {{ graph_values|safe }},
+borderWidth: 2,
+tension: 0.4,
+fill: true
+}]
+},
+options: { responsive:true, maintainAspectRatio:false }
+});
+
+new Chart(document.getElementById('productChart'), {
+type: 'bar',
+data: {
+labels: {{ product_labels|safe }},
+datasets: [{
+data: {{ product_values|safe }},
+borderWidth: 2
+}]
+},
+options: { responsive:true, maintainAspectRatio:false }
+});
+
+new Chart(document.getElementById('customerChart'), {
+type: 'doughnut',
+data: {
+labels: {{ customer_labels|safe }},
+datasets: [{
+data: {{ customer_values|safe }}
+}]
+},
+options: { responsive:true, maintainAspectRatio:false }
+});
+
+</script>
+
+{% endblock %}

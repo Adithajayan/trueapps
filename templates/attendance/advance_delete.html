@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* CARD RESPONSIVE FIX */
+.delete-card{
+    max-width:600px;
+}
+
+/* MOBILE RESPONSIVE */
+@media(max-width:768px){
+
+    .delete-card{
+        margin-top:20px !important;
+    }
+
+    .delete-card .card-body{
+        padding:18px;
+    }
+
+    .delete-card p{
+        font-size:14px;
+    }
+
+    .delete-card .list-group-item{
+        font-size:14px;
+    }
+
+    .delete-card .btn{
+        width:100%;
+        margin-bottom:10px;
+    }
+
+    .delete-card .btn + .btn{
+        margin-left:0 !important;
+    }
+
+}
+
+</style>
+
+<div class="card shadow-sm col-md-6 mx-auto mt-5 delete-card">
+
+    <div class="card-header bg-danger text-white">
+        Confirm Delete
+    </div>
+
+    <div class="card-body">
+
+        <p>
+            Are you sure you want to delete this advance?
+        </p>
+
+        <ul class="list-group mb-3">
+            <li class="list-group-item">
+                <strong>Staff:</strong> {{ adv.staff.name }}
+            </li>
+            <li class="list-group-item">
+                <strong>Date:</strong> {{ adv.date }}
+            </li>
+            <li class="list-group-item">
+                <strong>Amount:</strong> ₹ {{ adv.amount }}
+            </li>
+            <li class="list-group-item">
+                <strong>Mode:</strong> {{ adv.payment_mode }}
+            </li>
+        </ul>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <button type="submit" class="btn btn-danger">
+                Yes, Delete
+            </button>
+
+            <a href="{% url 'advance_list' %}"
+               class="btn btn-secondary ms-2">
+               Cancel
+            </a>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

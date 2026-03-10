@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card shadow p-4 rounded-4 col-md-6 mx-auto">
+
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <a href="{% url 'customer_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
+        <h4 class="mb-0">
+            {% if customer %}✏ Edit{% else %}➕ Add{% endif %} Customer
+        </h4>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger border border-danger rounded-3 shadow-sm mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa fa-circle-exclamation fa-lg"></i>
+                    <strong>Warning</strong>
+                </div>
+                <div class="mt-1">
+                    {{ message }}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="fw-semibold">Name</label>
+            <input type="text"
+                   name="name"
+                   class="form-control {% if messages %}border-danger{% endif %}"
+                   value="{{ customer.name|default:'' }}"
+                   required>
+
+            {% if messages %}
+                <small class="text-danger fw-semibold">
+                    Please add a second name (eg: ABC K, ABC TP)
+                </small>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="fw-semibold">Phone</label>
+            <input type="text"
+                   name="phone"
+                   class="form-control"
+                   value="{{ customer.phone|default:'' }}">
+        </div>
+
+        <div class="mb-3">
+            <label class="fw-semibold">Place</label>
+            <input type="text"
+                   name="place"
+                   class="form-control"
+                   value="{{ customer.place|default:'' }}">
+        </div>
+
+        <button class="btn btn-success w-100 py-2 fw-semibold">
+            Save
+        </button>
+    </form>
+
+</div>
+
+{% endblock %}

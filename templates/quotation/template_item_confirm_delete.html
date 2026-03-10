@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- BACK BUTTON -->
+<div class="mb-3">
+    <a href="{% url 'template_items' item.template.id %}" class="btn btn-outline-secondary btn-sm">
+        ← Back
+    </a>
+</div>
+
+<div class="container mt-4 text-center">
+
+    <div class="row justify-content-center">
+
+        <div class="col-12 col-md-6 col-lg-5">
+
+            <div class="card shadow border-danger">
+
+                <div class="card-body py-4 py-md-5">
+
+                    <h3 class="text-danger">⚠️ Remove Item?</h3>
+
+                    <p class="mt-3">
+                        Sathyamayum <strong>"{{ item.product.name }}"</strong>
+                        ee template-il ninnu remove cheyyano?
+                    </p>
+
+                    <form method="post" class="mt-4 d-flex flex-column flex-sm-row justify-content-center gap-2">
+                        {% csrf_token %}
+
+                        <button type="submit" class="btn btn-danger px-4 px-md-5">
+                            Yes, Remove
+                        </button>
+
+                        <a href="{% url 'template_items' item.template.id %}"
+                           class="btn btn-light border px-4 px-md-5">
+                           Cancel
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

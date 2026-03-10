@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card p-4 shadow-sm" style="max-width:500px">
+
+    <h4 class="mb-3">➕ Add Supplier</h4>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>Supplier Name</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Phone</label>
+            <input type="text" name="phone" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Address</label>
+            <textarea name="address" class="form-control"></textarea>
+        </div>
+
+        <button class="btn btn-success">Save Supplier</button>
+        <a href="{% url 'supplier_list' %}" class="btn btn-secondary">Back</a>
+
+    </form>
+
+</div>
+
+{% endblock %}

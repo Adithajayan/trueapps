@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'sales_profit' %}" class="btn btn-secondary btn-sm shadow-sm">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-primary text-white d-flex flex-wrap justify-content-between align-items-center">
+            <h5 class="mb-0">Profit Breakdown : {{ sale.invoice_no }}</h5>
+            <span class="badge bg-light text-primary mt-2 mt-md-0">FIFO Method</span>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered align-middle">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th>Product (Batch-wise)</th>
+                            <th class="text-center">Sold Qty</th>
+                            <th class="text-center">Returned</th>
+                            <th class="text-center">Net Qty</th>
+                            <th class="text-end">Sales Rate</th>
+                            <th class="text-end">Purchase Rate</th>
+                            <th class="text-end">Actual Profit</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for row in batch_data %}
+
+                        <tr class="{% if row.is_returned %}table-warning{% endif %}">
+
+                            <td>
+                                <strong>{{ row.product_name }}</strong>
+
+                                {% if row.is_returned %}
+                                <span class="badge bg-danger ms-2" style="font-size:0.7rem;">
+                                    Adjusted
+                                </span>
+                                {% endif %}
+
+                            </td>
+
+                            <td class="text-center">
+                                {{ row.sold_qty|floatformat:0 }}
+                            </td>
+
+                            <td class="text-center text-danger">
+                                {{ row.returned_qty }}
+                            </td>
+
+                            <td class="text-center fw-bold">
+                                {{ row.net_qty }}
+                            </td>
+
+                            <td class="text-end">
+                                ₹ {{ row.selling_rate }}
+                            </td>
+
+                            <td class="text-end text-primary fw-bold">
+                                ₹ {{ row.purchase_rate }}
+                            </td>
+
+                            <td class="text-end fw-bold text-success">
+                                ₹ {{ row.profit|floatformat:2 }}
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                No data found
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                    <tfoot class="table-light fw-bold">
+
+                        <tr>
+                            <td colspan="6" class="text-end">
+                                Total Invoice Profit:
+                            </td>
+
+                            <td class="text-end text-success" style="font-size:1.2rem;">
+                                ₹ {{ total_invoice_profit|floatformat:2 }}
+                            </td>
+
+                        </tr>
+
+                    </tfoot>
+
+                </table>
+
+            </div>
+
+            <div class="mt-4">
+
+                <a href="{% url 'sales_profit' %}" class="btn btn-secondary px-4">
+                    <i class="fa fa-arrow-left me-2"></i>
+                    Back to Reports
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

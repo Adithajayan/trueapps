@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+<!-- BACK BUTTON -->
+<div class="mb-3">
+<a href="{% url 'job_dashboard' %}" class="btn btn-secondary btn-sm">
+← Back
+</a>
+</div>
+
+<div class="row justify-content-center">
+<div class="col-12 col-md-10 col-lg-6">
+
+<div class="card shadow-lg border-0 enquiry-card">
+
+<div class="card-body">
+
+<h3 class="fw-bold mb-4 text-center">
+🆕 New Enquiry
+</h3>
+
+<form method="POST">
+{% csrf_token %}
+
+<!-- NAME -->
+<div class="mb-3">
+<label class="form-label fw-semibold">Customer Name</label>
+<input type="text"
+       name="name"
+       class="form-control"
+       required>
+</div>
+
+<!-- PLACE -->
+<div class="mb-3">
+<label class="form-label fw-semibold">Place</label>
+<input type="text"
+       name="place"
+       class="form-control"
+       required>
+</div>
+
+<!-- CARE OF -->
+<div class="mb-3">
+<label class="form-label fw-semibold">Care Of</label>
+<input type="text"
+       name="care_of"
+       class="form-control">
+</div>
+
+<!-- DATE -->
+<div class="mb-3">
+<label class="form-label fw-semibold">Date</label>
+<input type="date"
+       name="date"
+       class="form-control"
+       required>
+</div>
+
+<button type="submit" class="btn btn-primary w-100 mt-2">
+💾 Save Enquiry
+</button>
+
+</form>
+
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<style>
+
+.enquiry-card{
+border-radius:18px;
+}
+
+.form-control{
+border-radius:10px;
+}
+
+.btn{
+border-radius:10px;
+font-weight:600;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+h3{
+font-size:22px;
+}
+
+.card-body{
+padding:22px;
+}
+
+}
+
+</style>
+
+{% endblock %}

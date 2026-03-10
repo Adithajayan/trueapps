@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card shadow-lg p-4 rounded-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold">
+            📒 {{ supplier.name }} Ledger
+        </h4>
+
+        <div>
+            <a href="{% url 'supplier_ledger_pdf' supplier.id %}"
+               class="btn btn-danger btn-sm me-2">
+                📄 Download PDF
+            </a>
+
+            <a href="{% url 'supplier_ledger_summary' %}"
+               class="btn btn-outline-secondary btn-sm">
+                ← Back
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center">
+
+            <thead class="table-light">
+                <tr>
+                    <th width="110">Date</th>
+                    <th>Particular</th>
+                    <th width="120">Debit</th>
+                    <th width="120">Paid (Credit)</th>
+                    <th width="120">Return</th>
+                    <th width="140">Running Balance</th>
+                    <th width="100">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for r in rows %}
+                <tr>
+                    <td>{{ r.row.date|date:"d M Y" }}</td>
+
+                    <td class="text-start">
+                        {{ r.row.particular }}
+                        {% if r.row.source == "PURCHASE" %}
+                            {% if r.row.credit > 0 %}
+                                <span class="badge bg-danger ms-1">Return</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark ms-1">Purchase</span>
+                            {% endif %}
+                        {% elif r.row.source == "PAYMENT" %}
+                            <span class="badge bg-success ms-1">Payment</span>
+                        {% elif r.row.source == "MANUAL" %}
+                            <span class="badge bg-secondary ms-1">Manual</span>
+                        {% elif r.row.source == "OPENING" %}
+                            <span class="badge bg-primary ms-1">Opening</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="fw-bold text-danger">
+                        {% if r.row.debit > 0 %} ₹ {{ r.row.debit }} {% else %} — {% endif %}
+                    </td>
+
+                    <td class="fw-bold text-success">
+                        {% if r.row.source == "PAYMENT" or r.row.source == "MANUAL" and r.row.credit > 0 or r.row.source == "OPENING" and r.row.credit > 0 %}
+                            {% if r.row.source != "PURCHASE" %}
+                                ₹ {{ r.row.credit }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td class="fw-bold" style="color: #d35400;">
+                        {% if r.row.source == "PURCHASE" and r.row.credit > 0 %}
+                            ₹ {{ r.row.credit }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td class="fw-bold">
+                        {% if r.balance > 0 %}
+                            <span class="text-danger">₹ {{ r.balance }}</span>
+                        {% elif r.balance < 0 %}
+                            <span class="text-success">₹ {{ r.balance|floatformat:2 }}</span>
+                        {% else %}
+                            <span class="text-muted">₹ 0.00</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if r.row.source == "MANUAL" or r.row.source == "PAYMENT" %}
+                            <a href="{% url 'ledger_edit' r.row.id %}"
+                               class="btn btn-sm btn-outline-primary me-1 text-decoration-none">
+                                ✏️
+                            </a>
+                            <a href="{% url 'ledger_delete' r.row.id %}"
+                               class="btn btn-sm btn-outline-danger text-decoration-none">
+                                🗑
+                            </a>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No records found</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row mt-4 g-3">
+        <div class="col-md-3">
+            <div class="alert alert-danger fw-bold text-center border-0 shadow-sm mb-0">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Total Purchase</small><br>
+                ₹ {{ total_debit }}
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="alert alert-success fw-bold text-center border-0 shadow-sm mb-0">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Total Paid</small><br>
+                ₹ {{ total_payment }}
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="alert alert-warning fw-bold text-center border-0 shadow-sm mb-0" style="background-color: #fff3cd; color: #856404;">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Total Return</small><br>
+                ₹ {{ total_return }}
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="alert alert-primary fw-bold text-center border-0 shadow-sm mb-0">
+                <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Final Balance</small><br>
+                ₹ {{ final_balance }}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

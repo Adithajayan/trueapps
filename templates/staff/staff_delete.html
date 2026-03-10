@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ===== BACK BUTTON ===== */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:7px 16px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* DELETE CARD */
+.delete-card{
+    max-width:450px;
+    margin:auto;
+    border-radius:14px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+    .delete-card{
+        padding:18px !important;
+    }
+
+    .delete-card h4{
+        font-size:18px;
+    }
+
+    .btn{
+        font-size:13px;
+        padding:7px 12px;
+    }
+
+}
+
+</style>
+
+<div class="container mt-4">
+
+    <!-- BACK BUTTON -->
+<!--    <a href="/staff/" class="back-btn">-->
+<!--        ← Back-->
+<!--    </a>-->
+
+<div class="card shadow p-4 delete-card">
+
+    <h4 class="text-danger">Delete Staff</h4>
+
+    <p>
+        Are you sure you want to delete staff:
+        <strong>{{ staff.name }}</strong> ?
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="d-flex gap-2 flex-wrap">
+
+            <button class="btn btn-danger">
+                Yes, Delete
+            </button>
+
+            <a href="/staff/" class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+{% endblock %}

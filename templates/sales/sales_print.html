@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tax Invoice - {{ sale.invoice_no }}</title>
+
+    <style>
+        /* PAGE & BODY */
+        @page { size: A4; margin: 15mm; }
+        body {
+            font-family: 'Helvetica','Arial',sans-serif;
+            margin: 0;
+            padding: 10px;
+            font-size: 13px;
+            color: #1a1a1a;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .invoice-container {
+            max-width: 850px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #eee;
+        }
+
+        /* HEADER */
+        .header-table {
+            width: 100%;
+            border-bottom: 2px solid #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+        .company-name {
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .tax-invoice-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d32f2f !important;
+            margin: 0;
+        }
+
+        /* CUSTOMER */
+        .customer-section-header {
+            background-color: #d32f2f !important;
+            color: #fff !important;
+            padding: 8px 12px;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid #d32f2f;
+        }
+        .customer-box {
+            border: 1px solid #333;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+        .cust-name {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* CUSTOMER INFO */
+        .info-table { width: 100%; }
+        .info-table td { padding: 2px 0; }
+
+
+        /* ITEMS TABLE */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .items-table th,
+        .items-table td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+        .items-table th {
+            background: #f2f2f2 !important;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .text-left { text-align: left !important; }
+
+        /* TOTALS */
+        .footer-layout {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+        .bank-details {
+            width: 52%;
+            border: 1px solid #333;
+            padding: 12px;
+            font-size: 12px;
+        }
+        .bank-details b {
+            text-decoration: underline;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .total-section { width: 42%; }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .grand-total {
+            border-top: 2px solid #333;
+            border-bottom: 2px solid #333;
+            font-size: 17px;
+            padding: 8px 0;
+        }
+        .grand-total span:last-child {
+            color: #d32f2f !important;
+            font-size: 19px;
+            font-weight: bold;
+        }
+
+        /* PRINT CLEANUP */
+        @media print {
+            .invoice-container {
+                border: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="invoice-container">
+
+    <!-- HEADER -->
+    <table class="header-table">
+        <tr>
+            <td width="65%">
+                <div class="company-name">TRUEBIT TECHNOLOGIES AND INVENTIONS PVT LTD</div>
+                <div style="font-size:12px;margin-top:5px;">
+                    P.O KAIPAMANGALAM, KOPRAKALAM, MATHILAKAM<br>
+                    Kerala [32] | Contact: 7558877703, 7561837208<br>
+                    <b>GSTIN:</b> 32AAGCT4153J1ZD
+                </div>
+            </td>
+            <td width="35%" style="text-align:right;">
+                <h1 class="tax-invoice-title">Tax Invoice</h1>
+                <div style="font-size:13px;margin-top:10px;">
+                    Invoice No : <b>{{ sale.invoice_no }}</b><br>
+                    Date : {{ sale.date|date:"d-m-Y" }}<br>
+                    Tax : EXCLUSIVE
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- CUSTOMER -->
+    <div class="customer-section-header">CUSTOMER DETAILS</div>
+    <div class="customer-box">
+        <span class="cust-name">{{ sale.customer.name }}</span>
+        <table class="info-table">
+            <tr>
+                <td><b>Place</b> : {{ sale.customer.place|default:"N/A" }}</td>
+            </tr>
+            <tr>
+                <td><b>Phone</b> : {{ sale.customer.phone|default:"N/A" }}</td>
+            </tr>
+        </table>
+
+    </div>
+
+    <!-- ITEMS -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th class="text-left">Product</th>
+                <th>HSN</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>SGST%</th>
+                <th>CGST%</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in sale.items.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td class="text-left"><b>{{ item.product.name }}</b></td>
+                <td>{{ item.hsn_code }}</td>
+                <td>{{ item.qty }}</td>
+                <td>{{ item.selling_price }}</td>
+                <td>{{ item.sgst }}</td>
+                <td>{{ item.cgst }}</td>
+                <td><b>{{ item.total }}</b></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- TOTALS -->
+    <div class="footer-layout">
+        <div class="bank-details">
+            <b>COMPANY ACCOUNT DETAILS</b>
+            TRUEBIT TECHNOLOGIES & INVENTIONS PVT LTD<br>
+            A/C No : <b>15170200016305</b><br>
+            IFSC : <b>FDRL0001517</b> | MOONUPEEDIKA
+        </div>
+
+        <div class="total-section">
+            <div class="total-row">
+                <span>Taxable Amount</span>
+                <span>₹ {{ sale.get_taxable_total }}</span>
+            </div>
+            <div class="total-row">
+                <span>SGST Amount</span>
+                <span>₹ {{ sale.get_gst_split }}</span>
+            </div>
+            <div class="total-row">
+                <span>CGST Amount</span>
+                <span>₹ {{ sale.get_gst_split }}</span>
+            </div>
+            <div class="total-row grand-total">
+                <span>GRAND TOTAL</span>
+                <span>₹ {{ sale.total_amount }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:50px;border-top:1px solid #000;width:200px;text-align:center;font-weight:bold;">
+        Authorised Signatory
+    </div>
+
+</div>
+
+<!-- AUTO PRINT -->
+<script>
+    window.onload = function () {
+        window.print();
+    };
+</script>
+
+</body>
+</html>

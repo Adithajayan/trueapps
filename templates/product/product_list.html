@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* BACK BUTTON */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:7px 16px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-box {
+    background: #fff;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+}
+
+.table th {
+    background: #f5f7fb;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.table td {
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+.badge-unit {
+    background: #eef2ff;
+    color: #0d6efd;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+.btn-round {
+    border-radius: 25px;
+    padding: 6px 18px;
+    font-size: 14px;
+}
+
+.search-box input {
+    border-radius: 25px 0 0 25px;
+}
+
+.search-box button {
+    border-radius: 0 25px 25px 0;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+    .page-title{
+        font-size:22px;
+    }
+
+    .search-box{
+        width:100%;
+    }
+
+    .search-box input{
+        font-size:13px;
+    }
+
+    table th,
+    table td{
+        font-size:13px;
+        white-space:nowrap;
+    }
+
+    .btn-round{
+        font-size:12px;
+        padding:5px 12px;
+    }
+
+}
+
+</style>
+
+<!-- BACK BUTTON -->
+<a href="{% url 'dashboard' %}" class="back-btn">
+    ← Back
+</a>
+
+<!-- TITLE -->
+<div class="page-title">
+    📦 Product Master
+</div>
+
+<div class="card-box">
+
+    <!-- TOP BAR -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+
+        <!-- SEARCH -->
+        <form method="GET" class="search-box d-flex">
+            <input type="text"
+                   name="q"
+                   value="{{ query }}"
+                   class="form-control"
+                   placeholder="🔍 Search product / code / HSN">
+
+            <button class="btn btn-primary px-4">
+                Search
+            </button>
+        </form>
+
+        <!-- ADD BUTTON -->
+        <a href="{% url 'product_add' %}" class="btn btn-primary btn-round">
+            ➕ Add Product
+        </a>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Unit</th>
+                    <th>Purchase</th>
+                    <th>Sales</th>
+                    <th>MRP</th>
+                    <th width="160">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for p in products %}
+                <tr>
+
+                    <td><strong>{{ p.product_code }}</strong></td>
+
+                    <td>{{ p.name }}</td>
+
+                    <td>
+                        <span class="badge-unit">
+                            {{ p.unit }}
+                        </span>
+                    </td>
+
+                    <td>₹ {{ p.purchase_rate }}</td>
+
+                    <td class="text-success fw-bold">
+                        ₹ {{ p.sales_rate }}
+                    </td>
+
+                    <td>₹ {{ p.mrp }}</td>
+
+                    <td class="text-center">
+
+                        <a href="{% url 'product_edit' p.id %}"
+                           class="btn btn-sm btn-outline-primary btn-round">
+                            ✏ Edit
+                        </a>
+
+                        <a href="{% url 'product_delete' p.id %}"
+                           class="btn btn-sm btn-outline-danger btn-round">
+                            🗑 Delete
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="7"
+                        class="text-center text-muted py-4">
+                        No products found
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

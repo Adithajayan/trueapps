@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* BACK BUTTON */
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:linear-gradient(135deg,#111827,#374151);
+    color:white;
+    padding:7px 16px;
+    border-radius:30px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:15px;
+    transition:.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    color:white;
+}
+
+/* CARD STYLE */
+.delete-card{
+    max-width:450px;
+    margin:auto;
+    background:#ffffff;
+    border-radius:20px;
+    padding:40px;
+    box-shadow:0 14px 30px rgba(0,0,0,0.08);
+    text-align:center;
+}
+
+/* TITLE */
+.delete-title{
+    font-size:22px;
+    font-weight:700;
+}
+
+/* PRODUCT NAME */
+.product-name{
+    font-size:20px;
+    font-weight:700;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+    .delete-card{
+        padding:25px;
+    }
+
+    .delete-title{
+        font-size:20px;
+    }
+
+    .product-name{
+        font-size:18px;
+    }
+
+    .btn{
+        font-size:13px;
+        padding:7px 14px;
+    }
+
+}
+
+</style>
+
+<div class="container mt-4">
+
+<!-- BACK BUTTON -->
+<a href="{% url 'product_list' %}" class="back-btn">
+    ← Back
+</a>
+
+<div class="delete-card">
+
+<h4 class="text-danger mb-3 delete-title">
+⚠ Delete Product
+</h4>
+
+<p class="fs-5">
+Are you sure you want to delete this product?
+</p>
+
+<h5 class="fw-bold text-dark mb-4 product-name">
+{{ product.name }}
+</h5>
+
+<form method="POST">
+{% csrf_token %}
+
+<button type="submit"
+        class="btn btn-danger px-4 rounded-pill">
+Yes, Delete
+</button>
+
+<a href="{% url 'product_list' %}"
+   class="btn btn-secondary px-4 rounded-pill ms-2">
+Cancel
+</a>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}

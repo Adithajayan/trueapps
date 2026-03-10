@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= PAGE TITLE ================= -->
+<div class="d-flex align-items-center gap-3 mb-4">
+
+<a href="{% url 'job_dashboard' %}"
+class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+← Back
+</a>
+
+<h3 class="fw-bold mb-0">🛠 Maintenance Works</h3>
+
+</div>
+
+
+<!-- ================= MONTH PENDING ALERT ================= -->
+{% if month_pending %}
+<div class="alert alert-warning shadow-sm d-flex flex-wrap align-items-center">
+    ⚠ <strong class="me-2">Previous Pending Works :</strong>
+
+    {% for m in month_pending %}
+        <span class="badge bg-danger me-2 mt-1">
+            {{ m.month }} - {{ m.count }} Pending
+        </span>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+<!-- ================= FILTER SECTION ================= -->
+<form method="GET" class="card border-0 shadow-sm mb-4">
+<div class="card-body row g-3 align-items-end">
+
+    <!-- SEARCH -->
+    <div class="col-12 col-md-4">
+        <label class="form-label">Search</label>
+        <input type="text"
+               name="q"
+               value="{{ search }}"
+               class="form-control"
+               placeholder="Customer / Place">
+    </div>
+
+    <!-- MONTH -->
+    <div class="col-12 col-md-3">
+        <label class="form-label">Month</label>
+        <select name="month" class="form-select">
+            <option value="">All Months</option>
+
+            {% for m in months %}
+            <option value="{{ m.0 }}"
+            {% if selected_month == m.0|stringformat:"s" %}selected{% endif %}>
+                {{ m.1 }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- STATUS -->
+    <div class="col-12 col-md-3">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+
+            <option value="">All</option>
+
+            <option value="PENDING"
+            {% if selected_status == "PENDING" %}selected{% endif %}>
+                Pending
+            </option>
+
+            <option value="COMPLETED"
+            {% if selected_status == "COMPLETED" %}selected{% endif %}>
+                Completed
+            </option>
+
+        </select>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="col-12 col-md-2">
+        <button class="btn btn-warning w-100">
+            🔎 Filter
+        </button>
+    </div>
+
+</div>
+</form>
+
+
+<!-- ================= TABLE ================= -->
+<div class="card border-0 shadow-sm">
+<div class="table-responsive">
+
+<table class="table align-middle mb-0">
+
+<thead class="table-light">
+<tr>
+    <th>Date</th>
+    <th>Name</th>
+    <th>Place</th>
+    <th>Status</th>
+    <th class="text-center">Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for job in jobs %}
+<tr>
+
+<td>
+    {{ job.date }}
+</td>
+
+<td class="fw-semibold">
+    {{ job.name }}
+</td>
+
+<td>
+    {{ job.place }}
+</td>
+
+<td>
+{% if job.status == "PENDING" %}
+    <span class="badge bg-warning text-dark">
+        Pending
+    </span>
+{% else %}
+    <span class="badge bg-success">
+        Completed
+    </span>
+{% endif %}
+</td>
+
+<td class="text-center">
+
+    <!-- VIEW -->
+    <a href="{% url 'view_maintenance' job.id %}"
+       class="btn btn-info btn-sm mb-1" title="View">
+      👁
+    </a>
+
+    <!-- COMPLETE TOGGLE -->
+    <a href="{% url 'toggle_status' job.id %}"
+       class="btn btn-success btn-sm mb-1">
+        ✔
+    </a>
+
+    <!-- EDIT -->
+    <a href="{% url 'edit_maintenance' job.id %}"
+       class="btn btn-primary btn-sm mb-1">
+      ✏
+    </a>
+
+    <!-- DELETE -->
+    <a href="{% url 'delete_maintenance' job.id %}"
+       class="btn btn-danger btn-sm mb-1">
+        🗑
+    </a>
+
+</td>
+
+</tr>
+{% empty %}
+<tr>
+<td colspan="5" class="text-center text-muted py-4">
+    No maintenance records found
+</td>
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+
+</div>
+
+
+<!-- ================= STYLING ================= -->
+<style>
+
+.table tr:hover{
+    background:#f8f9fa;
+}
+
+.card{
+    border-radius:14px;
+}
+
+.btn-sm{
+    padding:4px 8px;
+}
+
+@media(max-width:768px){
+
+h3{
+font-size:20px;
+}
+
+}
+
+</style>
+
+{% endblock %}

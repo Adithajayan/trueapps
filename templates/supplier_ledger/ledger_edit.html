@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card shadow p-4 rounded-4">
+
+    <h4 class="mb-3">✏️ Edit Ledger Entry</h4>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <label>Date</label>
+                <input type="date"
+                       name="date"
+                       value="{{ ledger.date|date:'Y-m-d' }}"
+                       class="form-control"
+                       required>
+            </div>
+
+            <div class="col-md-8">
+                <label>Particular</label>
+                <input type="text"
+                       name="particular"
+                       value="{{ ledger.particular }}"
+                       class="form-control"
+                       required>
+            </div>
+
+            <div class="col-md-6">
+                <label>Debit</label>
+                <input type="number"
+                       step="0.01"
+                       name="debit"
+                       value="{{ ledger.debit }}"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-6">
+                <label>Credit</label>
+                <input type="number"
+                       step="0.01"
+                       name="credit"
+                       value="{{ ledger.credit }}"
+                       class="form-control">
+            </div>
+
+        </div>
+
+        <div class="mt-4 text-end">
+            <a href="{% url 'supplier_ledger_detail' ledger.supplier.id %}"
+               class="btn btn-secondary">
+                Back
+            </a>
+
+            <button class="btn btn-success px-4">
+                💾 Update
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

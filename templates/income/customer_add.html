@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- Header + Back Button -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Add Customer</h4>
+
+        <button onclick="history.back()" class="btn btn-secondary btn-sm">
+            ← Back
+        </button>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card shadow-sm p-4">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <input name="name"
+                       class="form-control"
+                       placeholder="Customer Name">
+            </div>
+
+            <div class="mb-3">
+                <input name="phone"
+                       class="form-control"
+                       placeholder="Phone">
+            </div>
+
+            <div class="mb-3">
+                <textarea name="address"
+                          class="form-control"
+                          rows="3"
+                          placeholder="Address"></textarea>
+            </div>
+
+            <div class="d-grid">
+                <button class="btn btn-success">
+                    Save Customer
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}
