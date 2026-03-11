@@ -7,3 +7,4 @@ openpyxl
 pypdf
 dj-database-url
 weasyprint
+xhtml2pdf
