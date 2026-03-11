@@ -693,13 +693,14 @@ def export_all_excel(request):
     zip_buffer.seek(0)
 
     # 2. Drive upload call cheyyunnu
-    drive_id = upload_to_drive(zip_buffer, "trueapps_backup.zip")
+
+
 
     # Upload success aayo ennu terminal-il print cheyyan
-    if drive_id:
-        print(f"File uploaded successfully to Drive. ID: {drive_id}")
-    else:
-        print("Drive upload failed. Check the terminal for error messages.")
+    # if drive_id:
+    #     print(f"File uploaded successfully to Drive. ID: {drive_id}")
+    # else:
+    #     print("Drive upload failed. Check the terminal for error messages.")
 
     # 3. Download-nu munpu buffer pointer veendum reset cheyyenam
     zip_buffer.seek(0)
