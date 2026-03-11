@@ -538,9 +538,9 @@ from income.models import CustomerWork
 from job_management.models import Job
 
 # Google Drive Imports
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
+# from google.oauth2 import service_account
+# from googleapiclient.discovery import build
+# from googleapiclient.http import MediaIoBaseUpload
 
 
 # 1. Helper function to create Excel in memory
@@ -565,7 +565,7 @@ def create_excel(data, headers, sheet_name):
 
 
 # 2. Google Drive Upload Function (Placed before the view)
-from googleapiclient.http import MediaIoBaseUpload
+
 
 
 def upload_to_drive(file_stream, filename):
