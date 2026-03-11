@@ -7,6 +7,5 @@ openpyxl
 pypdf
 dj-database-url
 weasyprint
-xhtml2pdf
 python-bidi
 arabic-reshaper
