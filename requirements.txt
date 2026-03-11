@@ -9,3 +9,4 @@ dj-database-url
 weasyprint
 python-bidi
 arabic-reshaper
+google-auth
