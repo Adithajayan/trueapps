@@ -1,11 +1,11 @@
-Django
+Django==6.0.1
 gunicorn
 whitenoise
 pillow
 reportlab
 openpyxl
 pypdf
-dj-database-url
 weasyprint
 xhtml2pdf
-python-bidi==0.4.2
+python-bidi==0.6.7
+arabic-reshaper==3.0.0
