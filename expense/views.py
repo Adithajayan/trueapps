@@ -371,7 +371,7 @@ def expense_summary(request):
 
 
 
-from weasyprint import HTML
+
 
 
 
@@ -387,6 +387,7 @@ from django.db.models import Sum
 from django.utils.text import slugify
 
 def expense_summary_pdf(request):
+    from weasyprint import HTML
     expenses = (
         Expense.objects
         .select_related('expense_type', 'category', 'partner')

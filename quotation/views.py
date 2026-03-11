@@ -142,10 +142,11 @@ def quotation_list(request):
 
 
 
-from weasyprint import HTML
+
 
 
 def quotation_pdf(request, pk):
+    from weasyprint import HTML
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
 
@@ -175,7 +176,7 @@ def quotation_pdf(request, pk):
 
 
 
-from weasyprint import HTML
+
 from django.conf import settings
 import os
 
@@ -183,12 +184,13 @@ import os
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from weasyprint import HTML
+
 from django.conf import settings
 import os
 
 
 def quotation_pdf_view(request, pk):
+    from weasyprint import HTM
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
 

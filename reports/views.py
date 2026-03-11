@@ -100,13 +100,14 @@ def sales_report(request):
 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
+
 
 from sales.models import SalesMaster, SalesItemBatch
 from django.db.models import Sum
 
 
 def sales_report_pdf(request):
+    from weasyprint import HTML
 
     from_date = request.GET.get('from_date')
     to_date = request.GET.get('to_date')
@@ -262,10 +263,11 @@ def purchase_report(request):
 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
+
 
 
 def purchase_report_pdf(request):
+    from weasyprint import HTML
 
     from_date = request.GET.get('from_date')
     to_date = request.GET.get('to_date')
@@ -455,7 +457,7 @@ def profit_loss_report(request):
 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
+
 from decimal import Decimal
 from django.db.models import Sum
 from sales.models import SalesMaster, SalesItemBatch
@@ -463,6 +465,7 @@ from purchase.models import Purchase
 
 
 def profit_loss_pdf(request):
+    from weasyprint import HTML
 
     from_date = request.GET.get('from_date')
     to_date = request.GET.get('to_date')

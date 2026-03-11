@@ -393,9 +393,10 @@ def purchase_invoice_print(request, pk):
 # PDF DOWNLOAD
 from django.http import HttpResponse
 from django.template.loader import get_template
-from weasyprint import HTML
+
 
 def purchase_invoice_pdf(request, pk):
+    from weasyprint import HTML
     purchase = get_object_or_404(Purchase, id=pk)
 
     total_sgst = 0

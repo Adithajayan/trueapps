@@ -426,11 +426,12 @@ def calculate_salary(staff, month, year, daily_salary=500):
 
 
 from django.template.loader import render_to_string
-from weasyprint import HTML
+
 from django.http import HttpResponse
 import calendar
 
 def staff_salary_pdf(request, staff_id):
+    from weasyprint import HTML
 
     month = int(request.GET.get("month"))
     year = int(request.GET.get("year"))
@@ -493,10 +494,11 @@ def staff_salary_pdf(request, staff_id):
 
 
 from django.template.loader import render_to_string
-from weasyprint import HTML
+
 
 
 def export_salary_total_pdf(request):
+    from weasyprint import HTML
     month = int(request.GET.get('month'))
     year = int(request.GET.get('year'))
     staffs = Staff.objects.filter(status=True)

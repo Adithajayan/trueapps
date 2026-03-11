@@ -138,7 +138,7 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.db.models import Sum
 from datetime import date
-from xhtml2pdf import pisa
+
 
 from .models import Customer, CustomerWork, WorkPayment
 

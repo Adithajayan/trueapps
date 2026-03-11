@@ -634,17 +634,22 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from weasyprint import HTML, CSS
 
 def manage_sales_invoice(request, pk, action='view'):
     sale = get_object_or_404(SalesMaster, pk=pk)
 
     # DOWNLOAD
     if action == 'download':
+
+        from weasyprint import HTML   # ✅ import ivide
+
         html = render_to_string('sales/sales_print.html', {'sale': sale})
+
         pdf = HTML(string=html).write_pdf()
+
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{sale.invoice_no}.pdf"'
+
         return response
 
     # PRINT
