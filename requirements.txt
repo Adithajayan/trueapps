@@ -5,7 +5,8 @@ pillow
 reportlab
 openpyxl
 pypdf
+dj-database-url
 weasyprint
 xhtml2pdf
-python-bidi==0.6.7
-arabic-reshaper==3.0.0
+python-bidi
+arabic-reshaper
