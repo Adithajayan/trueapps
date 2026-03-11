@@ -511,10 +511,11 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from weasyprint import HTML
+
 
 
 def invoice_pdf_download(request, pk):
+    from weasyprint import HTML
 
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
