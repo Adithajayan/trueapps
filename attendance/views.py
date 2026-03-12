@@ -424,24 +424,13 @@ def calculate_salary(staff, month, year, daily_salary=500):
         'salary': total_salary
     }
 
+def staff_salary_pdf(request, staff_id):
+    from weasyprint import HTML
 
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from django.shortcuts import get_object_or_404
-from django.db.models import Sum
-from xhtml2pdf import pisa
-import calendar
+    month = int(request.GET.get("month"))
+    year = int(request.GET.get("year"))
 
-from django.shortcuts import render,get_object_or_404
-from django.db.models import Sum
-import calendar
-
-def staff_salary_slip(request, staff_id):
-
-    month = int(request.GET.get("month",1))
-    year = int(request.GET.get("year",2024))
-
-    staff = get_object_or_404(Staff,id=staff_id)
+    staff = Staff.objects.get(id=staff_id)
 
     presents = Attendance.objects.filter(
         staff=staff,status='P',
@@ -468,23 +457,34 @@ def staff_salary_slip(request, staff_id):
         halfdays.count()*(staff.daily_salary/2)
     ) - advance_total
 
-    return render(request,"attendance/salary_pdf.html",{
-        "staff": staff,
-        "month": month,
-        "year": year,
-        "month_name": calendar.month_name[month],
-        "total_days": calendar.monthrange(year,month)[1],
-        "present": presents.count(),
-        "absent": absents.count(),
-        "half": halfdays.count(),
-        "absent_dates": ", ".join(
-            [a.date.strftime("%d/%m/%Y") for a in absents]),
-        "half_dates": ", ".join(
-            [a.date.strftime("%d/%m/%Y") for a in halfdays]),
-        "advances": advances,
-        "advance_total": advance_total,
-        "salary": round(salary),
-    })
+    html = render_to_string(
+        "attendance/salary_pdf.html",
+        {
+            "staff": staff,
+            "month": month,
+            "year": year,
+            "month_name": calendar.month_name[month],
+            "total_days": calendar.monthrange(year,month)[1],
+            "present": presents.count(),
+            "absent": absents.count(),
+            "half": halfdays.count(),
+            "absent_dates": ", ".join(
+                [a.date.strftime("%d/%m/%Y") for a in absents]),
+            "half_dates": ", ".join(
+                [a.date.strftime("%d/%m/%Y") for a in halfdays]),
+            "advances": advances,
+            "advance_total": advance_total,
+            "salary": round(salary),
+        }
+    )
+
+    response = HttpResponse(content_type="application/pdf")
+    response['Content-Disposition'] = \
+        f'attachment; filename="{staff.name}_salary.pdf"'
+
+    HTML(string=html).write_pdf(response)
+
+    return response
 
 
 def export_salary_total_pdf(request):
