@@ -430,37 +430,55 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 import calendar
 
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+from django.db.models import Sum
+
+import calendar
+
 def staff_salary_pdf(request, staff_id):
     from weasyprint import HTML
 
-    month = int(request.GET.get("month"))
-    year = int(request.GET.get("year"))
+    month = int(request.GET.get("month", 1))
+    year = int(request.GET.get("year", 2024))
 
-    staff = Staff.objects.get(id=staff_id)
+    staff = get_object_or_404(Staff, id=staff_id)
 
     presents = Attendance.objects.filter(
-        staff=staff,status='P',
-        date__month=month,date__year=year)
+        staff=staff,
+        status='P',
+        date__month=month,
+        date__year=year
+    )
 
     absents = Attendance.objects.filter(
-        staff=staff,status='A',
-        date__month=month,date__year=year)
+        staff=staff,
+        status='A',
+        date__month=month,
+        date__year=year
+    )
 
     halfdays = Attendance.objects.filter(
-        staff=staff,status='H',
-        date__month=month,date__year=year)
+        staff=staff,
+        status='H',
+        date__month=month,
+        date__year=year
+    )
 
     advances = Advance.objects.filter(
         staff=staff,
         date__month=month,
-        date__year=year)
+        date__year=year
+    )
 
     advance_total = advances.aggregate(
-        total=Sum('amount'))['total'] or 0
+        total=Sum('amount')
+    )['total'] or 0
 
     salary = (
-        presents.count()*staff.daily_salary +
-        halfdays.count()*(staff.daily_salary/2)
+        presents.count() * staff.daily_salary +
+        halfdays.count() * (staff.daily_salary / 2)
     ) - advance_total
 
     html = render_to_string(
@@ -470,25 +488,31 @@ def staff_salary_pdf(request, staff_id):
             "month": month,
             "year": year,
             "month_name": calendar.month_name[month],
-            "total_days": calendar.monthrange(year,month)[1],
+            "total_days": calendar.monthrange(year, month)[1],
             "present": presents.count(),
             "absent": absents.count(),
             "half": halfdays.count(),
             "absent_dates": ", ".join(
-                [a.date.strftime("%d/%m/%Y") for a in absents]),
+                [a.date.strftime("%d/%m/%Y") for a in absents]
+            ) or "None",
             "half_dates": ", ".join(
-                [a.date.strftime("%d/%m/%Y") for a in halfdays]),
+                [a.date.strftime("%d/%m/%Y") for a in halfdays]
+            ) or "None",
             "advances": advances,
             "advance_total": advance_total,
             "salary": round(salary),
         }
     )
 
-    response = HttpResponse(content_type="application/pdf")
-    response['Content-Disposition'] = \
-        f'attachment; filename="{staff.name}_salary.pdf"'
+    pdf = HTML(
+        string=html,
+        base_url=request.build_absolute_uri('/')
+    ).write_pdf()
 
-    HTML(string=html).write_pdf(response)
+    response = HttpResponse(pdf, content_type="application/pdf")
+
+    response['Content-Disposition'] = \
+        f'attachment; filename="{staff.name}_salary_{month}_{year}.pdf"'
 
     return response
 
