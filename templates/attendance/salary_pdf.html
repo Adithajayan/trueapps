@@ -15,21 +15,6 @@ body{
     color:#222;
 }
 
-/* PRINT BUTTON */
-
-.print-btn{
-    text-align:right;
-    margin-bottom:15px;
-}
-
-button{
-    padding:8px 15px;
-    background:#000;
-    color:white;
-    border:none;
-    cursor:pointer;
-}
-
 /* ================= BRAND ================= */
 
 .company{
@@ -124,29 +109,46 @@ th{
 
 .footer{
     margin-top:70px;
-    width:100%;
+    display:flex;
+    justify-content:space-between;
+    font-size:14px;
 }
 
-.footer table{
-    width:100%;
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:768px){
+
+.company{
+    font-size:26px;
 }
 
-.footer td{
-    border:none;
+.title{
+    font-size:16px;
+}
+
+.card{
+    padding:12px;
+    font-size:14px;
+}
+
+.section{
+    font-size:14px;
+}
+
+th,td{
+    padding:7px;
+    font-size:13px;
+}
+
+.salary{
+    font-size:20px;
+    padding:14px;
+}
+
+.footer{
+    flex-direction:column;
+    gap:40px;
     text-align:center;
-    padding-top:40px;
-}
-
-/* ================= PRINT ================= */
-
-@media print{
-
-button{
-display:none;
-}
-
-body{
-margin:0;
 }
 
 }
@@ -156,22 +158,18 @@ margin:0;
 
 <body>
 
-<div class="print-btn">
-<button onclick="window.print()">Download PDF</button>
-</div>
-
 <!-- ========= COMPANY ========= -->
 
 <div class="company">
-<span class="true">TRUE</span><span class="apps">APPS</span>
+    <span class="true">TRUE</span><span class="apps">APPS</span>
 </div>
 
 <div class="tagline">
-Professional Business Management Solutions
+    Professional Business Management Solutions
 </div>
 
 <div class="title">
-SALARY SLIP
+    SALARY SLIP
 </div>
 
 <!-- ========= EMPLOYEE DETAILS ========= -->
@@ -203,7 +201,6 @@ SALARY SLIP
 <!-- ========= ABSENT ========= -->
 
 <div class="section">Absent Dates</div>
-
 <div class="datebox">
 {{ absent_dates|default:"None" }}
 </div>
@@ -211,7 +208,6 @@ SALARY SLIP
 <!-- ========= HALF DAY ========= -->
 
 <div class="section">Half Day Dates</div>
-
 <div class="datebox">
 {{ half_dates|default:"None" }}
 </div>
@@ -252,14 +248,8 @@ FINAL SALARY : ₹ {{ salary }}
 <!-- ========= SIGNATURE ========= -->
 
 <div class="footer">
-
-<table>
-<tr>
-<td>Employer Signature</td>
-<td>Employee Signature</td>
-</tr>
-</table>
-
+<div>Employer Signature</div>
+<div>Employee Signature</div>
 </div>
 
 </body>
