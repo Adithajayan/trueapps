@@ -429,15 +429,15 @@ from django.template.loader import render_to_string
 
 from django.http import HttpResponse
 import calendar
-
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
-
 import calendar
 
+
 def staff_salary_pdf(request, staff_id):
+
     from weasyprint import HTML
 
     month = int(request.GET.get("month", 1))
@@ -494,25 +494,20 @@ def staff_salary_pdf(request, staff_id):
             "half": halfdays.count(),
             "absent_dates": ", ".join(
                 [a.date.strftime("%d/%m/%Y") for a in absents]
-            ) or "None",
+            ),
             "half_dates": ", ".join(
                 [a.date.strftime("%d/%m/%Y") for a in halfdays]
-            ) or "None",
+            ),
             "advances": advances,
             "advance_total": advance_total,
             "salary": round(salary),
         }
     )
 
-    pdf = HTML(
-        string=html,
-        base_url=request.build_absolute_uri('/')
-    ).write_pdf()
+    response = HttpResponse(content_type="application/pdf")
+    response['Content-Disposition'] = f'attachment; filename="{staff.name}_salary.pdf"'
 
-    response = HttpResponse(pdf, content_type="application/pdf")
-
-    response['Content-Disposition'] = \
-        f'attachment; filename="{staff.name}_salary_{month}_{year}.pdf"'
+    HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(response)
 
     return response
 
