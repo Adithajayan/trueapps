@@ -2,12 +2,7 @@ Django==5.0.6
 gunicorn
 whitenoise
 pillow
-reportlab
 openpyxl
 pypdf
 dj-database-url
-weasyprint==60.1
-python-bidi
-arabic-reshaper
 google-auth
-xhtml2pdf
