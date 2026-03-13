@@ -424,8 +424,9 @@ def calculate_salary(staff, month, year, daily_salary=500):
         'salary': total_salary
     }
 
+import requests
+
 def staff_salary_pdf(request, staff_id):
-    from weasyprint import HTML
 
     month = int(request.GET.get("month"))
     year = int(request.GET.get("year"))
@@ -433,16 +434,16 @@ def staff_salary_pdf(request, staff_id):
     staff = Staff.objects.get(id=staff_id)
 
     presents = Attendance.objects.filter(
-        staff=staff,status='P',
-        date__month=month,date__year=year)
+        staff=staff, status='P',
+        date__month=month, date__year=year)
 
     absents = Attendance.objects.filter(
-        staff=staff,status='A',
-        date__month=month,date__year=year)
+        staff=staff, status='A',
+        date__month=month, date__year=year)
 
     halfdays = Attendance.objects.filter(
-        staff=staff,status='H',
-        date__month=month,date__year=year)
+        staff=staff, status='H',
+        date__month=month, date__year=year)
 
     advances = Advance.objects.filter(
         staff=staff,
@@ -457,32 +458,44 @@ def staff_salary_pdf(request, staff_id):
         halfdays.count()*(staff.daily_salary/2)
     ) - advance_total
 
+    context = {
+        "staff": staff,
+        "month": month,
+        "year": year,
+        "month_name": calendar.month_name[month],
+        "total_days": calendar.monthrange(year,month)[1],
+        "present": presents.count(),
+        "absent": absents.count(),
+        "half": halfdays.count(),
+        "absent_dates": ", ".join(
+            [a.date.strftime("%d/%m/%Y") for a in absents]),
+        "half_dates": ", ".join(
+            [a.date.strftime("%d/%m/%Y") for a in halfdays]),
+        "advances": advances,
+        "advance_total": advance_total,
+        "salary": round(salary),
+    }
+
     html = render_to_string(
         "attendance/salary_pdf.html",
-        {
-            "staff": staff,
-            "month": month,
-            "year": year,
-            "month_name": calendar.month_name[month],
-            "total_days": calendar.monthrange(year,month)[1],
-            "present": presents.count(),
-            "absent": absents.count(),
-            "half": halfdays.count(),
-            "absent_dates": ", ".join(
-                [a.date.strftime("%d/%m/%Y") for a in absents]),
-            "half_dates": ", ".join(
-                [a.date.strftime("%d/%m/%Y") for a in halfdays]),
-            "advances": advances,
-            "advance_total": advance_total,
-            "salary": round(salary),
+        context
+    )
+
+    api_key = "PASTE_YOUR_PDFSHIFT_API_KEY"
+
+    pdf_response = requests.post(
+        "https://api.pdfshift.io/v3/convert/pdf",
+        auth=("api", api_key),
+        json={
+            "source": html
         }
     )
 
-    response = HttpResponse(content_type="application/pdf")
+    pdf = pdf_response.content
+
+    response = HttpResponse(pdf, content_type="application/pdf")
     response['Content-Disposition'] = \
         f'attachment; filename="{staff.name}_salary.pdf"'
-
-    HTML(string=html).write_pdf(response)
 
     return response
 
