@@ -142,15 +142,17 @@ from datetime import date
 from config.utils.pdf import generate_pdf
 
 
+from datetime import date # ഇന്നത്തെ ഡേറ്റ് കിട്ടാൻ ഇത് വേണം
+from django.db.models import Sum
+from .models import Customer, CustomerWork, WorkPayment # മോഡലുകൾ ഇമ്പോർട്ട് ചെയ്യുന്നു
+from config.utils.pdf import generate_pdf # നമ്മുടെ മാജിക് ടൂൾ
 
 def pending_pdf(request):
-
     customers = Customer.objects.all()
     data = []
     total_pending = 0
 
     for customer in customers:
-
         works = CustomerWork.objects.filter(customer=customer)
         total = works.aggregate(
             total=Sum("total_amount")
@@ -165,7 +167,7 @@ def pending_pdf(request):
 
         balance = total - received
 
-        # only pending customers
+        # ബാലൻസ് ഉള്ള കസ്റ്റമേഴ്സിനെ മാത്രം ലിസ്റ്റിൽ എടുക്കുന്നു
         if balance > 0:
             data.append({
                 "customer": customer,
@@ -175,21 +177,17 @@ def pending_pdf(request):
             })
             total_pending += balance
 
-    template = get_template("income/pending_income_pdf.html")
-
-    html = template.render({
+    # ഇവിടെയാണ് നമ്മൾ പുതിയ ടൂൾ ഉപയോഗിക്കുന്നത്
+    context = {
         "data": data,
         "today": date.today(),
         "total_pending": total_pending
-    })
+    }
 
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = "attachment; filename=pending_income.pdf"
+    template_name = "income/pending_income_pdf.html"
+    filename = "pending_income.pdf"
 
-    pisa.CreatePDF(html, dest=response)
-
-    return response
-
+    return generate_pdf(template_name, context, filename)
 
 
 from django.shortcuts import get_object_or_404, redirect, render
