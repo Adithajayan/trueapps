@@ -139,8 +139,8 @@ from django.template.loader import get_template
 from django.db.models import Sum
 from datetime import date
 
+from config.utils.pdf import generate_pdf
 
-from .models import Customer, CustomerWork, WorkPayment
 
 
 def pending_pdf(request):

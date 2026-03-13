@@ -426,11 +426,8 @@ def calculate_salary(staff, month, year, daily_salary=500):
 
 
 import requests
-import calendar
 from django.http import HttpResponse
-from django.template.loader import render_to_string
-from django.db.models import Sum
-from .models import Staff, Attendance, Advance
+
 
 def staff_salary_pdf(request, staff_id):
 
@@ -511,9 +508,17 @@ from django.template.loader import render_to_string
 from config.utils.pdf import generate_pdf
 from .models import Staff, Attendance, Advance
 
+
 def export_salary_total_pdf(request):
-    month = int(request.GET.get('month'))
-    year = int(request.GET.get('year'))
+    month_val = request.GET.get('month')
+    year_val = request.GET.get('year')
+
+
+    if not month_val or not year_val:
+        return HttpResponse("Month and Year are required", status=400)
+
+    month = int(month_val)
+    year = int(year_val)
     staffs = Staff.objects.filter(status=True)
 
     rows = []
@@ -524,11 +529,14 @@ def export_salary_total_pdf(request):
     for staff in staffs:
         present = Attendance.objects.filter(staff=staff, status='P', date__month=month, date__year=year).count()
         half = Attendance.objects.filter(staff=staff, status='H', date__month=month, date__year=year).count()
-        advance = Advance.objects.filter(staff=staff, date__month=month, date__year=year).aggregate(total=Sum('amount'))['total'] or 0
+        advance = \
+        Advance.objects.filter(staff=staff, date__month=month, date__year=year).aggregate(total=Sum('amount'))[
+            'total'] or 0
 
-        daily = staff.daily_salary
+
+        daily = Decimal(str(staff.daily_salary))
         actual_salary = (present * daily) + (half * (daily / Decimal('2')))
-        final_salary = round(actual_salary - Decimal(advance))
+        final_salary = round(actual_salary - Decimal(str(advance)))
 
         rows.append({
             'staff': staff,
@@ -538,10 +546,9 @@ def export_salary_total_pdf(request):
             'salary': final_salary
         })
 
-        grand_total += Decimal(final_salary)
-        total_actual_salary += Decimal(actual_salary)
-        total_advance_given += Decimal(advance)
-
+        grand_total += Decimal(str(final_salary))
+        total_actual_salary += Decimal(str(actual_salary))
+        total_advance_given += Decimal(str(advance))
 
     context = {
         'rows': rows,
@@ -552,7 +559,6 @@ def export_salary_total_pdf(request):
         'total_advance_given': total_advance_given,
         'month_name': calendar.month_name[month],
     }
-
 
     template_name = 'attendance/salary_total_pdf_template.html'
     filename = f"Salary_Report_{month}_{year}.pdf"
