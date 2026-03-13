@@ -166,80 +166,64 @@ def quotation_pdf(request, pk):
     return generate_pdf(template_path, context, filename)
 
 
-
-
-
-
-from config.utils.pdf import generate_pdf
-
-
-def quotation_pdf_view(request, pk):
-
-
-    quotation = get_object_or_404(Quotation, id=pk)
-    items = quotation.items.all()
-
-
-    heading = ""
-    if items.exists():
-        heading = items.first().product.name
-
-
-    logo_url = request.build_absolute_uri(settings.STATIC_URL + "company/logo.jpeg")
-
-    # ✅ ഡാറ്റാ പാക്കറ്റ് (Context)
-    context = {
-        "quotation": quotation,
-        "items": items,
-        "heading": heading,
-        "logo": logo_url,
-    }
-
-
-    filename = f"quotation_{pk}.pdf"
-
-
-    template_path = "quotation/quotation_pdf.html"
-
-    return generate_pdf(template_path, context, filename)
-
 def quotation_pdf_download(request, pk):
 
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
 
-    # ✅ HEADING LOGIC (UNCHANGED)
+
     heading = ""
     if items.exists():
         heading = items.first().product.name
 
-    # ✅ LOGO ABSOLUTE PATH
-    logo_path = os.path.join(settings.BASE_DIR, "static", "company", "logo.jpeg")
-    logo_url = f"file:///{logo_path.replace(os.sep, '/')}"
 
-    # ✅ HTML RENDER
-    html_string = render_to_string(
-        "quotation/quotation_pdf.html",
-        {
-            "quotation": quotation,
-            "items": items,
-            "heading": heading,
-            "logo": logo_url,
-        }
-    )
+    context = {
+        "quotation": quotation,
+        "items": items,
+        "heading": heading,
 
-    pdf = HTML(string=html_string).write_pdf()
+    }
 
-    # ✅ SAFE CUSTOMER NAME
+
     customer_name = quotation.customer.name
-    safe_name = re.sub(r'[^A-Za-z0-9]+', '_', customer_name).strip('_')
 
+    safe_name = re.sub(r'[^A-Za-z0-9]+', '_', customer_name).strip('_')
     filename = f"{safe_name}_Quotation.pdf"
 
-    response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
-    return response
+    template_name = "quotation/quotation_pdf.html"
+
+    return generate_pdf(template_name, context, filename)
+
+
+
+
+def quotation_pdf_download(request, pk):
+    quotation = get_object_or_404(Quotation, id=pk)
+    items = quotation.items.all()
+
+    # ✅ HEADING LOGIC
+    heading = ""
+    if items.exists():
+        heading = items.first().product.name
+
+
+    context = {
+        "quotation": quotation,
+        "items": items,
+        "heading": heading,
+
+    }
+
+    # ✅ SAFE FILENAME
+    customer_name = quotation.customer.name
+    safe_name = re.sub(r'[^A-Za-z0-9]+', '_', customer_name).strip('_')
+    filename = f"{safe_name}_Quotation.pdf"
+
+
+    template_name = "quotation/quotation_pdf.html"
+
+    return generate_pdf(template_name, context, filename)
 
 
 
