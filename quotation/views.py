@@ -204,23 +204,37 @@ def quotation_pdf_view(request, pk):
     return generate_pdf(template_path, context, filename)
 
 
+import base64
+
+from .models import Quotation
+
+
+
 def quotation_pdf_download(request, pk):
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
 
-    heading = ""
-    if items.exists():
-        heading = items.first().product.name
 
-    # ലോഗോ നേരിട്ട് ഓൺലൈൻ ലിങ്ക് ആയി നൽകുന്നു
-    logo_url = "https://trueapps-production.up.railway.app/static/company/logo.jpeg"
+    logo_base64 = ""
+    try:
+
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'company', 'logo.jpeg')
+
+        with open(logo_path, "rb") as image_file:
+
+            logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+    except Exception as e:
+        print(f"Logo error: {e}")
+
 
     context = {
         "quotation": quotation,
         "items": items,
-        "heading": heading,
-        "logo": "",
+        "heading": items.first().product.name if items.exists() else "",
+
+        "logo": f"data:image/jpeg;base64,{logo_base64}" if logo_base64 else "",
     }
+
 
     customer_name = quotation.customer.name
     safe_name = re.sub(r'[^A-Za-z0-9]+', '_', customer_name).strip('_')
