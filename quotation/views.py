@@ -205,17 +205,15 @@ def quotation_pdf_view(request, pk):
 
 
 def quotation_pdf_download(request, pk):
-
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
-
 
     heading = ""
     if items.exists():
         heading = items.first().product.name
 
-
-    logo_url = request.build_absolute_uri(settings.STATIC_URL + "company/logo.jpeg")
+    # ലോഗോ നേരിട്ട് ഓൺലൈൻ ലിങ്ക് ആയി നൽകുന്നു
+    logo_url = "https://trueapps-production.up.railway.app/static/company/logo.jpeg"
 
     context = {
         "quotation": quotation,
@@ -224,15 +222,11 @@ def quotation_pdf_download(request, pk):
         "logo": logo_url,
     }
 
-
     customer_name = quotation.customer.name
     safe_name = re.sub(r'[^A-Za-z0-9]+', '_', customer_name).strip('_')
     filename = f"{safe_name}_Quotation.pdf"
 
-
-    template_name = "quotation/quotation_pdf.html"
-
-    return generate_pdf(template_name, context, filename)
+    return generate_pdf("quotation/quotation_pdf.html", context, filename)
 
 
 
