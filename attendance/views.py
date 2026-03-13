@@ -424,9 +424,13 @@ def calculate_salary(staff, month, year, daily_salary=500):
         'salary': total_salary
     }
 
-import requests
 
 import requests
+import calendar
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.db.models import Sum
+from .models import Staff, Attendance, Advance
 
 def staff_salary_pdf(request, staff_id):
 
@@ -436,16 +440,16 @@ def staff_salary_pdf(request, staff_id):
     staff = Staff.objects.get(id=staff_id)
 
     presents = Attendance.objects.filter(
-        staff=staff,status='P',
-        date__month=month,date__year=year)
+        staff=staff, status='P',
+        date__month=month, date__year=year)
 
     absents = Attendance.objects.filter(
-        staff=staff,status='A',
-        date__month=month,date__year=year)
+        staff=staff, status='A',
+        date__month=month, date__year=year)
 
     halfdays = Attendance.objects.filter(
-        staff=staff,status='H',
-        date__month=month,date__year=year)
+        staff=staff, status='H',
+        date__month=month, date__year=year)
 
     advances = Advance.objects.filter(
         staff=staff,
@@ -456,51 +460,49 @@ def staff_salary_pdf(request, staff_id):
         total=Sum('amount'))['total'] or 0
 
     salary = (
-        presents.count()*staff.daily_salary +
-        halfdays.count()*(staff.daily_salary/2)
+        presents.count() * staff.daily_salary +
+        halfdays.count() * (staff.daily_salary / 2)
     ) - advance_total
+
 
     context = {
         "staff": staff,
         "month": month,
         "year": year,
         "month_name": calendar.month_name[month],
-        "total_days": calendar.monthrange(year,month)[1],
+        "total_days": calendar.monthrange(year, month)[1],
         "present": presents.count(),
         "absent": absents.count(),
         "half": halfdays.count(),
-        "absent_dates": ", ".join(
-            [a.date.strftime("%d/%m/%Y") for a in absents]),
-        "half_dates": ", ".join(
-            [a.date.strftime("%d/%m/%Y") for a in halfdays]),
+        "absent_dates": ", ".join([a.date.strftime("%d/%m/%Y") for a in absents]),
+        "half_dates": ", ".join([a.date.strftime("%d/%m/%Y") for a in halfdays]),
         "advances": advances,
         "advance_total": advance_total,
         "salary": round(salary),
     }
 
-    html = render_to_string(
-        "attendance/salary_pdf.html",
-        context
-    )
+    html = render_to_string("attendance/salary_pdf.html", context)
 
-    api_key = "YOUR_API_KEY"
+
+    api_key = "sk_378157a06109f041f13b7f22f8aaa793ff195081"
 
     pdf_response = requests.post(
         "https://api.pdfshift.io/v3/convert/pdf",
         auth=("api", api_key),
         json={
             "source": html,
-            "use_print": True
+            "use_print": True,
+            "sandbox": True
         }
     )
 
-    pdf = pdf_response.content
-
-    response = HttpResponse(pdf, content_type="application/pdf")
-    response['Content-Disposition'] = \
-        f'attachment; filename="{staff.name}_salary.pdf"'
-
-    return response
+    if pdf_response.status_code == 200:
+        pdf_data = pdf_response.content
+        response = HttpResponse(pdf_data, content_type="application/pdf")
+        response['Content-Disposition'] = f'attachment; filename="{staff.name}_salary.pdf"'
+        return response
+    else:
+        return HttpResponse(f"PDF Error: {pdf_response.text}", status=pdf_response.status_code)
 
 
 def export_salary_total_pdf(request):
