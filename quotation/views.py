@@ -503,7 +503,7 @@ def invoice_pdf_download(request, pk):
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
 
-    # 1. ലോഗോയെ ടെക്സ്റ്റ് (Base64) ആക്കി മാറ്റുന്നു
+
     logo_base64 = ""
     try:
         logo_path = os.path.join(settings.BASE_DIR, 'static', 'company', 'logo.jpeg')

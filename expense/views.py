@@ -375,20 +375,31 @@ def expense_summary(request):
 
 
 
-# views.py
 
 
 
 
-from django.conf import settings
-from django.http import HttpResponse
-from django.template.loader import render_to_string
+
+
+
+from config.utils.pdf import generate_pdf
+
+import base64
+import os
 from django.db.models import Sum
 from django.utils.text import slugify
-from config.utils.pdf import generate_pdf
 
 def expense_summary_pdf(request):
 
+    logo_base64 = ""
+    try:
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'company', 'logo.jpeg')
+        with open(logo_path, "rb") as image_file:
+            logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+    except:
+        pass
+
+    # 2. ഡാറ്റ ഫിൽട്ടർ ചെയ്യുന്നു
     expenses = (
         Expense.objects
         .select_related('expense_type', 'category', 'partner')
@@ -404,21 +415,16 @@ def expense_summary_pdf(request):
 
     if type_id and type_id != 'all':
         expenses = expenses.filter(expense_type_id=type_id)
-        selected_type = ExpenseType.objects.get(
-            id=type_id, is_active=True
-        ).name
+        selected_type = ExpenseType.objects.get(id=type_id, is_active=True).name
 
     if from_date:
         expenses = expenses.filter(date__gte=from_date)
-
     if to_date:
         expenses = expenses.filter(date__lte=to_date)
 
-    total_amount = expenses.aggregate(
-        total=Sum('amount')
-    )['total'] or 0
+    total_amount = expenses.aggregate(total=Sum('amount'))['total'] or 0
 
-    # CATEGORY SUMMARY
+
     raw_summary = (
         expenses
         .values('category__name')
@@ -439,22 +445,19 @@ def expense_summary_pdf(request):
         })
 
 
+    context = {
+        'total_amount': total_amount,
+        'selected_type': selected_type,
+        'from_date': from_date,
+        'to_date': to_date,
+        'category_summary': category_summary,
+        'expenses': expenses,
+        'logo': f"data:image/jpeg;base64,{logo_base64}" if logo_base64 else "",
+    }
 
+    final_filename = f"{slugify(selected_type)}_summary.pdf"
 
-        context = {
-            'total_amount': total_amount,
-            'selected_type': selected_type,
-            'from_date': from_date,
-            'to_date': to_date,
-            'category_summary': category_summary,
-            'expenses': expenses,
-        }
-
-
-        final_filename = f"{slugify(selected_type)}_summary.pdf"
-
-
-        return generate_pdf('expense/expense_summary_pdf.html', context, final_filename)
+    return generate_pdf('expense/expense_summary_pdf.html', context, final_filename)
 
 
 
