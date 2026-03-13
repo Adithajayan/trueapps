@@ -219,7 +219,7 @@ def quotation_pdf_download(request, pk):
         "quotation": quotation,
         "items": items,
         "heading": heading,
-        "logo": logo_url,
+        "logo": "",
     }
 
     customer_name = quotation.customer.name
