@@ -260,11 +260,7 @@ def purchase_report(request):
 
 
 
-from django.db.models import Sum
-from django.template.loader import render_to_string
-from django.http import HttpResponse
-from config.utils.pdf import generate_pdf
-from .models import Purchase
+
 
 def purchase_report_pdf(request):
     from_date = request.GET.get('from_date')
