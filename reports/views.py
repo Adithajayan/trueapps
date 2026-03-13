@@ -445,20 +445,13 @@ def profit_loss_report(request):
     return render(request, 'reports/profit_loss_report.html', context)
 
 
-from django.http import HttpResponse
-from django.template.loader import render_to_string
 
-from decimal import Decimal
-from django.db.models import Sum
-from sales.models import SalesMaster, SalesItemBatch
-from purchase.models import Purchase
 
 
 from decimal import Decimal
 from django.db.models import Sum
 
 from config.utils.pdf import generate_pdf
-from .models import SalesMaster, Purchase, SalesItemBatch
 
 def profit_loss_pdf(request):
     from_date = request.GET.get('from_date')
