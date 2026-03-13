@@ -99,8 +99,7 @@ def sales_report(request):
 
 
 
-from config.utils.pdf import generate_pdf
-from .models import SalesMaster, SalesItemBatch  # നിന്റെ മോഡലുകൾ
+
 
 
 def sales_report_pdf(request):
