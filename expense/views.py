@@ -385,9 +385,10 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.db.models import Sum
 from django.utils.text import slugify
+from .utils.pdf import generate_pdf
 
 def expense_summary_pdf(request):
-    from weasyprint import HTML
+
     expenses = (
         Expense.objects
         .select_related('expense_type', 'category', 'partner')
@@ -437,30 +438,23 @@ def expense_summary_pdf(request):
             'percentage': percentage
         })
 
-    # PDF Template rendering
-    html_string = render_to_string(
-        'expense/expense_summary_pdf.html',
-        {
+
+
+
+        context = {
             'total_amount': total_amount,
             'selected_type': selected_type,
             'from_date': from_date,
             'to_date': to_date,
             'category_summary': category_summary,
-            'expenses': expenses, # Oru vela pdf-il table venam ennu thonniyal ithu upakarikkum
+            'expenses': expenses,
         }
-    )
 
-    # Dynamic Filename Generation
-    # slugify upayogikkunnathu filename-il spaces-um special characters-um ozhivakkan aanu.
-    file_name_base = slugify(selected_type)
-    final_filename = f"{file_name_base}_summary.pdf"
 
-    response = HttpResponse(content_type='application/pdf')
-    # Dynamic filename ivide apply cheyyunnu
-    response['Content-Disposition'] = f'attachment; filename="{final_filename}"'
+        final_filename = f"{slugify(selected_type)}_summary.pdf"
 
-    HTML(string=html_string).write_pdf(response)
-    return response
+
+        return generate_pdf('expense/expense_summary_pdf.html', context, final_filename)
 
 
 

@@ -504,9 +504,14 @@ def staff_salary_pdf(request, staff_id):
     else:
         return HttpResponse(f"PDF Error: {pdf_response.text}", status=pdf_response.status_code)
 
+from decimal import Decimal
+import calendar
+from django.db.models import Sum
+from django.template.loader import render_to_string
+from .utils.pdf import generate_pdf
+from .models import Staff, Attendance, Advance
 
 def export_salary_total_pdf(request):
-    from weasyprint import HTML
     month = int(request.GET.get('month'))
     year = int(request.GET.get('year'))
     staffs = Staff.objects.filter(status=True)
@@ -519,9 +524,7 @@ def export_salary_total_pdf(request):
     for staff in staffs:
         present = Attendance.objects.filter(staff=staff, status='P', date__month=month, date__year=year).count()
         half = Attendance.objects.filter(staff=staff, status='H', date__month=month, date__year=year).count()
-        advance = \
-        Advance.objects.filter(staff=staff, date__month=month, date__year=year).aggregate(total=Sum('amount'))[
-            'total'] or 0
+        advance = Advance.objects.filter(staff=staff, date__month=month, date__year=year).aggregate(total=Sum('amount'))['total'] or 0
 
         daily = staff.daily_salary
         actual_salary = (present * daily) + (half * (daily / Decimal('2')))
@@ -539,6 +542,7 @@ def export_salary_total_pdf(request):
         total_actual_salary += Decimal(actual_salary)
         total_advance_given += Decimal(advance)
 
+
     context = {
         'rows': rows,
         'month': month,
@@ -549,8 +553,9 @@ def export_salary_total_pdf(request):
         'month_name': calendar.month_name[month],
     }
 
-    html_string = render_to_string('attendance/salary_total_pdf_template.html', context)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="Salary_Report_{month}_{year}.pdf"'
-    HTML(string=html_string).write_pdf(response)
-    return response
+
+    template_name = 'attendance/salary_total_pdf_template.html'
+    filename = f"Salary_Report_{month}_{year}.pdf"
+
+
+    return generate_pdf(template_name, context, filename)

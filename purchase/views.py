@@ -390,18 +390,23 @@ def purchase_invoice_print(request, pk):
 
 
 
-# PDF DOWNLOAD
-from django.http import HttpResponse
-from django.template.loader import get_template
+
+
+from django.shortcuts import get_object_or_404
+
+from .utils.pdf import generate_pdf
+from .models import Purchase
 
 
 def purchase_invoice_pdf(request, pk):
-    from weasyprint import HTML
+
+
     purchase = get_object_or_404(Purchase, id=pk)
 
     total_sgst = 0
     total_cgst = 0
     taxable_total = 0
+
 
     for item in purchase.items.all():
         base = item.qty * item.rate
@@ -409,25 +414,22 @@ def purchase_invoice_pdf(request, pk):
         total_sgst += base * item.sgst / 100
         total_cgst += base * item.cgst / 100
 
-    template = get_template("purchase/purchase_invoice_print.html")
-    html = template.render({
+
+    context = {
         "purchase": purchase,
         "taxable_total": round(taxable_total, 2),
         "total_sgst": round(total_sgst, 2),
         "total_cgst": round(total_cgst, 2),
         "discount": 0,
-    })
+    }
 
-    pdf = HTML(
-        string=html,
-        base_url=request.build_absolute_uri()
-    ).write_pdf()
 
-    response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = (
-        f'attachment; filename="{purchase.invoice_no}.pdf"'
-    )
-    return response
+    filename = f"{purchase.invoice_no}.pdf"
+
+
+    template_path = "purchase/purchase_invoice_print.html"
+
+    return generate_pdf(template_path, context, filename)
 
 
 from .models import PurchaseReturn, PurchaseReturnItem

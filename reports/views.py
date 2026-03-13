@@ -98,16 +98,13 @@ def sales_report(request):
     return render(request, 'reports/sales_report.html', context)
 
 
-from django.http import HttpResponse
-from django.template.loader import render_to_string
 
-
-from sales.models import SalesMaster, SalesItemBatch
-from django.db.models import Sum
+from .utils.pdf import generate_pdf  # നമ്മുടെ മാജിക് മെഷീൻ
+from .models import SalesMaster, SalesItemBatch  # നിന്റെ മോഡലുകൾ
 
 
 def sales_report_pdf(request):
-    from weasyprint import HTML
+
 
     from_date = request.GET.get('from_date')
     to_date = request.GET.get('to_date')
@@ -115,13 +112,14 @@ def sales_report_pdf(request):
 
     sales = SalesMaster.objects.all().select_related('customer')
 
+
     if from_date and to_date:
         sales = sales.filter(date__range=[from_date, to_date])
 
     if sale_type and sale_type != "ALL":
         sales = sales.filter(sale_type=sale_type)
 
-    # PROFIT
+
     for sale in sales:
         profit = SalesItemBatch.objects.filter(
             sales_item__sales=sale
@@ -135,20 +133,19 @@ def sales_report_pdf(request):
         sales_item__sales__in=sales
     ).aggregate(total=Sum('profit'))['total'] or 0
 
-    html_string = render_to_string(
-        'reports/sales_report_pdf.html',
-        {
-            'sales': sales,
-            'total_sales': total_sales,
-            'total_profit': total_profit,
-        }
-    )
 
-    pdf = HTML(string=html_string).write_pdf()
+    context = {
+        'sales': sales,
+        'total_sales': total_sales,
+        'total_profit': total_profit,
+    }
 
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Sales_Report.pdf"'
-    return response
+
+    filename = "Sales_Report.pdf"
+    template_path = 'reports/sales_report_pdf.html'
+
+
+    return generate_pdf(template_path, context, filename)
 
 
 
@@ -261,14 +258,16 @@ def purchase_report(request):
     return render(request, 'reports/purchase_report.html', context)
 
 
-from django.http import HttpResponse
+
+
+
+from django.db.models import Sum
 from django.template.loader import render_to_string
-
-
+from django.http import HttpResponse
+from .utils.pdf import generate_pdf
+from .models import Purchase
 
 def purchase_report_pdf(request):
-    from weasyprint import HTML
-
     from_date = request.GET.get('from_date')
     to_date = request.GET.get('to_date')
     supplier_id = request.GET.get('supplier')
@@ -291,22 +290,18 @@ def purchase_report_pdf(request):
         total=Sum('total_amount')
     )['total'] or 0
 
-    html_string = render_to_string(
-        'reports/purchase_report_pdf.html',
-        {
-            'purchases': purchases,
-            'total_purchase': total_purchase,
-            'from_date': from_date,
-            'to_date': to_date,
-            'payment_type': payment_type,
-        }
-    )
+    context = {
+        'purchases': purchases,
+        'total_purchase': total_purchase,
+        'from_date': from_date,
+        'to_date': to_date,
+        'payment_type': payment_type,
+    }
 
-    pdf = HTML(string=html_string).write_pdf()
+    filename = "Purchase_Report.pdf"
+    template_path = 'reports/purchase_report_pdf.html'
 
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Purchase_Report.pdf"'
-    return response
+    return generate_pdf(template_path, context, filename)
 
 
 
@@ -464,16 +459,20 @@ from sales.models import SalesMaster, SalesItemBatch
 from purchase.models import Purchase
 
 
-def profit_loss_pdf(request):
-    from weasyprint import HTML
+from decimal import Decimal
+from django.db.models import Sum
 
+from .utils.pdf import generate_pdf
+from .models import SalesMaster, Purchase, SalesItemBatch
+
+def profit_loss_pdf(request):
     from_date = request.GET.get('from_date')
     to_date = request.GET.get('to_date')
 
     sales = SalesMaster.objects.all()
     purchases = Purchase.objects.all()
 
-    # ✅ DATE FILTER ONLY IF VALID
+    # DATE FILTER LOGIC
     if from_date and to_date and from_date != "None" and to_date != "None":
         sales = sales.filter(date__range=[from_date, to_date])
         purchases = purchases.filter(purchase_date__range=[from_date, to_date])
@@ -497,23 +496,21 @@ def profit_loss_pdf(request):
     if total_sales > 0:
         profit_percentage = (net_profit / total_sales) * 100
 
-    html_string = render_to_string(
-        'reports/pdf/profit_loss_pdf.html',
-        {
-            'total_sales': total_sales,
-            'total_purchase': total_purchase,
-            'net_profit': net_profit,
-            'profit_percentage': round(profit_percentage,2),
-            'from_date': from_date,
-            'to_date': to_date,
-        }
-    )
+    # DATA CONTEXT
+    context = {
+        'total_sales': total_sales,
+        'total_purchase': total_purchase,
+        'net_profit': net_profit,
+        'profit_percentage': round(profit_percentage, 2),
+        'from_date': from_date,
+        'to_date': to_date,
+    }
 
-    pdf = HTML(string=html_string).write_pdf()
+    filename = "Profit_Loss_Report.pdf"
+    template_path = 'reports/pdf/profit_loss_pdf.html'
 
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Profit_Loss_Report.pdf"'
-    return response
+    # Using the new PDF generation machine
+    return generate_pdf(template_path, context, filename)
 
 
 

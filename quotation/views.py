@@ -142,32 +142,28 @@ def quotation_list(request):
 
 
 
-
+from .utils.pdf import generate_pdf
 
 
 def quotation_pdf(request, pk):
-    from weasyprint import HTML
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
 
-    html_string = render_to_string(
-        "quotation/quotation_pdf.html",
-        {
-            "quotation": quotation,
-            "items": items,
-            "logo": request.build_absolute_uri("/static/company/logo.png")
-        }
-    )
 
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = f'inline; filename="quotation_{quotation.id}.pdf"'
+    context = {
+        "quotation": quotation,
+        "items": items,
+        "logo": request.build_absolute_uri("/static/company/logo.png")
+    }
 
-    HTML(
-        string=html_string,
-        base_url=request.build_absolute_uri()
-    ).write_pdf(response)
 
-    return response
+    filename = f"quotation_{quotation.id}.pdf"
+
+
+    template_path = "quotation/quotation_pdf.html"
+
+
+    return generate_pdf(template_path, context, filename)
 
 
 
@@ -175,47 +171,38 @@ def quotation_pdf(request, pk):
 
 
 
-
-
-from django.conf import settings
-import os
-
-
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
-
-from django.conf import settings
-import os
+from .utils.pdf import generate_pdf
 
 
 def quotation_pdf_view(request, pk):
-    from weasyprint import HTM
+
+
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
+
 
     heading = ""
     if items.exists():
         heading = items.first().product.name
 
-    logo_path = os.path.join(settings.BASE_DIR, "static/company/logo.jpeg")
-    logo_url = f"file:///{logo_path.replace(os.sep, '/')}"
 
-    html_string = render_to_string(
-        "quotation/quotation_pdf.html",
-        {
-            "quotation": quotation,
-            "items": items,
-            "heading": heading,
-            "logo": logo_url,
-        }
-    )
+    logo_url = request.build_absolute_uri(settings.STATIC_URL + "company/logo.jpeg")
 
-    pdf = HTML(string=html_string).write_pdf()
+    # ✅ ഡാറ്റാ പാക്കറ്റ് (Context)
+    context = {
+        "quotation": quotation,
+        "items": items,
+        "heading": heading,
+        "logo": logo_url,
+    }
 
-    response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = "inline; filename=quotation.pdf"
-    return response
+
+    filename = f"quotation_{pk}.pdf"
+
+
+    template_path = "quotation/quotation_pdf.html"
+
+    return generate_pdf(template_path, context, filename)
 
 def quotation_pdf_download(request, pk):
 
@@ -512,40 +499,37 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 
+import re
+import os
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from .utils.pdf import generate_pdf
 
 
 def invoice_pdf_download(request, pk):
-    from weasyprint import HTML
 
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
 
-    # ✅ LOGO ABSOLUTE PATH
-    logo_path = os.path.join(settings.BASE_DIR, "static", "company", "logo.jpeg")
-    logo_url = f"file:///{logo_path.replace(os.sep, '/')}"
 
-    # ✅ HTML RENDER
-    html_string = render_to_string(
-        "quotation/invoice_pdf.html",
-        {
-            "quotation": quotation,
-            "items": items,
-            "logo": logo_url,
-        }
-    )
+    logo_url = request.build_absolute_uri(settings.STATIC_URL + "company/logo.jpeg")
 
-    pdf = HTML(string=html_string).write_pdf()
 
-    # ✅ SAFE CUSTOMER NAME FOR FILE
+    context = {
+        "quotation": quotation,
+        "items": items,
+        "logo": logo_url,
+    }
+
+
     customer_name = quotation.customer.name
     safe_name = re.sub(r'[^A-Za-z0-9]+', '_', customer_name).strip('_')
-
     filename = f"{safe_name}_Invoice.pdf"
 
-    response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    template_path = "quotation/invoice_pdf.html"
 
-    return response
+    return generate_pdf(template_path, context, filename)
 
 
 

@@ -635,28 +635,32 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 
+from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from .utils.pdf import generate_pdf
+from .models import SalesMaster
+
+
 def manage_sales_invoice(request, pk, action='view'):
     sale = get_object_or_404(SalesMaster, pk=pk)
 
-    # DOWNLOAD
+    # DOWNLOAD ACTION
     if action == 'download':
 
-        from weasyprint import HTML   # ✅ import ivide
 
-        html = render_to_string('sales/sales_print.html', {'sale': sale})
+        context = {'sale': sale}
+        filename = f"{sale.invoice_no}.pdf"
+        template_path = 'sales/sales_print.html'
 
-        pdf = HTML(string=html).write_pdf()
+        # Using the new PDF generation machine
+        return generate_pdf(template_path, context, filename)
 
-        response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{sale.invoice_no}.pdf"'
-
-        return response
-
-    # PRINT
+    # PRINT ACTION
     if action == 'print':
         return render(request, 'sales/sales_print.html', {'sale': sale})
 
-    # VIEW
+    # VIEW ACTION (Default)
     return render(request, 'sales/sales_view.html', {'sale': sale})
 
 
