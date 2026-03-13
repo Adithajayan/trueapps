@@ -492,43 +492,41 @@ def quotation_edit(request, pk):
         "products": products
     })
 
-import os
-import re
-from django.conf import settings
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
+
 
 import re
 import os
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 from config.utils.pdf import generate_pdf
 
-
 def invoice_pdf_download(request, pk):
-
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
 
+    # 1. ലോഗോയെ ടെക്സ്റ്റ് (Base64) ആക്കി മാറ്റുന്നു
+    logo_base64 = ""
+    try:
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'company', 'logo.jpeg')
+        with open(logo_path, "rb") as image_file:
+            logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+    except Exception as e:
+        print(f"Invoice Logo error: {e}")
 
-    logo_url = request.build_absolute_uri(settings.STATIC_URL + "company/logo.jpeg")
-
-
+    # 2. കോൺടെക്സ്റ്റ് സെറ്റ് ചെയ്യുന്നു
     context = {
         "quotation": quotation,
         "items": items,
-        "logo": logo_url,
+        "logo": f"data:image/jpeg;base64,{logo_base64}" if logo_base64 else "",
     }
 
-
+    # 3. ഫയൽ നെയിം സെറ്റ് ചെയ്യുന്നു
     customer_name = quotation.customer.name
     safe_name = re.sub(r'[^A-Za-z0-9]+', '_', customer_name).strip('_')
     filename = f"{safe_name}_Invoice.pdf"
 
     template_path = "quotation/invoice_pdf.html"
 
+    # നമ്മുടെ പുതിയ ടൂൾ വഴി പിഡിഎഫ് അയക്കുന്നു
     return generate_pdf(template_path, context, filename)
 
 
