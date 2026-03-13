@@ -166,7 +166,15 @@ def quotation_pdf(request, pk):
     return generate_pdf(template_path, context, filename)
 
 
-def quotation_pdf_download(request, pk):
+
+
+
+
+from config.utils.pdf import generate_pdf
+
+
+def quotation_pdf_view(request, pk):
+
 
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
@@ -177,42 +185,42 @@ def quotation_pdf_download(request, pk):
         heading = items.first().product.name
 
 
+    logo_url = request.build_absolute_uri(settings.STATIC_URL + "company/logo.jpeg")
+
+    # ✅ ഡാറ്റാ പാക്കറ്റ് (Context)
     context = {
         "quotation": quotation,
         "items": items,
         "heading": heading,
-
+        "logo": logo_url,
     }
 
 
-    customer_name = quotation.customer.name
-
-    safe_name = re.sub(r'[^A-Za-z0-9]+', '_', customer_name).strip('_')
-    filename = f"{safe_name}_Quotation.pdf"
+    filename = f"quotation_{pk}.pdf"
 
 
-    template_name = "quotation/quotation_pdf.html"
+    template_path = "quotation/quotation_pdf.html"
 
-    return generate_pdf(template_name, context, filename)
+    return generate_pdf(template_path, context, filename)
 
 
 
 
-def quotation_pdf_download(request, pk):
+
+def quotation_pdf_view(request, pk):
     quotation = get_object_or_404(Quotation, id=pk)
     items = quotation.items.all()
 
-    # ✅ HEADING LOGIC
+
     heading = ""
     if items.exists():
         heading = items.first().product.name
 
-
+    # ✅ context (ഡാറ്റ)
     context = {
         "quotation": quotation,
         "items": items,
         "heading": heading,
-
     }
 
     # ✅ SAFE FILENAME
@@ -220,11 +228,10 @@ def quotation_pdf_download(request, pk):
     safe_name = re.sub(r'[^A-Za-z0-9]+', '_', customer_name).strip('_')
     filename = f"{safe_name}_Quotation.pdf"
 
-
     template_name = "quotation/quotation_pdf.html"
 
-    return generate_pdf(template_name, context, filename)
 
+    return generate_pdf(template_name, context, filename)
 
 
 
