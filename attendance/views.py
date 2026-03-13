@@ -426,6 +426,8 @@ def calculate_salary(staff, month, year, daily_salary=500):
 
 import requests
 
+import requests
+
 def staff_salary_pdf(request, staff_id):
 
     month = int(request.GET.get("month"))
@@ -434,16 +436,16 @@ def staff_salary_pdf(request, staff_id):
     staff = Staff.objects.get(id=staff_id)
 
     presents = Attendance.objects.filter(
-        staff=staff, status='P',
-        date__month=month, date__year=year)
+        staff=staff,status='P',
+        date__month=month,date__year=year)
 
     absents = Attendance.objects.filter(
-        staff=staff, status='A',
-        date__month=month, date__year=year)
+        staff=staff,status='A',
+        date__month=month,date__year=year)
 
     halfdays = Attendance.objects.filter(
-        staff=staff, status='H',
-        date__month=month, date__year=year)
+        staff=staff,status='H',
+        date__month=month,date__year=year)
 
     advances = Advance.objects.filter(
         staff=staff,
@@ -481,13 +483,14 @@ def staff_salary_pdf(request, staff_id):
         context
     )
 
-    api_key = "PASTE_YOUR_PDFSHIFT_API_KEY"
+    api_key = "YOUR_API_KEY"
 
     pdf_response = requests.post(
         "https://api.pdfshift.io/v3/convert/pdf",
         auth=("api", api_key),
         json={
-            "source": html
+            "source": html,
+            "use_print": True
         }
     )
 
