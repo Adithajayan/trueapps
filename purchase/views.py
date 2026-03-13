@@ -394,7 +394,7 @@ def purchase_invoice_print(request, pk):
 
 from django.shortcuts import get_object_or_404
 
-from .utils.pdf import generate_pdf
+from config.utils.pdf import generate_pdf
 from .models import Purchase
 
 

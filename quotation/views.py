@@ -142,7 +142,7 @@ def quotation_list(request):
 
 
 
-from .utils.pdf import generate_pdf
+from config.utils.pdf import generate_pdf
 
 
 def quotation_pdf(request, pk):
@@ -170,8 +170,7 @@ def quotation_pdf(request, pk):
 
 
 
-
-from .utils.pdf import generate_pdf
+from config.utils.pdf import generate_pdf
 
 
 def quotation_pdf_view(request, pk):
@@ -504,7 +503,7 @@ import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
-from .utils.pdf import generate_pdf
+from config.utils.pdf import generate_pdf
 
 
 def invoice_pdf_download(request, pk):

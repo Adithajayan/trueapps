@@ -385,7 +385,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.db.models import Sum
 from django.utils.text import slugify
-from .utils.pdf import generate_pdf
+from config.utils.pdf import generate_pdf
 
 def expense_summary_pdf(request):
 

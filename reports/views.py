@@ -99,7 +99,7 @@ def sales_report(request):
 
 
 
-from .utils.pdf import generate_pdf  # നമ്മുടെ മാജിക് മെഷീൻ
+from config.utils.pdf import generate_pdf
 from .models import SalesMaster, SalesItemBatch  # നിന്റെ മോഡലുകൾ
 
 
@@ -264,7 +264,7 @@ def purchase_report(request):
 from django.db.models import Sum
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from .utils.pdf import generate_pdf
+from config.utils.pdf import generate_pdf
 from .models import Purchase
 
 def purchase_report_pdf(request):
@@ -462,7 +462,7 @@ from purchase.models import Purchase
 from decimal import Decimal
 from django.db.models import Sum
 
-from .utils.pdf import generate_pdf
+from config.utils.pdf import generate_pdf
 from .models import SalesMaster, Purchase, SalesItemBatch
 
 def profit_loss_pdf(request):

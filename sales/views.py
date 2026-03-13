@@ -638,7 +638,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from .utils.pdf import generate_pdf
+from config.utils.pdf import generate_pdf
 from .models import SalesMaster
 
 
