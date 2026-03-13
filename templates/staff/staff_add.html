@@ -2,7 +2,6 @@
 {% block content %}
 
 <style>
-
 /* ===== BACK BUTTON ===== */
 .back-btn{
     display:inline-flex;
@@ -35,6 +34,19 @@
     box-shadow:0 12px 28px rgba(0,0,0,0.08);
 }
 
+/* SECTION DIVIDER */
+.section-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #6b7280;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 5px;
+}
+
 /* CHECKBOX */
 .checkbox-box{
     display:flex;
@@ -45,27 +57,21 @@
 
 /* MOBILE */
 @media(max-width:768px){
-
     .form-card{
         padding:18px;
     }
-
     .form-card h4{
         font-size:18px;
     }
-
     .btn{
         font-size:13px;
         padding:7px 12px;
     }
-
 }
-
 </style>
 
 <div class="container mt-4">
 
-    <!-- BACK BUTTON -->
     <a href="{% url 'staff_list' %}" class="back-btn">
         ← Back
     </a>
@@ -74,12 +80,42 @@
 
         <h4 class="mb-3">Add Staff</h4>
 
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
         <form method="post">
             {% csrf_token %}
 
+            <div class="section-title">Login Credentials</div>
+
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text"
+                       name="username"
+                       class="form-control"
+                       placeholder="Unique username for login"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password"
+                       name="password"
+                       class="form-control"
+                       placeholder="Secure password"
+                       required>
+            </div>
+
+            <div class="section-title">Personal Details</div>
+
             <div class="mb-3">
                 <label class="form-label">Name</label>
-
                 <input type="text"
                        name="name"
                        class="form-control"
@@ -88,7 +124,6 @@
 
             <div class="mb-3">
                 <label class="form-label">Designation</label>
-
                 <input type="text"
                        name="designation"
                        class="form-control">
@@ -96,15 +131,13 @@
 
             <div class="mb-3">
                 <label class="form-label">Address</label>
-
                 <textarea name="address"
-                          class="form-control"></textarea>
+                          class="form-control"
+                          rows="2"></textarea>
             </div>
 
-            <!-- DAILY SALARY -->
             <div class="mb-3">
                 <label class="form-label">Daily Salary</label>
-
                 <input type="text"
                        name="daily_salary"
                        class="form-control"
@@ -112,18 +145,19 @@
                        required>
             </div>
 
-            <!-- STATUS -->
             <div class="checkbox-box">
                 <input type="checkbox"
+                       id="status"
                        name="status"
                        checked>
-
-                <label>Active</label>
+                <label for="status">Active</label>
             </div>
 
-            <button class="btn btn-success">
-                Save Staff
-            </button>
+            <div class="d-grid mt-4">
+                <button class="btn btn-success">
+                    Save Staff & Create Account
+                </button>
+            </div>
 
         </form>
 

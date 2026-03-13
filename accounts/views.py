@@ -2,13 +2,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from income.models import CustomerWork, WorkPayment
-from supplier_ledger.models import SupplierLedger
-
-from attendance.models import Attendance
-from expense.models import Expense
-from quotation.models import Quotation
-
-from quotation.models import Quotation
 
 
 
@@ -21,7 +14,13 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect('dashboard')
+
+            # If the user is a superuser (Admin), redirect to main dashboard
+            if user.is_superuser:
+                return redirect('dashboard')
+            # If the user is a staff member, redirect to job management dashboard
+            else:
+                return redirect('job_dashboard')
         else:
             messages.error(request, 'Invalid username or password')
 
@@ -42,9 +41,17 @@ from supplier_ledger.models import SupplierLedger
 from income.models import CustomerWork, WorkPayment
 from attendance.models import Attendance
 from expense.models import Expense
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def dashboard(request):
+    # ================= SECURITY CHECK =================
+    # If the user is a staff member (not superuser),
+    # redirect them away from the financial dashboard.
+    if not request.user.is_superuser:
+        return redirect('job_dashboard')
+
     today = datetime.today()
 
     # ================= MONTH FILTER =================

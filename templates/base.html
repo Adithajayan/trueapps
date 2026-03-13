@@ -321,6 +321,7 @@
             <h4 class="logo">
                 <span class="true">TRUE</span><span class="bit">BIT</span>
             </h4>
+            {% if user.is_superuser %}
 
             <a href="/dashboard/"><i class="fa fa-chart-line"></i> Dashboard</a>
             <a href="/staff/"><i class="fa fa-users"></i> Staff</a>
@@ -373,6 +374,7 @@
             <a href="{% url 'reports_home' %}">
                 <i class="fa fa-chart-pie"></i> Reports
             </a>
+            {% endif %}
 
             <div class="d-flex align-items-center">
                 <!-- JOB MANAGEMENT -->
