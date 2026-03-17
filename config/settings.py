@@ -33,6 +33,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     "trueapps-production.up.railway.app",
+    'www.trueappsinternational.com',
+    'trueappsinternational.com',
     "127.0.0.1",
     "localhost"
 ]
