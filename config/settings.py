@@ -42,6 +42,8 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://trueapps-production.up.railway.app",
     "http://127.0.0.1",
+    'https://www.trueappsinternational.com',
+    'https://trueappsinternational.com',
     "http://localhost"
 ]
 
