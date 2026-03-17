@@ -33,18 +33,16 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     "trueapps-production.up.railway.app",
-    'www.trueappsinternational.com',
-    'trueappsinternational.com',
+    "www.trueappsinternational.com",
+    "trueappsinternational.com",
     "127.0.0.1",
     "localhost"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://trueapps-production.up.railway.app",
-    "http://127.0.0.1",
-    'https://www.trueappsinternational.com',
-    'https://trueappsinternational.com',
-    "http://localhost"
+    "https://www.trueappsinternational.com",
+    "https://trueappsinternational.com"
 ]
 
 
@@ -165,3 +163,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_DOMAIN = ".trueappsinternational.com"
