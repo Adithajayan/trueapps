@@ -28,10 +28,9 @@ import os
 
 DJANGO_SUPERUSER_PASSWORD = os.environ.get("DJANGO_SUPERUSER_PASSWORD")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
-DEBUG = False
+
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "trueapps-production.up.railway.app",
@@ -159,7 +158,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
