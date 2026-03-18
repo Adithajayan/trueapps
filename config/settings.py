@@ -164,26 +164,23 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
+# settings.py-ude thazhe ithu update cheyyo
 
 if not DEBUG:
-    # Live settings
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-
     USE_X_FORWARDED_HOST = True
 
-    # Trusted domains for CSRF
+    # Domain settings (ellam domain-um ithil undenn urappu varuthuka)
     CSRF_TRUSTED_ORIGINS = [
         "https://trueapps-production.up.railway.app",
         "https://www.trueappsinternational.com",
         "https://trueappsinternational.com"
     ]
-else:
-    # Local settings
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
+
+    # Cookies setting (Ithu login loop maattaan sahayikkum)
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+    CSRF_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_HTTPONLY = True
