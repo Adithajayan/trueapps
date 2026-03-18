@@ -185,3 +185,5 @@ if not DEBUG:
 else:
     # Local settings
     SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
