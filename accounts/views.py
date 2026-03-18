@@ -177,3 +177,12 @@ def dashboard(request):
 
 
 
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+def create_admin_manual(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'trueapps@gmail.com', 'Trueapps@2026')
+        return HttpResponse("Admin created successfully!")
+    else:
+        return HttpResponse("Admin already exists!")
