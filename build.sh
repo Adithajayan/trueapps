@@ -26,4 +26,4 @@ python manage.py migrate --noinput
 
 
 python manage.py collectstatic --noinput
-python manage.py createsuperuser --noinput || true
+python manage.py createsuperuser --noinput --username trueapps --email trueapps@gmail.com || true
