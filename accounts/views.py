@@ -3,36 +3,34 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from income.models import CustomerWork, WorkPayment
 
+
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        # Authentication process
+        # User-e check cheyyunnu
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
-
-
+            # Admin aanengil
             if user.is_superuser:
                 return redirect('dashboard')
-
+            # Staff aanengil
             else:
                 return redirect('job_dashboard')
         else:
-
+            # Login fail aayal message kaanikkan
             messages.error(request, 'Invalid username or password. Please try again.')
+            return render(request, 'login.html', {'username': username})
 
-            return render(request, 'accounts/login.html', {'username': username})
-
-
-    return render(request, 'accounts/login.html')
+    return render(request, 'login.html')
 
 
 
