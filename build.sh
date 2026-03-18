@@ -18,13 +18,12 @@ apt-get install -y \
 pip install -r requirements.txt
 
 
-python manage.py flush --noinput
+python manage.py makemigrations --noinput
 
-# Ippo migration run cheyyaam
+
+python manage.py flush --noinput
 python manage.py migrate --noinput
 
-# Static files collect cheyyaam
-python manage.py collectstatic --noinput
 
-# Superuser undakkaam (Username 'admin' aakkunnathaanu nallath)
+python manage.py collectstatic --noinput
 python manage.py createsuperuser --noinput --username admin --email trueapps@gmail.com || true
