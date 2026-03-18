@@ -12,9 +12,19 @@ apt-get install -y \
     libffi-dev \
     shared-mime-info
 
+#!/bin/bash
+
+
 pip install -r requirements.txt
 
-python manage.py collectstatic --noinput
-python manage.py migrate
+# Database clean akkan ulla command (Ithu orikkal mathram mathi)
+python manage.py flush --noinput
 
-python manage.py createsuperuser --noinput --username truebit --email truebit@gmail.com || true
+# Ippo migration run cheyyaam
+python manage.py migrate --noinput
+
+# Static files collect cheyyaam
+python manage.py collectstatic --noinput
+
+# Superuser undakkaam (Username 'admin' aakkunnathaanu nallath)
+python manage.py createsuperuser --noinput --username admin --email trueapps@gmail.com || true
