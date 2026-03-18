@@ -3,6 +3,9 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from income.models import CustomerWork, WorkPayment
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
 
 
 def login_view(request):
@@ -10,21 +13,26 @@ def login_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
+        # Authentication process
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
 
-            # If the user is a superuser (Admin), redirect to main dashboard
+
             if user.is_superuser:
                 return redirect('dashboard')
-            # If the user is a staff member, redirect to job management dashboard
+
             else:
                 return redirect('job_dashboard')
         else:
-            messages.error(request, 'Invalid username or password')
 
-    return render(request, 'login.html')
+            messages.error(request, 'Invalid username or password. Please try again.')
+
+            return render(request, 'accounts/login.html', {'username': username})
+
+
+    return render(request, 'accounts/login.html')
 
 
 
