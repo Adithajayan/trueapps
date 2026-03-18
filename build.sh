@@ -17,7 +17,7 @@ apt-get install -y \
 
 pip install -r requirements.txt
 
-# Database clean akkan ulla command (Ithu orikkal mathram mathi)
+
 python manage.py flush --noinput
 
 # Ippo migration run cheyyaam
