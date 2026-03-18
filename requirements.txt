@@ -10,3 +10,5 @@ python-bidi
 arabic-reshaper
 google-auth
 requests
+psycopg2-binary
+dj-database-url
