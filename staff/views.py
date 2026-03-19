@@ -3,16 +3,23 @@ from .models import Staff
 from django.contrib.auth.decorators import login_required
 
 # STAFF LIST
+from django.db import connection
+
 @login_required
 def staff_list(request):
+
+    try:
+        with connection.cursor() as cursor:
+
+            cursor.execute('ALTER TABLE staff_staff ADD COLUMN IF NOT EXISTS user_id integer;')
+
+            cursor.execute('ALTER TABLE customer_customer ADD COLUMN IF NOT EXISTS place varchar(150);')
+    except Exception as e:
+        print(f"Database update error: {e}")
+    # -----------------------------------------------------------------------
+
     staffs = Staff.objects.all()
     return render(request, 'staff/staff_list.html', {'staffs': staffs})
-
-
-from decimal import Decimal
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Staff
 
 
 # =========================
