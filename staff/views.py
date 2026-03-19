@@ -3,7 +3,7 @@ from .models import Staff
 from django.contrib.auth.decorators import login_required
 
 # STAFF LIST
-from django.db import connection
+
 
 @login_required
 def staff_list(request):
