@@ -8,8 +8,20 @@ from .models import Customer
 from django.shortcuts import render
 from django.db.models import Q
 from .models import Customer
+from django.db import connection
 
 def customer_list(request):
+    # --- Temporary SQL fix for Customer table ---
+    try:
+        with connection.cursor() as cursor:
+            # place column add cheyyunnu
+            cursor.execute('ALTER TABLE customer_customer ADD COLUMN IF NOT EXISTS place varchar(150);')
+            # created_at column add cheyyunnu
+            cursor.execute(
+                'ALTER TABLE customer_customer ADD COLUMN IF NOT EXISTS created_at timestamp with time zone;')
+    except Exception as e:
+        print(f"Customer DB error: {e}")
+    # --------------------------------------------
     # Search query edukkunnu
     query = request.GET.get('q', '').strip()
 
