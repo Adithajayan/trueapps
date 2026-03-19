@@ -124,7 +124,10 @@ def staff_delete(request, id):
     staff = get_object_or_404(Staff, id=id)
 
     if request.method == 'POST':
+        if staff.user:
+            staff.user.delete()
         staff.delete()
+
         return redirect('staff_list')
 
     return render(request, 'staff/staff_delete.html', {'staff': staff})
