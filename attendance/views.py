@@ -489,7 +489,7 @@ def staff_salary_pdf(request, staff_id):
         json={
             "source": html,
             "use_print": True,
-            "sandbox": True
+            "sandbox": False
         }
     )
 
