@@ -186,3 +186,8 @@ if not DEBUG:
     SESSION_ENGINE = 'django.contrib.sessions.backends.db'
     CSRF_COOKIE_HTTPONLY = True
     SESSION_COOKIE_HTTPONLY = True
+
+
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'job_dashboard'

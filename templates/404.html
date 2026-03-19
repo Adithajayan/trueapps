@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #000000, #0a0a0a);
+        color: #ffffff;
+    }
+
+    .error-container {
+        padding: 120px 20px;
+        text-align: center;
+    }
+
+    .error-code {
+        font-size: 120px;
+        font-weight: 900;
+        background: linear-gradient(45deg, #ff0000, #ff4d4d);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
+    }
+
+    .error-title {
+        font-size: 32px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .error-desc {
+        color: #aaa;
+        font-size: 16px;
+        margin-bottom: 40px;
+    }
+
+    .btn-home {
+        background: linear-gradient(45deg, #ff0000, #cc0000);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        color: #fff;
+        font-weight: 500;
+        transition: 0.3s ease;
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    }
+
+    .btn-home:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 0 25px rgba(255, 0, 0, 0.9);
+        background: linear-gradient(45deg, #ff1a1a, #ff0000);
+    }
+
+    .icon {
+        font-size: 60px;
+        color: #ff0000;
+        margin-bottom: 20px;
+        text-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+    }
+</style>
+
+<div class="error-container">
+
+    <div class="icon">
+        <i class="fa fa-exclamation-triangle"></i>
+    </div>
+
+    <div class="error-code">404</div>
+
+    <div class="error-title">Oops! Page Not Found</div>
+
+    <div class="error-desc">
+        The page you are looking for doesn't exist or has been moved.
+    </div>
+
+    <a href="/" class="btn-home">
+        <i class="fa fa-home"></i> Back to Dashboard
+    </a>
+
+</div>
+
+{% endblock %}
