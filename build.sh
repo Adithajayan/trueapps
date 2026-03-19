@@ -12,16 +12,16 @@ apt-get install -y \
     libffi-dev \
     shared-mime-info
 
-#!/bin/bash
+
 
 
 pip install -r requirements.txt
 
 
-python manage.py makemigrations --noinput
-
-
-python manage.py flush --noinput
+#python manage.py makemigrations --noinput
+#
+#
+#python manage.py flush --noinput
 python manage.py migrate --noinput
 
 
