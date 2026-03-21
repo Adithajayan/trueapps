@@ -123,7 +123,8 @@ def dashboard(request):
 
     # ================= EXPENSE =================
     month_expense_total = Expense.objects.filter(
-        date__range=[from_date, to_date]
+        date__range=[from_date, to_date],
+        category__isnull=False
     ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
 
     # ================= PROFIT STATUS =================
