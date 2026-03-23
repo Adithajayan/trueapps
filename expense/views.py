@@ -231,7 +231,7 @@ from .models import Expense, ExpenseType
 from django.db.models import Sum
 
 def expense_type_list(request, type_id):
-    expense_type = get_object_or_404(ExpenseType, id=type_id)
+    expense_type = get_object_or_404(ExpenseType, id=type_id, is_active=True)
 
     expenses = Expense.objects.filter(
         expense_type=expense_type
@@ -269,11 +269,7 @@ def expense_type_list(request, type_id):
     return render(request, 'expense/expense_type_list.html', context)
 
 
-from django.db.models import Sum
-from .models import Expense, ExpenseType
 
-from django.db.models import Sum
-import json
 
 import json
 from django.db.models import Sum
@@ -281,11 +277,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import Expense, ExpenseType
 
 
-# views.py
 
-import json
-from django.db.models import Sum
-from .models import Expense, ExpenseType
 
 import json
 from decimal import Decimal
