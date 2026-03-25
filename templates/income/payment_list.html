@@ -15,6 +15,28 @@ gap:10px;
 flex-wrap:wrap;
 }
 
+/* ===== BACK BUTTON ===== */
+.back-btn {
+    text-decoration: none;
+    color: #444;
+    background: #f8f9fa;
+    border: 1px solid #eee;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-btn:hover {
+    background: #e9ecef;
+    color: #000;
+    transform: translateX(-3px);
+}
+
 /* ===== SUMMARY CARDS ===== */
 
 .summary-cards{
@@ -159,8 +181,14 @@ font-size:13px;
 
 <!-- ================= TITLE ================= -->
 
-<div class="page-title">
-💼 {{ work.title }}
+<div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+    <a href="{% url 'dashboard' %}" class="back-btn shadow-sm">
+        <i class="bi bi-house-door"></i> Dashboard
+    </a>
+
+    <div class="page-title mb-0">
+        💼 {{ work.title }}
+    </div>
 </div>
 
 <!-- CUSTOMER INFO -->

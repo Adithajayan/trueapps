@@ -8,46 +8,59 @@ from .models import Customer, CustomerWork, WorkPayment
 # =========================
 
 
+from django.db.models import Sum
+from datetime import datetime
+
 
 def customer_list(request):
-
     pending_only = request.GET.get("pending")
+    selected_month = request.GET.get("month")
 
     customers = Customer.objects.all()
     data = []
 
+    total_receivable_balance = 0
+    monthly_collection_total = 0
+
     for customer in customers:
-
+        # --- Total Work & Balance Calculation ---
         works = CustomerWork.objects.filter(customer=customer)
+        total_work_val = works.aggregate(total=Sum("total_amount"))["total"] or 0
 
-        total_amount = works.aggregate(
-            total=Sum("total_amount")
-        )["total"] or 0
+        all_payments = WorkPayment.objects.filter(work__customer=customer)
+        total_received_ever = all_payments.aggregate(total=Sum("amount"))["total"] or 0
 
-        payments = WorkPayment.objects.filter(
-            work__customer=customer
-        )
+        balance = total_work_val - total_received_ever
 
-        received_amount = payments.aggregate(
-            total=Sum("amount")
-        )["total"] or 0
 
-        balance = total_amount - received_amount
+        if selected_month:
+            try:
+                year, month = selected_month.split('-')
+                monthly_payments = all_payments.filter(date__year=year, date__month=month)
+                monthly_collection_total += monthly_payments.aggregate(total=Sum("amount"))["total"] or 0
+            except ValueError:
+                pass
 
-        # ✅ CORRECT pending logic
+        # Pending Filter Logic
         if pending_only == "1" and balance <= 0:
             continue
 
         data.append({
             "customer": customer,
-            "total": total_amount,
-            "received": received_amount,
+            "total": total_work_val,
+            "received": total_received_ever,
             "balance": balance
         })
 
+
+        total_receivable_balance += balance
+
     return render(request, "income/customer_list.html", {
         "data": data,
-        "pending": pending_only
+        "pending": pending_only,
+        "total_receivable": total_receivable_balance,
+        "monthly_total": monthly_collection_total,
+        "selected_month": selected_month
     })
 
 
@@ -167,7 +180,7 @@ def pending_pdf(request):
 
         balance = total - received
 
-        # ബാലൻസ് ഉള്ള കസ്റ്റമേഴ്സിനെ മാത്രം ലിസ്റ്റിൽ എടുക്കുന്നു
+
         if balance > 0:
             data.append({
                 "customer": customer,
@@ -177,7 +190,7 @@ def pending_pdf(request):
             })
             total_pending += balance
 
-    # ഇവിടെയാണ് നമ്മൾ പുതിയ ടൂൾ ഉപയോഗിക്കുന്നത്
+
     context = {
         "data": data,
         "today": date.today(),
