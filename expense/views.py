@@ -284,42 +284,55 @@ from decimal import Decimal
 from django.db.models import Sum
 from .models import Expense, ExpenseType
 
-def expense_summary(request):
 
+def expense_summary(request):
+    # Base query for types
     expense_types = ExpenseType.objects.filter(is_active=True)
 
-    expenses = (
-        Expense.objects
-        .select_related('expense_type', 'category', 'partner')
-        .filter(expense_type__is_active=True)
-        .order_by('-date')
-    )
-
+    # Get filter parameters
     type_id = request.GET.get('type')
     from_date = request.GET.get('from')
     to_date = request.GET.get('to')
 
+    # Initial labels and values (Default empty)
     selected_type = "All Expenses"
 
-    if type_id and type_id != 'all':
-        expenses = expenses.filter(expense_type_id=type_id)
-        selected_type = ExpenseType.objects.get(
-            id=type_id, is_active=True
-        ).name
+    # 🔥 LOGIC: Filter parameters undo ennu check cheyyunnu
+    is_filtered = any([type_id, from_date, to_date])
 
-    if from_date:
-        expenses = expenses.filter(date__gte=from_date)
+    if is_filtered:
+        # Filter parameters undenkil mathrame database-il ninnu data edukkunnu
+        expenses = (
+            Expense.objects
+            .select_related('expense_type', 'category', 'partner')
+            .filter(expense_type__is_active=True)
+            .order_by('-date')
+        )
 
-    if to_date:
-        expenses = expenses.filter(date__lte=to_date)
+        if type_id and type_id != 'all':
+            expenses = expenses.filter(expense_type_id=type_id)
+            selected_type = ExpenseType.objects.get(
+                id=type_id, is_active=True
+            ).name
 
+        if from_date:
+            expenses = expenses.filter(date__gte=from_date)
+
+        if to_date:
+            expenses = expenses.filter(date__lte=to_date)
+    else:
+        # Filter parameter onnumillenkil empty queryset kodukkunnu
+        expenses = Expense.objects.none()
+        selected_type = "Please select a filter"
+
+    # ==========================================
+    # TOTAL & CALCULATIONS (Existing Logic)
+    # ==========================================
     total_amount = expenses.aggregate(
         total=Sum('amount')
     )['total'] or Decimal('0')
 
-    # =====================
     # CATEGORY SUMMARY
-    # =====================
     raw_summary = (
         expenses
         .values('category__name')
@@ -347,7 +360,7 @@ def expense_summary(request):
         })
 
         chart_labels.append(category)
-        chart_values.append(float(total))  # chart.js needs float
+        chart_values.append(float(total))
 
     context = {
         'expenses': expenses,
@@ -357,6 +370,7 @@ def expense_summary(request):
         'category_summary': category_summary,
         'chart_labels': json.dumps(chart_labels),
         'chart_values': json.dumps(chart_values),
+        'is_filtered': is_filtered,
     }
 
     return render(request, 'expense/expense_summary.html', context)
