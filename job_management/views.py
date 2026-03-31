@@ -558,3 +558,16 @@ def reminder_list(request):
     )
 
 
+# ================= DELETE ENQUIRY =================
+def delete_enquiry(request, id):
+    job = get_object_or_404(Job, id=id, job_type="ENQUIRY")
+
+    if request.method == "POST":
+        job.delete()
+        return redirect("enquiry_list")
+
+    return render(
+        request,
+        "job_management/delete_enquiry.html",
+        {"job": job}
+    )

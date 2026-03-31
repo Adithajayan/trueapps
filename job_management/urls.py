@@ -6,6 +6,7 @@ urlpatterns = [
     path('enquiry/add/', views.add_enquiry, name='add_enquiry'),
     path('maintenance/add/', views.add_maintenance, name='add_maintenance'),
     path('service/add/', views.add_service, name='add_service'),
+    path('enquiry/delete/<int:id>/', views.delete_enquiry, name='delete_enquiry'),
 
     path('enquiry/list/', views.enquiry_list, name='enquiry_list'),
     path('maintenance/list/', views.maintenance_list, name='maintenance_list'),

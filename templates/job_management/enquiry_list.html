@@ -128,23 +128,25 @@
                 </div>
 
                 <!-- ACTION BUTTONS -->
-                <div class="card-footer bg-white border-0">
-
+                <div class="card-footer bg-white border-0 pt-0">
                     <a href="{% url 'toggle_status' job.id %}"
-                       class="btn btn-sm {% if job.status == 'PENDING' %}btn-success{% else %}btn-warning{% endif %} w-100 mb-2">
-
+                       class="btn btn-sm {% if job.status == 'PENDING' %}btn-success{% else %}btn-warning{% endif %} w-100 mb-2 rounded-pill shadow-sm py-2">
                         {% if job.status == "PENDING" %}
-                            ✔ Mark Finished
+                        ✔ Mark Finished
                         {% else %}
-                            ↩ Move to Pending
+                        ↩ Move to Pending
                         {% endif %}
                     </a>
-
-                    <a href="{% url 'edit_job' job.id %}"
-                       class="btn btn-outline-dark btn-sm w-100">
-                        ✏ Edit Details
-                    </a>
-
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'edit_job' job.id %}"
+                           class="btn btn-outline-dark btn-sm w-100 rounded-pill">
+                            ✏ Edit
+                        </a>
+                        <a href="{% url 'delete_enquiry' job.id %}"
+                           class="btn btn-outline-danger btn-sm w-100 rounded-pill">
+                            🗑 Delete
+                        </a>
+                    </div>
                 </div>
 
             </div>
