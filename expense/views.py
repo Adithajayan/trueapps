@@ -370,7 +370,7 @@ def expense_summary(request):
         'category_summary': category_summary,
         'chart_labels': json.dumps(chart_labels),
         'chart_values': json.dumps(chart_values),
-        'is_filtered': is_filtered,
+        'is_filtered': is_filtered, 
     }
 
     return render(request, 'expense/expense_summary.html', context)

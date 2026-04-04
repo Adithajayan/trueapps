@@ -241,5 +241,132 @@ Grand Total:
 </form>
 
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
 
+    // --- 1. ADD NEW ROW ---
+    $("#add-row").click(function() {
+        var newRow = `
+        <tr class="sales-row">
+            <td>
+                <div class="product-container">
+                    <input type="text" class="form-control product" autocomplete="off" placeholder="Search product...">
+                    <input type="hidden" name="product_id[]" class="product_id">
+                    <div class="product_suggestions list-group"></div>
+                    <small class="status-msg d-block"></small>
+                </div>
+            </td>
+            <td><input type="number" name="qty[]" class="form-control qty text-center" value="1"></td>
+            <td><input type="number" name="rate[]" class="form-control rate text-end" step="0.01" value="0"></td>
+            <td><input type="number" name="cgst[]" class="form-control cgst text-center" value="0"></td>
+            <td><input type="number" name="sgst[]" class="form-control sgst text-center" value="0"></td>
+            <td class="text-end fw-bold">₹ <span class="row-total">0.00</span></td>
+            <td><button type="button" class="btn btn-outline-danger btn-sm remove">✖</button></td>
+        </tr>`;
+        $("#sales-body").append(newRow);
+    });
+
+    // --- 2. REMOVE ROW ---
+    $(document).on('click', '.remove', function() {
+        if ($(".sales-row").length > 1) {
+            $(this).closest('tr').remove();
+            calculateGrandTotal();
+        } else {
+            alert("At least one item is required.");
+        }
+    });
+
+    // --- 3. PRODUCT SEARCH (AJAX) ---
+    $(document).on('keyup', '.product', function() {
+        var input = $(this);
+        var term = input.val();
+        var suggestions = input.siblings('.product_suggestions');
+
+        if (term.length >= 1) {
+            $.get("{% url 'product_search' %}", { 'term': term }, function(data) {
+                suggestions.empty().show();
+                if (data.length > 0) {
+                    data.forEach(function(item) {
+                        suggestions.append(`<div class="list-group-item"
+                            data-id="${item.id}"
+                            data-rate="${item.rate}"
+                            data-cgst="${item.cgst}"
+                            data-sgst="${item.sgst}"
+                            data-stock="${item.stock}">
+                            ${item.name} <span class="badge bg-info ms-2">Stock: ${item.stock}</span>
+                        </div>`);
+                    });
+                } else {
+                    suggestions.append('<div class="list-group-item disabled">No products found</div>');
+                }
+            });
+        } else {
+            suggestions.hide();
+        }
+    });
+
+    // --- 4. SELECT PRODUCT FROM SUGGESTIONS ---
+    $(document).on('click', '.list-group-item', function() {
+        if ($(this).hasClass('disabled')) return;
+
+        var row = $(this).closest('tr');
+        var name = $(this).text().split('Stock:')[0].trim();
+
+        row.find('.product').val(name);
+        row.find('.product_id').val($(this).data('id'));
+        row.find('.rate').val($(this).data('rate'));
+        row.find('.cgst').val($(this).data('cgst'));
+        row.find('.sgst').val($(this).data('sgst'));
+
+        // Stock warning (Optional)
+        var stock = $(this).data('stock');
+        row.find('.status-msg').html(stock > 0 ? '' : '<span class="text-danger">Out of Stock</span>');
+
+        $('.product_suggestions').hide();
+        calculateRowTotal(row);
+    });
+
+    // Suggestion box hide cheyyan (Click outside)
+    $(document).click(function(e) {
+        if (!$(e.target).closest('.product-container').length) {
+            $('.product_suggestions').hide();
+        }
+    });
+
+    // --- 5. CALCULATION LOGIC ---
+    $(document).on('input', '.qty, .rate, .cgst, .sgst', function() {
+        calculateRowTotal($(this).closest('tr'));
+    });
+
+    function calculateRowTotal(row) {
+        var qty = parseFloat(row.find('.qty').val()) || 0;
+        var rate = parseFloat(row.find('.rate').val()) || 0;
+        var cgst = parseFloat(row.find('.cgst').val()) || 0;
+        var sgst = parseFloat(row.find('.sgst').val()) || 0;
+
+        var base_amount = qty * rate;
+        var total_gst = base_amount * (cgst + sgst) / 100;
+        var final_row_total = base_amount + total_gst;
+
+        row.find('.row-total').text(final_row_total.toFixed(2));
+        calculateGrandTotal();
+    }
+
+    function calculateGrandTotal() {
+        var grand = 0;
+        $('.row-total').each(function() {
+            var val = parseFloat($(this).text()) || 0;
+            grand += val;
+        });
+        $('#grand').text(grand.toFixed(2));
+    }
+
+    // Page load aayapo existing items total onnu calculate cheyyan
+    $('.sales-row').each(function() {
+        calculateRowTotal($(this));
+    });
+
+});
+</script>
 {% endblock %}

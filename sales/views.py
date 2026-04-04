@@ -599,41 +599,6 @@ def product_batch_info(request, product_id):
     })
 
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
-
-
-# def sales_download_pdf(request, pk):
-#     sale = get_object_or_404(SalesMaster, pk=pk)
-#
-#     html_string = render_to_string(
-#         'sales/sales_print.html',   # purchase bill pole same style
-#         {'sale': sale}
-#     )
-
-    # html = HTML(string=html_string, base_url=request.build_absolute_uri())
-    #
-    # pdf = html.write_pdf(
-    #     stylesheets=[
-    #         CSS(string='''
-    #             @page {
-    #                 size: A4;
-    #                 margin: 15mm;
-    #             }
-    #         ''')
-    #     ]
-    # )
-    #
-    # response = HttpResponse(pdf, content_type='application/pdf')
-    # response['Content-Disposition'] = f'attachment; filename="{sale.invoice_no}.pdf"'
-    # return response
-
-
-
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
