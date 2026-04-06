@@ -218,47 +218,68 @@ def update_invoice_prefix(request):
         setting.save()
     return redirect('sales_list')
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
-from django.db.models import Max, Sum, F
-from decimal import Decimal
-from datetime import datetime
 
-from .models import SalesMaster, SalesItem, InvoiceSetting
+
+
 from customer.models import Customer
-from product.models import Product
-from stock.models import Stock
 
 
-# ... (sales_create, product_search, customer_search functions stay the same) ...
+
+
 
 # ---------------- SALES LIST WITH MONTHLY FILTER ----------------
+
+
+
 def sales_list(request):
-    # Get current year and month as default
+
     now = datetime.now()
-    month = request.GET.get('month', now.month)
+
+
+    month = request.GET.get('month')
     year = request.GET.get('year', now.year)
-
-    sales = SalesMaster.objects.filter(
-        date__month=month,
-        date__year=year
-    ).order_by('-id')
+    show_all = request.GET.get('all')  # "Show All"
 
 
+    sales = SalesMaster.objects.all().order_by('-id')
+
+    # 🔥 AUTOMATIC & ALL LIST LOGIC:
+    if show_all:
+
+        month = None
+    elif not month:
+
+        month = now.month
+
+
+    if month:
+        sales = sales.filter(
+            date__month=month,
+            date__year=year
+        )
+
+
+    total_sales = sales.aggregate(total=Sum('grand_total'))['total'] or 0
+
+    # 5. Dropdown lists
     years = range(2024, 2031)
-    months = [
+    months_list = [
         (1, 'January'), (2, 'February'), (3, 'March'), (4, 'April'),
         (5, 'May'), (6, 'June'), (7, 'July'), (8, 'August'),
         (9, 'September'), (10, 'October'), (11, 'November'), (12, 'December')
     ]
 
-    return render(request, 'sales/sales_list.html', {
+    context = {
         'sales': sales,
-        'current_month': int(month),
+        'current_month': int(month) if month else None,
         'current_year': int(year),
-        'months': months,
+        'months': months_list,
         'years': years,
-    })
+        'total_sales': total_sales,
+        'show_all': show_all,
+    }
+
+    return render(request, 'sales/sales_list.html', context)
 
 
 def invoice_settings(request):
