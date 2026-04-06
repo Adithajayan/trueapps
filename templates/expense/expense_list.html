@@ -2,7 +2,6 @@
 {% block content %}
 
 <style>
-
 /* ===== BACK BUTTON ===== */
 .back-btn{
     display:inline-flex;
@@ -33,41 +32,73 @@
     gap:10px;
 }
 
+/* FILTER SECTION */
+.filter-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 15px;
+}
+
 /* MOBILE */
 @media(max-width:768px){
-
     .page-header h3{
         font-size:20px;
     }
-
     table th,
     table td{
         font-size:13px;
         white-space:nowrap;
     }
-
 }
-
 </style>
 
 <div class="container mt-4">
 
-    <!-- HEADER -->
     <div class="page-header mb-3">
         <h3>
             <i class="fa fa-list"></i> Expense List
         </h3>
-
-        <a href="{% url 'expense_home' %}"
-           class="back-btn">
+        <a href="{% url 'expense_home' %}" class="back-btn">
             ← Back
         </a>
     </div>
 
-    <!-- TABLE -->
+    <div class="filter-card mb-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-6 col-md-3">
+                <label class="small text-muted">Select Month</label>
+                <select name="month" class="form-select form-select-sm">
+                    <option value="1" {% if selected_month == 1 %}selected{% endif %}>January</option>
+                    <option value="2" {% if selected_month == 2 %}selected{% endif %}>February</option>
+                    <option value="3" {% if selected_month == 3 %}selected{% endif %}>March</option>
+                    <option value="4" {% if selected_month == 4 %}selected{% endif %}>April</option>
+                    <option value="5" {% if selected_month == 5 %}selected{% endif %}>May</option>
+                    <option value="6" {% if selected_month == 6 %}selected{% endif %}>June</option>
+                    <option value="7" {% if selected_month == 7 %}selected{% endif %}>July</option>
+                    <option value="8" {% if selected_month == 8 %}selected{% endif %}>August</option>
+                    <option value="9" {% if selected_month == 9 %}selected{% endif %}>September</option>
+                    <option value="10" {% if selected_month == 10 %}selected{% endif %}>October</option>
+                    <option value="11" {% if selected_month == 11 %}selected{% endif %}>November</option>
+                    <option value="12" {% if selected_month == 12 %}selected{% endif %}>December</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="small text-muted">Year</label>
+                <input type="number" name="year" class="form-control form-select-sm" value="{{ selected_year }}">
+            </div>
+            <div class="col-12 col-md-4 mt-md-4">
+                <button type="submit" class="btn btn-sm btn-dark px-4">Filter</button>
+                <a href="{% url 'expense_list' %}" class="btn btn-sm btn-outline-secondary px-3">Reset</a>
+            </div>
+            <div class="col-12 col-md-3 mt-md-4 text-md-end">
+                <div class="h5 mb-0">Total: <span class="text-primary font-weight-bold">₹{{ total_amount }}</span></div>
+            </div>
+        </form>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
-
             <thead class="table-dark">
                 <tr>
                     <th>Date</th>
@@ -78,13 +109,11 @@
                     <th>Status</th>
                 </tr>
             </thead>
-
             <tbody>
                 {% for e in expenses %}
                 <tr>
                     <td>{{ e.date }}</td>
                     <td>{{ e.expense_type.name }}</td>
-
                     <td>
                         {% if e.category %}
                             {{ e.category.name }}
@@ -92,7 +121,6 @@
                             <span class="text-muted">—</span>
                         {% endif %}
                     </td>
-
                     <td>
                         {% if e.partner %}
                             {{ e.partner.name }}
@@ -100,28 +128,23 @@
                             <span class="text-muted">—</span>
                         {% endif %}
                     </td>
-
-                    <td>₹ {{ e.amount }}</td>
-
+                    <td class="fw-bold">₹ {{ e.amount }}</td>
                     <td>
                         {% if e.status == 'PAID' %}
                             <span class="badge bg-success">Paid</span>
                         {% else %}
-                            <span class="badge bg-warning">Pending</span>
+                            <span class="badge bg-warning text-dark">Pending</span>
                         {% endif %}
                     </td>
                 </tr>
-
                 {% empty %}
                 <tr>
-                    <td colspan="6"
-                        class="text-center text-muted">
-                        No expenses found
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No expenses found for this month.
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
-
         </table>
     </div>
 

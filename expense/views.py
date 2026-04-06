@@ -169,15 +169,41 @@ def partner_delete(request, pk):
 
 from .models import Expense
 
+from django.utils import timezone
+from django.db.models import Sum
+
+
 def expense_list(request):
+
+    selected_month = request.GET.get('month')
+    selected_year = request.GET.get('year')
+
+
     expenses = Expense.objects.select_related(
-        'expense_type',
-        'category',
-        'partner'
+        'expense_type', 'category', 'partner'
     ).order_by('-date')
 
+    # 🔥 AUTOMATIC LOGIC:
+
+    if not selected_month:
+        today = timezone.now()
+        selected_month = today.month
+        selected_year = today.year
+
+
+    expenses = expenses.filter(
+        date__month=selected_month,
+        date__year=selected_year
+    )
+
+    # Total Calculation
+    total_amount = expenses.aggregate(total=Sum('amount'))['total'] or 0
+
     context = {
-        'expenses': expenses
+        'expenses': expenses,
+        'total_amount': total_amount,
+        'selected_month': int(selected_month),
+        'selected_year': int(selected_year),
     }
     return render(request, 'expense/expense_list.html', context)
 
