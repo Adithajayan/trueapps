@@ -51,7 +51,7 @@ def opening_stock_add(request):
         hsn_code = request.POST.get("hsn_code")
         qty = Decimal(request.POST.get("quantity") or 0)
 
-        # NEW: Purchase Rate (Profit calculation correct aakan)
+        # Purchase Rate (Profit calculation correct aakan)
         p_rate = Decimal(request.POST.get("purchase_rate") or 0)
 
         s_rate = Decimal(request.POST.get("selling_rate") or 0)
@@ -83,21 +83,24 @@ def opening_stock_add(request):
             type='OPENING'
         )
 
-
+        # 4. Opening Purchase Entry (Error Fix Ivide aanu)
+        # bill_number maatti invoice_no aakki.
+        # vendor_name choices-il illaathathukondu athu ozhivaakki.
         opening_purchase, _ = Purchase.objects.get_or_create(
-            bill_number="OPENING",
+            invoice_no="OPENING",
             defaults={
-                'vendor_name': 'OPENING STOCK',
+                'supplier': None,
                 'total_amount': 0,
+                'tax_type': 'GST', # Table choices-il ulla tax_type
             }
         )
 
-
+        # 5. Purchase Item entry (Sales-il stock varaan)
         PurchaseItem.objects.create(
             purchase=opening_purchase,
             product=product,
             qty=qty,
-            quantity_at_hand=qty, # Sales-il stock kaanikkan
+            quantity_at_hand=qty, # Batch tracking logic-inu vendi
             rate=p_rate,          # Profit calculation-u vendi
             selling_rate=s_rate,
             cgst=cgst_val,
