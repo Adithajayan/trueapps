@@ -229,57 +229,32 @@ from customer.models import Customer
 
 
 # ---------------- SALES LIST WITH MONTHLY FILTER ----------------
-from django.shortcuts import render
-from datetime import datetime
-from django.db.models import Sum
-from .models import SalesMaster
-
-
 def sales_list(request):
-
+    # Get current year and month as default
     now = datetime.now()
+    month = request.GET.get('month', now.month)
+    year = request.GET.get('year', now.year)
 
-
-    month_param = request.GET.get('month')
-    year_param = request.GET.get('year')
-    show_all = request.GET.get('all')
-
-
-    current_month = int(month_param) if month_param else now.month
-    current_year = int(year_param) if year_param else now.year
-
-    # 4. Base Query: Ella sales-um edukkunnu
-    sales = SalesMaster.objects.all().order_by('-id')
-
-
-    if not show_all:
-        sales = sales.filter(
-            date__month=current_month,
-            date__year=current_year
-        )
-
-
-    total_sales = sales.aggregate(total=Sum('total_amount'))['total'] or 0
+    sales = SalesMaster.objects.filter(
+        date__month=month,
+        date__year=year
+    ).order_by('-id')
 
 
     years = range(2024, 2031)
-    months_list = [
+    months = [
         (1, 'January'), (2, 'February'), (3, 'March'), (4, 'April'),
         (5, 'May'), (6, 'June'), (7, 'July'), (8, 'August'),
         (9, 'September'), (10, 'October'), (11, 'November'), (12, 'December')
     ]
 
-    context = {
+    return render(request, 'sales/sales_list.html', {
         'sales': sales,
-        'current_month': current_month if not show_all else None,
-        'current_year': current_year,
-        'months': months_list,
+        'current_month': int(month),
+        'current_year': int(year),
+        'months': months,
         'years': years,
-        'total_sales': total_sales,
-        'show_all': show_all,
-    }
-
-    return render(request, 'sales/sales_list.html', context)
+    })
 
 
 def invoice_settings(request):
