@@ -218,47 +218,56 @@ def update_invoice_prefix(request):
         setting.save()
     return redirect('sales_list')
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.db.models import Max, Sum, F
+from decimal import Decimal
+from datetime import datetime
 
-
-
+from .models import SalesMaster, SalesItem, InvoiceSetting
 from customer.models import Customer
+from product.models import Product
+from stock.models import Stock
 
 
-
-
+# ... (sales_create, product_search, customer_search functions stay the same) ...
 
 # ---------------- SALES LIST WITH MONTHLY FILTER ----------------
-
+from django.shortcuts import render
+from datetime import datetime
+from django.db.models import Sum
+from .models import SalesMaster
 
 
 def sales_list(request):
-
+    # 1. Default ayi current date edukkunnu
     now = datetime.now()
 
-
+    # 2. URL-il ninnu filter parameters edukkunnu
     month = request.GET.get('month')
     year = request.GET.get('year', now.year)
-    show_all = request.GET.get('all')  # "Show All"
+    show_all = request.GET.get('all')  # "Show All" logic-u vendi
 
-
+    # 3. Base Query: Ella sales-um edukkunnu
     sales = SalesMaster.objects.all().order_by('-id')
 
     # 🔥 AUTOMATIC & ALL LIST LOGIC:
     if show_all:
-
+        # "All Sales" select cheythaal month filter apply cheyyilla
         month = None
     elif not month:
-
+        # First time load aavumpol current month automatic set cheyyunnu
         month = now.month
 
-
+    # Filter apply cheyyunnu (show_all illenkil mathram)
     if month:
         sales = sales.filter(
             date__month=month,
             date__year=year
         )
 
-
+    # 4. Total Amount Calculation (SalesMaster-il total_amount field undennu karuthunnu)
+    # Field name 'grand_total' enno 'total' enno aayirikkum, athu onnu check cheyyane.
     total_sales = sales.aggregate(total=Sum('grand_total'))['total'] or 0
 
     # 5. Dropdown lists
