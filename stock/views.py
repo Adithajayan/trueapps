@@ -9,14 +9,12 @@ from purchase.models import Purchase, PurchaseItem
 # -------------------------------------------------
 # STOCK REGISTER
 # -------------------------------------------------
-from django.utils import timezone # Top-il import cheyyuka
-from django.db.models import Q
 
-from django.utils import timezone # Top-il import cheyyuka
-from django.db.models import Q
 
 def stock_list(request):
-    stocks = Stock.objects.select_related('product')
+
+
+    stocks = Stock.objects.select_related('product').order_by('-quantity')
 
     # Filter values edukkunnu
     q = request.GET.get('q', '').strip()
@@ -26,11 +24,14 @@ def stock_list(request):
     if q:
         stocks = stocks.filter(product__name__icontains=q)
 
-
+    # Month filter logic
     if selected_month:
-        year, month = selected_month.split('-')
-        # Stock update cheyyappetta month vechu filter cheyyunnu
-        stocks = stocks.filter(updated_at__year=year, updated_at__month=month)
+        try:
+            year, month = selected_month.split('-')
+
+            stocks = stocks.filter(updated_at__year=year, updated_at__month=month)
+        except ValueError:
+            pass
 
     return render(request, 'stock/stock_list.html', {
         'stocks': stocks,
