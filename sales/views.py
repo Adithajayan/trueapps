@@ -64,16 +64,31 @@ def sales_create(request):
             available = stock_obj.quantity if stock_obj else 0
             if available < requested_qty:
                 messages.error(request, f"Insufficient stock for {prod_obj.name}. Available: {available}")
-                # Form-ilekk thirichu vidumbol data nashpedatha reethiyil handle cheyyanam
                 return render(request, 'sales/sales_form.html')
 
-        # --- STEP 2: INVOICE MASTER ---
+        # --- STEP 2: INVOICE MASTER (FIXED LOGIC - Corrected Position) ---
         prefix = setting.prefix
-        last_invoice = SalesMaster.objects.filter(invoice_prefix=prefix).aggregate(Max('id'))['id__max']
-        next_no = 1 if not last_invoice else last_invoice + 1
+
+
+        last_sale = SalesMaster.objects.filter(invoice_no__startswith=prefix).order_by('-invoice_no').first()
+
+        if last_sale:
+            try:
+
+                last_no_str = last_sale.invoice_no.split('-')[-1]
+                last_no_int = int(last_no_str)
+                next_no = last_no_int + 1
+            except (ValueError, IndexError):
+
+                next_no = SalesMaster.objects.count() + 1
+        else:
+
+            next_no = 1
+
         invoice_no = f"{prefix}-{next_no:03d}"
 
-        # 🔥 sale_type koodi ivide create cheyyunnu
+        # --- STEP 3: CREATE SALES MASTER ---
+
         sale = SalesMaster.objects.create(
             invoice_prefix=prefix,
             invoice_no=invoice_no,
@@ -84,7 +99,7 @@ def sales_create(request):
 
         total_bill = Decimal(0)
 
-        # --- STEP 3: ITEM SAVING & FIFO GST PROFIT ---
+        # --- STEP 4: ITEM SAVING & FIFO GST PROFIT ---
         for i in range(len(product_ids)):
             if not product_ids[i]: continue
 
