@@ -50,22 +50,19 @@ def opening_stock_add(request):
         product_id = request.POST.get("product")
         hsn_code = request.POST.get("hsn_code")
         qty = Decimal(request.POST.get("quantity") or 0)
-
-        # Purchase Rate (Profit calculation correct aakan)
         p_rate = Decimal(request.POST.get("purchase_rate") or 0)
-
         s_rate = Decimal(request.POST.get("selling_rate") or 0)
         cgst_val = Decimal(request.POST.get("cgst") or 0)
         sgst_val = Decimal(request.POST.get("sgst") or 0)
 
         product = get_object_or_404(Product, id=product_id)
 
-        # 1. HSN Code Product model-il update cheyyunnu
+        # 1. HSN Update
         if hsn_code:
             product.hsn_code = hsn_code
             product.save()
 
-        # 2. Main Stock Table update cheyyunnu (OneToOneField logic)
+        # 2. Stock Update
         stock, created = Stock.objects.get_or_create(
             product=product,
             defaults={'quantity': Decimal("0")}
@@ -73,7 +70,7 @@ def opening_stock_add(request):
         stock.quantity += qty
         stock.save()
 
-        # 3. Stock History entry (Audit trail-inu vendi)
+        # 3. History Entry
         StockHistory.objects.create(
             product=product,
             qty=qty,
@@ -83,25 +80,30 @@ def opening_stock_add(request):
             type='OPENING'
         )
 
-        # 4. Opening Purchase Entry (Error Fix Ivide aanu)
-        # bill_number maatti invoice_no aakki.
-        # vendor_name choices-il illaathathukondu athu ozhivaakki.
+        # 4. FIX: "Opening Stock" enna peril oru Supplier-ne create cheyyunnu (IntegrityError fix)
+        from supplier_master.models import Supplier # Top-il import illenkil ivide kodukkaam
+        opening_supplier, _ = Supplier.objects.get_or_create(
+            name="OPENING STOCK",
+            defaults={'phone': '0000000000'} # Table-il phone required aanel
+        )
+
+        # 5. Purchase Entry (Supplier-ne connect cheyyunnu)
         opening_purchase, _ = Purchase.objects.get_or_create(
             invoice_no="OPENING",
             defaults={
-                'supplier': None,
+                'supplier': opening_supplier, # Ivide None maatti supplier aakki
                 'total_amount': 0,
-                'tax_type': 'GST', # Table choices-il ulla tax_type
+                'tax_type': 'GST',
             }
         )
 
-        # 5. Purchase Item entry (Sales-il stock varaan)
+        # 6. Purchase Item entry
         PurchaseItem.objects.create(
             purchase=opening_purchase,
             product=product,
             qty=qty,
-            quantity_at_hand=qty, # Batch tracking logic-inu vendi
-            rate=p_rate,          # Profit calculation-u vendi
+            quantity_at_hand=qty,
+            rate=p_rate,
             selling_rate=s_rate,
             cgst=cgst_val,
             sgst=sgst_val,
