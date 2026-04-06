@@ -57,12 +57,14 @@ def opening_stock_add(request):
 
         product = get_object_or_404(Product, id=product_id)
 
-        # 1. HSN Update
+        # 1. HSN Code Product-il update cheyyunnu
         if hsn_code:
             product.hsn_code = hsn_code
             product.save()
 
-        # 2. Stock Update
+        # 2. Stock update cheyyunnu
+        # Note: Product save aayappol signal vazhi Stock create aayittundaakum,
+        # ennalum safety-kku get_or_create upayogikkam.
         stock, created = Stock.objects.get_or_create(
             product=product,
             defaults={'quantity': Decimal("0")}
@@ -70,7 +72,7 @@ def opening_stock_add(request):
         stock.quantity += qty
         stock.save()
 
-        # 3. History Entry
+        # 3. Stock History Entry
         StockHistory.objects.create(
             product=product,
             qty=qty,
@@ -80,24 +82,25 @@ def opening_stock_add(request):
             type='OPENING'
         )
 
-        # 4. FIX: "Opening Stock" enna peril oru Supplier-ne create cheyyunnu (IntegrityError fix)
-        from supplier_master.models import Supplier # Top-il import illenkil ivide kodukkaam
+        # 4. Opening Supplier (Field names: name, contact_number)
+        from supplier_master.models import Supplier
         opening_supplier, _ = Supplier.objects.get_or_create(
             name="OPENING STOCK",
-            defaults={'phone': '0000000000'} # Table-il phone required aanel
+            defaults={'contact_number': '0000000000'} # 'phone' maatti 'contact_number' aakki
         )
 
-        # 5. Purchase Entry (Supplier-ne connect cheyyunnu)
+        # 5. Purchase Entry (Field names: invoice_no, supplier, payment_type)
         opening_purchase, _ = Purchase.objects.get_or_create(
             invoice_no="OPENING",
             defaults={
-                'supplier': opening_supplier, # Ivide None maatti supplier aakki
+                'supplier': opening_supplier,
+                'payment_type': 'CASH', # Choices-il ulla enthenkilum onnu venam
+                'tax_type': 'EXCLUSIVE',
                 'total_amount': 0,
-                'tax_type': 'GST',
             }
         )
 
-        # 6. Purchase Item entry
+        # 6. Purchase Item (Sales-il stock kaanikkan)
         PurchaseItem.objects.create(
             purchase=opening_purchase,
             product=product,
@@ -107,6 +110,7 @@ def opening_stock_add(request):
             selling_rate=s_rate,
             cgst=cgst_val,
             sgst=sgst_val,
+            gst_amount=(qty * p_rate) * ((cgst_val + sgst_val) / 100),
             total=qty * p_rate
         )
 
