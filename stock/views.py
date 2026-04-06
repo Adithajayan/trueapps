@@ -43,7 +43,6 @@ def stock_list(request):
 # OPENING STOCK ADD
 # -------------------------------------------------
 @transaction.atomic
-@transaction.atomic
 def opening_stock_add(request):
     products = Product.objects.all()
 
@@ -52,7 +51,7 @@ def opening_stock_add(request):
         hsn_code = request.POST.get("hsn_code")
         qty = Decimal(request.POST.get("quantity") or 0)
 
-        # NEW: Purchase Rate (Profit correct aakan)
+        # NEW: Purchase Rate (Profit calculation correct aakan)
         p_rate = Decimal(request.POST.get("purchase_rate") or 0)
 
         s_rate = Decimal(request.POST.get("selling_rate") or 0)
@@ -66,9 +65,9 @@ def opening_stock_add(request):
             product.hsn_code = hsn_code
             product.save()
 
-        # 2. Main Stock Table update cheyyunnu
+        # 2. Main Stock Table update cheyyunnu (OneToOneField logic)
         stock, created = Stock.objects.get_or_create(
-            product_id=product_id,
+            product=product,
             defaults={'quantity': Decimal("0")}
         )
         stock.quantity += qty
@@ -76,7 +75,7 @@ def opening_stock_add(request):
 
         # 3. Stock History entry (Audit trail-inu vendi)
         StockHistory.objects.create(
-            product_id=product_id,
+            product=product,
             qty=qty,
             selling_rate=s_rate,
             cgst=cgst_val,
@@ -95,11 +94,11 @@ def opening_stock_add(request):
 
 
         PurchaseItem.objects.create(
-            purchase=opening_purchase, # <--- THE FIX
+            purchase=opening_purchase,
             product=product,
             qty=qty,
-            quantity_at_hand=qty,
-            rate=p_rate,
+            quantity_at_hand=qty, # Sales-il stock kaanikkan
+            rate=p_rate,          # Profit calculation-u vendi
             selling_rate=s_rate,
             cgst=cgst_val,
             sgst=sgst_val,
