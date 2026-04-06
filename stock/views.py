@@ -51,6 +51,15 @@ def opening_stock_add(request):
         s_rate = Decimal(request.POST.get("selling_rate") or 0)
         cgst_val = Decimal(request.POST.get("cgst") or 0)
         sgst_val = Decimal(request.POST.get("sgst") or 0)
+        # --- NEW: HSN Code field ---
+        hsn_code = request.POST.get("hsn_code")
+
+
+        product = get_object_or_404(Product, id=product_id)
+        if hsn_code:
+            product.hsn_code = hsn_code
+            product.save()
+
 
         stock, created = Stock.objects.get_or_create(
             product_id=product_id,
@@ -59,7 +68,7 @@ def opening_stock_add(request):
         stock.quantity += qty
         stock.save()
 
-        # Added GST and Selling Rate fields here
+
         StockHistory.objects.create(
             product_id=product_id,
             qty=qty,
@@ -67,6 +76,19 @@ def opening_stock_add(request):
             cgst=cgst_val,
             sgst=sgst_val,
             type='OPENING'
+        )
+
+        # 4.
+
+        PurchaseItem.objects.create(
+            product=product,
+            qty=qty,
+            quantity_at_hand=qty,
+            rate=0,
+            selling_rate=s_rate,
+            cgst=cgst_val,
+            sgst=sgst_val,
+
         )
 
         return redirect("stock_list")

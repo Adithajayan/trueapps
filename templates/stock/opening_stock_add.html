@@ -8,11 +8,9 @@
 <style>
 /* Mobile improvements */
 @media (max-width:768px){
-
     h4{
         font-size:18px;
     }
-
 }
 </style>
 
@@ -24,7 +22,6 @@
 
         <h4 class="fw-bold mb-0">➕ Opening Stock</h4>
 
-        <!-- Back Button -->
         <a href="{% url 'stock_list' %}" class="btn btn-outline-secondary rounded-pill px-3">
             ← Back
         </a>
@@ -38,16 +35,19 @@
             <label class="fw-bold">Product</label>
 
             <select name="product" id="product_search" class="form-select" required>
-
                 <option value="">Search and select product</option>
-
                 {% for p in products %}
-
                     <option value="{{ p.id }}">{{ p.name }}</option>
-
                 {% endfor %}
-
             </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="fw-bold">HSN Code</label>
+            <input type="text"
+                   name="hsn_code"
+                   class="form-control"
+                   placeholder="Enter HSN Code">
         </div>
 
         <div class="row">
