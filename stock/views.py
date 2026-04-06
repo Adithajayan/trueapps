@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from product.models import Product
 from .models import Stock, StockHistory
+from purchase.models import Purchase, PurchaseItem
 
 
 # -------------------------------------------------
