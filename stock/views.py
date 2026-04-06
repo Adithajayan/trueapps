@@ -42,6 +42,7 @@ def stock_list(request):
 # OPENING STOCK ADD
 # -------------------------------------------------
 @transaction.atomic
+@transaction.atomic
 def opening_stock_add(request):
     products = Product.objects.all()
 
@@ -59,12 +60,12 @@ def opening_stock_add(request):
 
         product = get_object_or_404(Product, id=product_id)
 
-        # 1. HSN Code Product model
+        # 1. HSN Code Product model-il update cheyyunnu
         if hsn_code:
             product.hsn_code = hsn_code
             product.save()
 
-        # 2. Main Stock Table update
+        # 2. Main Stock Table update cheyyunnu
         stock, created = Stock.objects.get_or_create(
             product_id=product_id,
             defaults={'quantity': Decimal("0")}
@@ -72,7 +73,7 @@ def opening_stock_add(request):
         stock.quantity += qty
         stock.save()
 
-
+        # 3. Stock History entry (Audit trail-inu vendi)
         StockHistory.objects.create(
             product_id=product_id,
             qty=qty,
@@ -83,7 +84,17 @@ def opening_stock_add(request):
         )
 
 
+        opening_purchase, _ = Purchase.objects.get_or_create(
+            bill_number="OPENING",
+            defaults={
+                'vendor_name': 'OPENING STOCK',
+                'total_amount': 0,
+            }
+        )
+
+
         PurchaseItem.objects.create(
+            purchase=opening_purchase, # <--- THE FIX
             product=product,
             qty=qty,
             quantity_at_hand=qty,
