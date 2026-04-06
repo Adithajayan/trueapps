@@ -47,20 +47,24 @@ def opening_stock_add(request):
 
     if request.method == "POST":
         product_id = request.POST.get("product")
+        hsn_code = request.POST.get("hsn_code")
         qty = Decimal(request.POST.get("quantity") or 0)
+
+        # NEW: Purchase Rate (Profit correct aakan)
+        p_rate = Decimal(request.POST.get("purchase_rate") or 0)
+
         s_rate = Decimal(request.POST.get("selling_rate") or 0)
         cgst_val = Decimal(request.POST.get("cgst") or 0)
         sgst_val = Decimal(request.POST.get("sgst") or 0)
-        # --- NEW: HSN Code field ---
-        hsn_code = request.POST.get("hsn_code")
-
 
         product = get_object_or_404(Product, id=product_id)
+
+        # 1. HSN Code Product model
         if hsn_code:
             product.hsn_code = hsn_code
             product.save()
 
-
+        # 2. Main Stock Table update
         stock, created = Stock.objects.get_or_create(
             product_id=product_id,
             defaults={'quantity': Decimal("0")}
@@ -78,17 +82,16 @@ def opening_stock_add(request):
             type='OPENING'
         )
 
-        # 4.
 
         PurchaseItem.objects.create(
             product=product,
             qty=qty,
             quantity_at_hand=qty,
-            rate=0,
+            rate=p_rate,
             selling_rate=s_rate,
             cgst=cgst_val,
             sgst=sgst_val,
-
+            total=qty * p_rate
         )
 
         return redirect("stock_list")
