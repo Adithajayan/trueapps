@@ -250,39 +250,53 @@ def expense_delete(request, pk):
     return redirect('expense_type_list', expense_type_id)
 
 
-
-from django.shortcuts import render, get_object_or_404
-from .models import Expense, ExpenseType
-
-from django.db.models import Sum
-
 def expense_type_list(request, type_id):
-    expense_type = get_object_or_404(ExpenseType, id=type_id, is_active=True)
 
+    expense_type = get_object_or_404(ExpenseType, id=type_id, is_active=True)
+    partners = Partner.objects.filter(is_active=True)
+
+    # 2. Get Filter Parameters from URL
+    from_date = request.GET.get('from')
+    to_date = request.GET.get('to')
+    partner_id = request.GET.get('partner')
+    selected_month = request.GET.get('month')
+    selected_year = request.GET.get('year')
+
+    # 3. Initial Queryset
     expenses = Expense.objects.filter(
         expense_type=expense_type
     ).order_by('-date')
 
-    # FILTER VALUES
-    from_date = request.GET.get('from')
-    to_date = request.GET.get('to')
-    partner_id = request.GET.get('partner')
+    # 🔥 AUTOMATIC LOGIC:
 
-    # DATE FILTER
+    if not (from_date or to_date or selected_month):
+        today = timezone.now()
+        selected_month = today.month
+        selected_year = today.year
+
+    # 4. Applying Filters
+
+    # Month/Year Filter (Automatic or Manual Selection)
+    if selected_month:
+        expenses = expenses.filter(
+            date__month=selected_month,
+            date__year=selected_year or timezone.now().year
+        )
+
+    # Manual Date Range Filter (Old Logic)
     if from_date and to_date:
         expenses = expenses.filter(date__range=[from_date, to_date])
 
-    # PARTNER FILTER
+    # Partner Filter (Old Logic)
     if partner_id:
         expenses = expenses.filter(partner_id=partner_id)
 
-    # TOTAL SUM
+    # 5. Total Sum Calculation
     total_amount = expenses.aggregate(
         total=Sum('amount')
     )['total'] or 0
 
-    partners = Partner.objects.filter(is_active=True)
-
+    # 6. Context variables
     context = {
         'expense_type': expense_type,
         'expenses': expenses,
@@ -290,6 +304,8 @@ def expense_type_list(request, type_id):
         'from_date': from_date,
         'to_date': to_date,
         'selected_partner': partner_id,
+        'selected_month': int(selected_month) if selected_month else None,
+        'selected_year': int(selected_year) if selected_year else timezone.now().year,
         'total_amount': total_amount,
     }
     return render(request, 'expense/expense_type_list.html', context)

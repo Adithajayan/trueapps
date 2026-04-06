@@ -128,7 +128,6 @@
 
 <div class="container mt-4">
 
-    <!-- PAGE HEADER -->
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
 
         <h4>
@@ -142,17 +141,29 @@
 
     </div>
 
-    <!-- FILTER SECTION -->
     <form method="get" class="filter-box row g-3 align-items-end">
 
-        <div class="col-md-3">
-            <label class="form-label">From</label>
-            <input type="date" name="from" value="{{ from_date }}" class="form-control">
+        <div class="col-md-2 col-6">
+            <label class="form-label">Month</label>
+            <select name="month" class="form-select">
+                <option value="1" {% if selected_month == 1 %}selected{% endif %}>January</option>
+                <option value="2" {% if selected_month == 2 %}selected{% endif %}>February</option>
+                <option value="3" {% if selected_month == 3 %}selected{% endif %}>March</option>
+                <option value="4" {% if selected_month == 4 %}selected{% endif %}>April</option>
+                <option value="5" {% if selected_month == 5 %}selected{% endif %}>May</option>
+                <option value="6" {% if selected_month == 6 %}selected{% endif %}>June</option>
+                <option value="7" {% if selected_month == 7 %}selected{% endif %}>July</option>
+                <option value="8" {% if selected_month == 8 %}selected{% endif %}>August</option>
+                <option value="9" {% if selected_month == 9 %}selected{% endif %}>September</option>
+                <option value="10" {% if selected_month == 10 %}selected{% endif %}>October</option>
+                <option value="11" {% if selected_month == 11 %}selected{% endif %}>November</option>
+                <option value="12" {% if selected_month == 12 %}selected{% endif %}>December</option>
+            </select>
         </div>
 
-        <div class="col-md-3">
-            <label class="form-label">To</label>
-            <input type="date" name="to" value="{{ to_date }}" class="form-control">
+        <div class="col-md-2 col-6">
+            <label class="form-label">Year</label>
+            <input type="number" name="year" value="{{ selected_year }}" class="form-control">
         </div>
 
         <div class="col-md-3">
@@ -168,9 +179,9 @@
             </select>
         </div>
 
-        <div class="col-md-3 d-flex gap-2">
+        <div class="col-md-5 d-flex gap-2">
             <button class="btn btn-primary w-100">
-                <i class="fa fa-filter"></i> Filter
+                <i class="fa fa-filter"></i> Apply Filter
             </button>
 
             <a href="{% url 'expense_type_list' expense_type.id %}"
@@ -181,11 +192,10 @@
 
     </form>
 
-    <!-- TOTAL EXPENSE -->
     <div class="total-box">
         <div>
             <i class="fa fa-wallet"></i>
-            Total Expense
+            Total Expense (Filtered)
         </div>
 
         <h5 class="mb-0 fw-bold">
@@ -193,7 +203,6 @@
         </h5>
     </div>
 
-    <!-- EXPENSE TABLE -->
     <div class="table-responsive">
 
         <table class="table table-bordered expense-table">
@@ -219,7 +228,7 @@
                         {% if e.category %}
                             <span class="cat-badge">{{ e.category.name }}</span>
                         {% else %}
-                            <span class="note-text">{{ e.note }}</span>
+                            <span class="note-text">{{ e.note|default:"—" }}</span>
                         {% endif %}
                     </td>
 
@@ -251,7 +260,7 @@
 
                 <tr>
                     <td colspan="5" class="text-center text-muted">
-                        No expenses found.
+                        No expenses found for this selection.
                     </td>
                 </tr>
 
@@ -265,7 +274,6 @@
 
 </div>
 
-<!-- DELETE CONFIRM MODAL -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
