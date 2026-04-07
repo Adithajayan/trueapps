@@ -218,11 +218,7 @@ def update_invoice_prefix(request):
         setting.save()
     return redirect('sales_list')
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
-from django.db.models import Max, Sum, F
-from decimal import Decimal
-from datetime import datetime
+
 
 from .models import SalesMaster, SalesItem, InvoiceSetting
 from customer.models import Customer

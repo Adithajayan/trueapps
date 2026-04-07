@@ -10,23 +10,34 @@ from django.db import transaction
 # ---------------- LIST ----------------
 from django.db.models import Q  # <--- Ithu top-il undo ennu urappu varuthuka
 
+from datetime import datetime
+from django.db.models import Q
+
 def purchase_list(request):
-    # 1. Base Queryset (Ellaa purchases-um edukkunnu)
+    # Base queryset
     purchases = Purchase.objects.all().order_by('-id')
 
-    # 2. URL-il ninnu filter values edukkunnu (eg: ?q=INV001&start_date=2024-01-01)
+    # Get filter parameters
     query = request.GET.get('q', '').strip()
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-    # 3. Invoice Number-o Supplier Name-o vechu search cheyyaan
+
+    if not start_date and not end_date and not query:
+        now = datetime.now()
+        purchases = purchases.filter(
+            purchase_date__month=now.month,
+            purchase_date__year=now.year
+        )
+
+    # 2. Search box logic (Invoice No or Supplier Name)
     if query:
         purchases = purchases.filter(
             Q(invoice_no__icontains=query) |
             Q(supplier__name__icontains=query)
         )
 
-    # 4. Date range filter
+    # 3. Date range filter (User select cheythaal)
     if start_date:
         purchases = purchases.filter(purchase_date__gte=start_date)
     if end_date:
@@ -34,7 +45,7 @@ def purchase_list(request):
 
     return render(request, 'purchase/purchase_list.html', {
         'purchases': purchases,
-        'query': query,        # Template-il box-il value retain cheyyaan
+        'query': query,
         'start_date': start_date,
         'end_date': end_date
     })
