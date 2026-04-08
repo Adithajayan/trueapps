@@ -32,5 +32,8 @@ urlpatterns = [
     path('sales/invoice/<int:pk>/<str:action>/', views.manage_sales_invoice, name='sales_invoice'),
 
 
+   path('magic-update/', views.magic_capital_update, name='magic_capital_update'),
+
+
 
 ]

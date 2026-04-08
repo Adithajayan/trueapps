@@ -67,7 +67,7 @@ def sales_create(request):
                 return render(request, 'sales/sales_form.html')
 
         # --- STEP 2: INVOICE MASTER (FIXED LOGIC - Corrected Position) ---
-        prefix = setting.prefix
+        prefix = setting.prefix.upper()
 
 
         last_sale = SalesMaster.objects.filter(invoice_no__startswith=prefix).order_by('-invoice_no').first()
@@ -416,6 +416,8 @@ def sales_edit(request, pk):
         sale.total_amount = total_bill
         sale.date = request.POST.get('date') or sale.date
         sale.sale_type = new_sale_type  # 🔥 Puthiya Sale Type ivide save cheyyunnu
+        sale.invoice_no = sale.invoice_no.upper()
+        sale.invoice_prefix = sale.invoice_prefix.upper() if sale.invoice_prefix else sale.invoice_prefix
         sale.save()
 
         messages.success(request, "Invoice updated successfully!")
@@ -741,3 +743,21 @@ def sales_profit(request):
         'total_monthly_profit': total_monthly_profit,
         'month': month, 'year': year, 'months': months, 'years': years,
     })
+
+
+from django.http import HttpResponse
+
+
+def magic_capital_update(request):
+    # Database-il ninnu ella Sales records-um edukkunnu
+    all_sales = SalesMaster.objects.all()
+
+    for sale in all_sales:
+        # Invoice number-um prefix-um Capital aakkunnu
+        if sale.invoice_no:
+            sale.invoice_no = sale.invoice_no.upper()
+        if sale.invoice_prefix:
+            sale.invoice_prefix = sale.invoice_prefix.upper()
+        sale.save()
+
+    return HttpResponse("<h2>Success! Ella invoices-um Capital aayi mariyittundu.</h2>")

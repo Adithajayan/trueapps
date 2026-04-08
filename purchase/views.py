@@ -53,33 +53,15 @@ def purchase_list(request):
 
 
 
-# ---------------- ADD ----------------
-from stock.models import Stock
 
-from decimal import Decimal
+
+
+
+
+
+
 from django.db import transaction
-from decimal import Decimal
 
-
-
-from django.shortcuts import render, redirect
-from decimal import Decimal
-from django.db import transaction
-from .models import Purchase, PurchaseItem
-from supplier_master.models import Supplier
-from product.models import Product
-from stock.models import Stock
-from supplier_ledger.models import SupplierLedger
-
-from decimal import Decimal
-from django.db import transaction
-from django.shortcuts import render, redirect
-from supplier_master.models import Supplier
-from product.models import Product
-from .models import Purchase, PurchaseItem
-from stock.models import Stock
-
-from supplier_ledger.models import SupplierLedger
 
 
 
