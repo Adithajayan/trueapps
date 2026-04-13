@@ -2,20 +2,14 @@
 {% block content %}
 
 <div class="container-fluid mt-4 px-2 px-md-3">
-
     <div class="card shadow p-4 rounded-4 col-md-8 mx-auto">
-
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-
             <h4 class="fw-bold text-primary text-center text-md-start m-0">
                 ✏ Edit Opening Stock
             </h4>
-
-            <!-- Back Button -->
             <a href="{% url 'opening_stock_history' %}" class="btn btn-outline-secondary rounded-pill px-3">
                 ← Back
             </a>
-
         </div>
 
         <form method="post">
@@ -23,93 +17,75 @@
 
             <div class="mb-3">
                 <label class="form-label fw-bold">Product</label>
-
                 <input type="text"
                        class="form-control bg-light"
                        value="{{ history.product.name }}"
                        readonly>
-
             </div>
 
             <div class="row g-3 mb-3">
-
-                <div class="col-6 col-md-6">
-
+                <div class="col-4">
                     <label class="form-label fw-bold">Quantity</label>
-
                     <input type="number"
                            step="0.01"
                            name="quantity"
                            value="{{ history.qty }}"
                            class="form-control"
                            required>
-
                 </div>
 
-                <div class="col-6 col-md-6">
+                <div class="col-4">
+                    <label class="form-label fw-bold">Purchase Rate</label>
+                    <input type="number"
+                           step="0.01"
+                           name="purchase_rate"
+                           value="{{ purchase_rate }}"
+                           class="form-control"
+                           required>
+                </div>
 
+                <div class="col-4">
                     <label class="form-label fw-bold">Selling Rate</label>
-
                     <input type="number"
                            step="0.01"
                            name="selling_rate"
                            value="{{ history.selling_rate }}"
                            class="form-control">
-
                 </div>
-
             </div>
 
             <div class="row g-3 mb-4">
-
                 <div class="col-6 col-md-6">
-
                     <label class="form-label fw-bold">CGST %</label>
-
                     <input type="number"
                            step="0.01"
                            name="cgst"
                            value="{{ history.cgst }}"
                            class="form-control">
-
                 </div>
 
                 <div class="col-6 col-md-6">
-
                     <label class="form-label fw-bold">SGST %</label>
-
                     <input type="number"
                            step="0.01"
                            name="sgst"
                            value="{{ history.sgst }}"
                            class="form-control">
-
                 </div>
-
             </div>
 
             <div class="d-flex flex-column flex-md-row gap-2">
-
                 <a href="{% url 'opening_stock_history' %}"
                    class="btn btn-outline-secondary w-100">
-
                    Cancel
-
                 </a>
-
                 <button type="submit"
                         class="btn btn-primary w-100">
-
                         Update Changes
-
                 </button>
-
             </div>
-
         </form>
-
     </div>
-
 </div>
 
 {% endblock %}

@@ -129,28 +129,56 @@ def opening_stock_edit(request, pk):
     history = get_object_or_404(StockHistory, id=pk, type='OPENING')
     stock = Stock.objects.get(product=history.product)
 
-    if request.method == "POST":
+    # Opening-inu vendi create cheytha PurchaseItem find cheyyunnu
+    # Opening purchase-inte invoice_no "OPENING" aayathond athu vach filter cheyyam
+    purchase_item = PurchaseItem.objects.filter(
+        purchase__invoice_no="OPENING",
+        product=history.product
+    ).first()
 
+    if request.method == "POST":
         new_qty = Decimal(request.POST.get("quantity") or 0)
+        new_purchase_rate = Decimal(request.POST.get("purchase_rate") or 0)  # Puthiya field
         new_selling_rate = Decimal(request.POST.get("selling_rate") or 0)
         new_cgst = Decimal(request.POST.get("cgst") or 0)
         new_sgst = Decimal(request.POST.get("sgst") or 0)
 
-
+        # 1. Main Stock update
         stock.quantity = (stock.quantity - history.qty) + new_qty
         stock.save()
 
-
+        # 2. Stock History update
         history.qty = new_qty
         history.selling_rate = new_selling_rate
         history.cgst = new_cgst
         history.sgst = new_sgst
+        # StockHistory-il purchase_rate field undenkil mathram ithu active aakkuka:
+        # history.purchase_rate = new_purchase_rate
         history.save()
+
+        # 3. Purchase Item update (Sales-il purchase rate maaran ithu nirbandhamanu)
+        if purchase_item:
+            purchase_item.qty = new_qty
+            purchase_item.quantity_at_hand = new_qty  # Opening stock edit aayathond qty full update aakum
+            purchase_item.rate = new_purchase_rate
+            purchase_item.selling_rate = new_selling_rate
+            purchase_item.cgst = new_cgst
+            purchase_item.sgst = new_sgst
+
+            # GST calculations
+            total_gst_percent = new_cgst + new_sgst
+            purchase_item.gst_amount = (new_qty * new_purchase_rate) * (total_gst_percent / 100)
+            purchase_item.total = new_qty * new_purchase_rate
+            purchase_item.save()
 
         return redirect('opening_stock_history')
 
+    # Template-ilekku purchase_rate koodi pass cheyyunnu
+    current_p_rate = purchase_item.rate if purchase_item else 0
+
     return render(request, 'stock/opening_stock_edit.html', {
-        'history': history
+        'history': history,
+        'purchase_rate': current_p_rate
     })
 
 
