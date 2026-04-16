@@ -20,7 +20,7 @@ class Purchase(models.Model):
     invoice_no = models.CharField(max_length=50, unique=True, blank=True)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     purchase_date = models.DateField(default=timezone.now)
-
+    supplier_invoice_number = models.CharField(max_length=100, blank=True, null=True)
     payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE)
     tax_type = models.CharField(max_length=20, choices=TAX_TYPE, default='EXCLUSIVE')
 
@@ -118,7 +118,7 @@ class InvoiceSettings(models.Model):
 
 
 class PurchaseReturn(models.Model):
-    # Ethu purchase-inte ethireyaanu return ennu ariyaan
+
     purchase = models.ForeignKey(Purchase, on_delete=models.CASCADE, related_name='returns')
     return_no = models.CharField(max_length=50, unique=True, blank=True)
     return_date = models.DateField(default=timezone.now)
@@ -138,7 +138,6 @@ class PurchaseReturn(models.Model):
 
 class PurchaseReturnItem(models.Model):
     purchase_return = models.ForeignKey(PurchaseReturn, on_delete=models.CASCADE, related_name='return_items')
-    # Ethu Batch-il ninnaanu return cheyyunnath ennu select cheyyaan
     purchase_item = models.ForeignKey(PurchaseItem, on_delete=models.CASCADE)
     qty = models.DecimalField(max_digits=10, decimal_places=2)
     rate = models.DecimalField(max_digits=10, decimal_places=2) # Return rate (usually same as purchase rate)
