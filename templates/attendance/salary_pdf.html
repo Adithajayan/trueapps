@@ -187,12 +187,14 @@ th,td{
 <table>
 <tr>
 <th>Present</th>
+<th>Paid Leave</th>
 <th>Absent</th>
 <th>Half Day</th>
 </tr>
 
 <tr>
 <td>{{ present }}</td>
+<td>{{ paid_leave }}</td>
 <td>{{ absent }}</td>
 <td>{{ half }}</td>
 </tr>
@@ -203,6 +205,11 @@ th,td{
 <div class="section">Absent Dates</div>
 <div class="datebox">
 {{ absent_dates|default:"None" }}
+</div>
+
+<div class="section">Paid Leave Dates</div>
+<div class="datebox">
+    {{ paid_leave_dates|default:"None" }}
 </div>
 
 <!-- ========= HALF DAY ========= -->

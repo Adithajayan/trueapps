@@ -142,6 +142,7 @@
                 <tr>
                     <th>Staff</th>
                     <th>Present</th>
+                    <th>Paid Leave</th>
                     <th>Half</th>
                     <th>Advance</th>
                     <th>Final Salary</th>
@@ -152,6 +153,7 @@
                 <tr>
                     <td>{{ r.staff.name }}</td>
                     <td>{{ r.present }}</td>
+                    <td class="text-info"><strong>{{ r.paid_leave }}</strong></td>
                     <td>{{ r.half }}</td>
                     <td>₹ {{ r.advance }}</td>
                     <td><strong>₹ {{ r.salary }}</strong></td>

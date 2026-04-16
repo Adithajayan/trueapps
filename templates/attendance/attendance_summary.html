@@ -25,6 +25,10 @@
     color:white;
 }
 
+.paid-leave {
+    background: #e0f7fa; /* Light Blue */
+    color: #00838f; /* Dark Cyan/Blue */
+}
 
 /* ===== PAGE TITLE ===== */
 .page-title{
@@ -180,6 +184,7 @@
     <th>Present</th>
     <th>Absent</th>
     <th>Half Day</th>
+    <th>Paid Leave</th>
     <th>Advance</th>
     <th>Salary</th>
     <th>Salary Slip</th>
@@ -201,15 +206,24 @@
     </span>
 </td>
 
+
 <td>
     <span class="status absent">
         ❌ {{ row.absent }}
     </span>
 </td>
 
+
+
 <td>
     <span class="status half">
-        🌓 {{ row.halfday }}
+         {{ row.halfday }}
+    </span>
+</td>
+
+<td>
+    <span class="status paid-leave">
+         {{ row.paid_leave }}
     </span>
 </td>
 

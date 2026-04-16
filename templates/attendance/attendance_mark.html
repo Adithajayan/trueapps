@@ -69,7 +69,7 @@
 
         {% for cell in row.days %}
         <td>
-            <button class="btn btn-sm {% if cell.status == 'P' %}btn-success{% elif cell.status == 'A' %}btn-danger{% elif cell.status == 'H' %}btn-warning{% else %}btn-outline-secondary{% endif %}"
+            <button class="btn btn-sm {% if cell.status == 'P' %}btn-success{% elif cell.status == 'L' %}btn-info{% elif cell.status == 'A' %}btn-danger{% elif cell.status == 'H' %}btn-warning{% else %}btn-outline-secondary{% endif %}"
                     onclick="openAttendanceModal({{ row.staff.id }}, {{ cell.day }}, this)">
                 {{ cell.status|default:"+" }}
             </button>
@@ -103,6 +103,9 @@
 
                 <button class="btn btn-warning w-100 mb-2"
                         onclick="saveAttendance('H')">Half Day</button>
+
+                <button class="btn btn-info text-white w-100 mb-2"
+                        onclick="saveAttendance('L')">Paid Leave</button>
 
                 <button class="btn btn-outline-dark w-100"
                         onclick="saveAttendance('')">Remove</button>
@@ -179,6 +182,10 @@ function saveAttendance(status) {
             if (status === 'P') {
                 currentBtn.classList.add("btn-success");
                 currentBtn.innerText = "P";
+            }
+            else if (status === 'L') { //
+                currentBtn.classList.add("btn-info"); // Blue കളർ (btn-info)
+                currentBtn.innerText = "L";
             }
             else if (status === 'A') {
                 currentBtn.classList.add("btn-danger");

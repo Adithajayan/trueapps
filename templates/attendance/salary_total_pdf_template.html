@@ -107,6 +107,10 @@ color:#1b5e20;
 font-weight:800;
 }
 
+.pl-count {
+    color: #0288d1; /* ഒരു ലൈറ്റ് ബ്ലൂ കളർ */
+    font-weight: 700;
+}
 
 /* HALF DAY BADGE */
 
@@ -181,6 +185,7 @@ color:#1b5e20;
 }
 
 
+
 /* FOOTER */
 
 .footer{
@@ -223,6 +228,7 @@ padding-top:5px;
 <tr>
 <th style="text-align:left;padding-left:15px;">Staff Member</th>
 <th>Present</th>
+<th>Paid Leave</th>
 <th>Half Day</th>
 <th>Advance Deducted</th>
 <th>Final Salary</th>
@@ -239,6 +245,8 @@ padding-top:5px;
 <td class="staff-name">{{ r.staff.name }}</td>
 
 <td>{{ r.present }}</td>
+
+<td style="font-weight:bold; color:#0288d1;">{{ r.paid_leave }}</td>
 
 <td>
 {% if r.half > 0 %}

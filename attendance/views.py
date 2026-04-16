@@ -120,7 +120,7 @@ def mark_attendance(request):
 
 
 from django.contrib.auth.decorators import login_required
-from datetime import date
+
 from django.db.models import Count, Sum, Q, DecimalField
 
 
@@ -136,6 +136,11 @@ def attendance_summary(request):
             attendance__date__month=month,
             attendance__date__year=year,
             attendance__status='P'
+        )),
+        paid_leave_count=Count('attendance', filter=Q(
+            attendance__date__month=month,
+            attendance__date__year=year,
+            attendance__status='L'
         )),
         absent_count=Count('attendance', filter=Q(
             attendance__date__month=month,
@@ -168,15 +173,14 @@ def attendance_summary(request):
         staff_advance = Decimal(advance_map.get(s.id, 0))
 
         # Full precision calculation
-        total_earned = (Decimal(s.present_count) * daily) + \
+        total_earned = (Decimal(s.present_count + s.paid_leave_count) * daily) + \
                        (Decimal(s.halfday_count) * (daily / Decimal('2')))
 
         final_salary = total_earned - staff_advance
 
         # -------------------------------------------------------
         # 👇 POINT ROUNDING LOGIC
-        # final_salary.quantize(Decimal('1')) ennulath point ozhivakkum
-        # ROUND_HALF_UP upayogikkunnathukondu .5-nu melaaneki round-up aakum
+
         # -------------------------------------------------------
         rounded_salary = final_salary.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
 
@@ -186,7 +190,7 @@ def attendance_summary(request):
             'absent': s.absent_count,
             'halfday': s.halfday_count,
             'advance': staff_advance,
-            'salary': rounded_salary, # Ippo ₹ 5058 aayi varum
+            'salary': rounded_salary,
         })
 
     return render(request, 'attendance/attendance_summary.html', {
@@ -309,8 +313,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from django.db.models import Sum
 from datetime import date
 
-from staff.models import Staff
-from .models import Attendance, Advance
+
 
 
 def salary_total(request):
@@ -320,14 +323,20 @@ def salary_total(request):
     staffs = Staff.objects.filter(status=True)
 
     rows = []
-    grand_total = Decimal('0')  # Ippo kaiyil ninnum pokunna cash (Net)
-    total_actual_salary = Decimal('0')  # Advance kuraykkatha full salary (Gross)
-    total_advance_given = Decimal('0')  # Kodutha aake advance
+    grand_total = Decimal('0')
+    total_actual_salary = Decimal('0')
+    total_advance_given = Decimal('0')
 
     for staff in staffs:
         present = Attendance.objects.filter(
             staff=staff,
             status='P',
+            date__month=month,
+            date__year=year
+        ).count()
+
+        paid_leave = Attendance.objects.filter(
+            staff=staff, status='L',
             date__month=month,
             date__year=year
         ).count()
@@ -348,7 +357,7 @@ def salary_total(request):
         daily = staff.daily_salary
 
         # Deduction-u munpulla calculation
-        actual_salary = (present * daily) + (half * (daily / Decimal('2')))
+        actual_salary = ((present + paid_leave) * daily) + (half * (daily / Decimal('2')))
 
         # Deduction-u sheshamulla calculation
         final_salary = round(actual_salary - Decimal(advance))
@@ -356,6 +365,7 @@ def salary_total(request):
         rows.append({
             'staff': staff,
             'present': present,
+            'paid_leave': paid_leave,
             'half': half,
             'advance': advance,
             'salary': final_salary
@@ -388,7 +398,7 @@ def salary_sheet(request):
     return render(request, 'attendance/salary_sheet.html')
 
 
-from django.db.models import Sum
+
 
 def calculate_salary(staff, month, year, daily_salary=500):
 
@@ -440,6 +450,11 @@ def staff_salary_pdf(request, staff_id):
         staff=staff, status='P',
         date__month=month, date__year=year)
 
+    paid_leaves = Attendance.objects.filter(
+        staff=staff, status='L',
+        date__month=month,
+        date__year=year)
+
     absents = Attendance.objects.filter(
         staff=staff, status='A',
         date__month=month, date__year=year)
@@ -457,7 +472,7 @@ def staff_salary_pdf(request, staff_id):
         total=Sum('amount'))['total'] or 0
 
     salary = (
-        presents.count() * staff.daily_salary +
+        (presents.count() + paid_leaves.count()) * staff.daily_salary +
         halfdays.count() * (staff.daily_salary / 2)
     ) - advance_total
 
@@ -469,10 +484,12 @@ def staff_salary_pdf(request, staff_id):
         "month_name": calendar.month_name[month],
         "total_days": calendar.monthrange(year, month)[1],
         "present": presents.count(),
+        "paid_leave": paid_leaves.count(),
         "absent": absents.count(),
         "half": halfdays.count(),
         "absent_dates": ", ".join([a.date.strftime("%d/%m/%Y") for a in absents]),
         "half_dates": ", ".join([a.date.strftime("%d/%m/%Y") for a in halfdays]),
+        "paid_leave_dates": ", ".join([l.date.strftime("%d/%m/%Y") for l in paid_leaves]),
         "advances": advances,
         "advance_total": advance_total,
         "salary": round(salary),
@@ -528,6 +545,7 @@ def export_salary_total_pdf(request):
 
     for staff in staffs:
         present = Attendance.objects.filter(staff=staff, status='P', date__month=month, date__year=year).count()
+        paid_leave = Attendance.objects.filter(staff=staff, status='L', date__month=month, date__year=year).count()
         half = Attendance.objects.filter(staff=staff, status='H', date__month=month, date__year=year).count()
         advance = \
         Advance.objects.filter(staff=staff, date__month=month, date__year=year).aggregate(total=Sum('amount'))[
@@ -535,12 +553,13 @@ def export_salary_total_pdf(request):
 
 
         daily = Decimal(str(staff.daily_salary))
-        actual_salary = (present * daily) + (half * (daily / Decimal('2')))
+        actual_salary = ((present + paid_leave) * daily) + (half * (daily / Decimal('2')))
         final_salary = round(actual_salary - Decimal(str(advance)))
 
         rows.append({
             'staff': staff,
             'present': present,
+            'paid_leave': paid_leave,
             'half': half,
             'advance': advance,
             'salary': final_salary
