@@ -187,6 +187,7 @@ def attendance_summary(request):
         summary_data.append({
             'staff': s,
             'present': s.present_count,
+            'paid_leave': s.paid_leave_count,
             'absent': s.absent_count,
             'halfday': s.halfday_count,
             'advance': staff_advance,
@@ -348,6 +349,11 @@ def salary_total(request):
             date__year=year
         ).count()
 
+        leave = Attendance.objects.filter(
+            staff=staff, status='A',
+            date__month=month,
+            date__year=year).count()
+
         advance = Advance.objects.filter(
             staff=staff,
             date__month=month,
@@ -367,6 +373,7 @@ def salary_total(request):
             'present': present,
             'paid_leave': paid_leave,
             'half': half,
+            'leave': leave,
             'advance': advance,
             'salary': final_salary
         })
