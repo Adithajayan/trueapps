@@ -6,6 +6,7 @@ class Attendance(models.Model):
         ('P', 'Present'),
         ('A', 'Absent'),
         ('H', 'Half Day'),
+        ('L', 'Paid Leave'),
     )
 
     staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
