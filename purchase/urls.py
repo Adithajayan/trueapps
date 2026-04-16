@@ -15,5 +15,6 @@ urlpatterns = [
     path('invoice-settings/', views.invoice_settings, name='invoice_settings'),
     path('returns/', views.purchase_return_list, name='purchase_return_list'),
     path('returns/add/<int:purchase_id>/', views.purchase_return_add, name='purchase_return_add'),
+    path('check-supplier-invoice/', views.check_supplier_invoice, name='check_supplier_invoice'),
 ]
 

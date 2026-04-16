@@ -110,6 +110,11 @@
                            required>
 
                 </div>
+                <div class="col-12 col-md-3">
+                    <label class="fw-semibold mb-1">Supplier Invoice No</label>
+                    <input type="text" name="supplier_invoice_number" class="form-control" placeholder="Enter Bill No"
+                           {% if purchase %} value="{{ purchase.supplier_invoice_number }}" {% endif %}>
+                </div>
 
                 <div class="col-6 col-md-3">
 
@@ -358,6 +363,38 @@
 
 <script>
 
+$(document).on('blur', 'input[name="supplier_invoice_number"]', function() {
+    let invoice_no = $(this).val();
+    let self = $(this);
+
+    // Edit page aaneil nammal purchase ID koodi check cheyyanam
+    // Purchase ID ninte template-il 'purchase.id' enna perilundallo
+    let purchase_id = "{% if purchase %}{{ purchase.id }}{% else %}{% endif %}";
+
+    if (invoice_no !== "") {
+        $.ajax({
+            url: "{% url 'check_supplier_invoice' %}",
+            data: {
+                'invoice_no': invoice_no,
+                'purchase_id': purchase_id // ID koodi pass cheyyunnu
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.is_taken) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Duplicate Invoice!',
+                        text: 'Same Invoice Number already exists!',
+                        confirmButtonColor: '#d33',
+                    });
+                    self.val("");
+                    self.focus();
+                }
+            }
+        });
+    }
+});
+
 // Select2 Initialization
 function applySelect2() {
 
@@ -481,6 +518,9 @@ document.addEventListener("click", function (e) {
     }
 
 });
+
+
+
 
 </script>
 

@@ -53,13 +53,6 @@ def purchase_list(request):
 
 
 
-
-
-
-
-
-
-
 from django.db import transaction
 
 
@@ -67,22 +60,30 @@ from django.db import transaction
 
 @transaction.atomic
 def purchase_add(request):
-
     suppliers = Supplier.objects.all()
     products = Product.objects.all()
 
     if request.method == "POST":
+
+        sup_inv_no = request.POST.get('supplier_invoice_number')
+
+        if sup_inv_no and Purchase.objects.filter(supplier_invoice_number=sup_inv_no).exists():
+            from django.contrib import messages
+            messages.error(request, f"Error: Invoice No {sup_inv_no} already exists..")
+            return redirect('purchase_add')
 
         supplier = Supplier.objects.get(id=request.POST.get('supplier'))
         date = request.POST.get('purchase_date')
         payment_type = request.POST.get('payment_type')
         tax_type = request.POST.get('tax_type')
 
+
         purchase = Purchase.objects.create(
             supplier=supplier,
             purchase_date=date,
             payment_type=payment_type,
-            tax_type=tax_type
+            tax_type=tax_type,
+            supplier_invoice_number=sup_inv_no
         )
 
         grand_total = Decimal('0')
@@ -90,7 +91,7 @@ def purchase_add(request):
         product_ids = request.POST.getlist('product[]')
         qtys = request.POST.getlist('qty[]')
         rates = request.POST.getlist('rate[]')
-        selling_rates = request.POST.getlist('selling_rate[]')  # ✅ NEW
+        selling_rates = request.POST.getlist('selling_rate[]')
         cgsts = request.POST.getlist('cgst[]')
         sgsts = request.POST.getlist('sgst[]')
 
@@ -172,8 +173,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Purchase, PurchaseItem
 from supplier_master.models import Supplier
 from product.models import Product
-from stock.models import Stock
-from supplier_ledger.models import SupplierLedger
+
 
 
 @transaction.atomic
@@ -205,6 +205,7 @@ def purchase_edit(request, pk):
         purchase.purchase_date = request.POST.get('purchase_date')
         purchase.payment_type = request.POST.get('payment_type')
         purchase.tax_type = request.POST.get('tax_type')
+        purchase.supplier_invoice_number = request.POST.get('supplier_invoice_number')
         purchase.save()
 
         grand_total = Decimal('0')
@@ -489,9 +490,7 @@ def purchase_return_add(request, purchase_id):
         p_return.total_return_amount = grand_return_total
         p_return.save()
 
-        # 📉 LEDGER UPDATE (Supplier-nu nammal kodukkanulla debt kurayunnu)
-        # Purchase-il debit aayirunnu (payment_type credit aayappol)
-        # Appol return-il nammal athu CREDIT column-ilaanu idukka (Balance kurayaan)
+
         SupplierLedger.objects.create(
             supplier=purchase.supplier,
             date=return_date,
@@ -504,8 +503,27 @@ def purchase_return_add(request, purchase_id):
 
         return redirect('purchase_return_list')
 
-    # GET request: Purchase items list cheyyanulla page kaanikkanam
+
     return render(request, 'purchase/purchase_return_add.html', {
         'purchase': purchase,
         'items': purchase.items.all()
     })
+
+
+from django.http import JsonResponse
+
+
+def check_supplier_invoice(request):
+    invoice_no = request.GET.get('invoice_no', None)
+    purchase_id = request.GET.get('purchase_id', None)
+
+    query = Purchase.objects.filter(supplier_invoice_number=invoice_no)
+
+
+    if purchase_id:
+        query = query.exclude(id=purchase_id)
+
+    data = {
+        'is_taken': query.exists()
+    }
+    return JsonResponse(data)

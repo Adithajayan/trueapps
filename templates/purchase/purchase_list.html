@@ -181,7 +181,7 @@
 
                     <th>No</th>
                     <th>Invoice</th>
-                    <th>Supplier</th>
+                    <th>Supplier Bill</th> <th>Supplier</th>
                     <th>Date</th>
                     <th>Total</th>
                     <th width="260">Action</th>
@@ -200,6 +200,10 @@
 
                     <td class="fw-bold text-primary">
                         {{ p.invoice_no }}
+                    </td>
+
+                    <td class="fw-semibold">
+                        {{ p.supplier_invoice_number|default:"-" }}
                     </td>
 
                     <td>
@@ -254,7 +258,7 @@
 
                 <tr>
 
-                    <td colspan="6" class="py-4 text-muted">
+                    <td colspan="7" class="py-4 text-muted">
                         No purchases found matching your criteria.
                     </td>
 
