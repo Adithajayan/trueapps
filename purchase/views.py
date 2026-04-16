@@ -121,7 +121,7 @@ def purchase_add(request):
                 cgst=cgst,
                 sgst=sgst,
                 gst_amount=gst_amount,
-                selling_rate=selling_rate,  # ✅ SAVED
+                selling_rate=selling_rate,
                 total=total
             )
 
@@ -130,8 +130,8 @@ def purchase_add(request):
             stock.save()
 
             grand_total += total
-
-        purchase.total_amount = grand_total
+        rounded_total = grand_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        purchase.total_amount = rounded_total
         purchase.save()
 
         if payment_type == "CREDIT":
@@ -139,7 +139,7 @@ def purchase_add(request):
                 supplier=purchase.supplier,
                 date=purchase.purchase_date,
                 particular=f"Purchase {purchase.invoice_no}",
-                debit=grand_total,
+                debit=rounded_total,
                 credit=0,
                 source='PURCHASE',
                 reference_id=purchase.id
@@ -152,7 +152,7 @@ def purchase_add(request):
         'products': products
     })
 
-
+from decimal import Decimal, ROUND_HALF_UP
 
 
 
@@ -161,11 +161,7 @@ def purchase_add(request):
 
 
 # ---------------- EDIT ----------------
-from stock.models import Stock
 
-from decimal import Decimal
-from stock.models import Stock
-from django.db import transaction
 
 from decimal import Decimal
 from django.db import transaction
@@ -257,7 +253,8 @@ def purchase_edit(request, pk):
             grand_total += total
 
         # 🔴 STEP 6: UPDATE PURCHASE TOTAL
-        purchase.total_amount = grand_total
+        rounded_total = grand_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        purchase.total_amount = rounded_total
         purchase.save()
 
         # 🔴 STEP 7: LEDGER ONLY IF CREDIT
@@ -266,7 +263,7 @@ def purchase_edit(request, pk):
                 supplier=purchase.supplier,
                 date=purchase.purchase_date,
                 particular=f"Purchase {purchase.invoice_no}",
-                debit=grand_total,
+                debit=rounded_total,
                 credit=0,
                 source='PURCHASE',
                 reference_id=purchase.id
