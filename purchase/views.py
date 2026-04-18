@@ -1,10 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Purchase, PurchaseItem
-from supplier_master.models import Supplier
-from product.models import Product
-from django.db import transaction
-from supplier_ledger.models import SupplierLedger
-from django.db import transaction
+
 
 
 # ---------------- LIST ----------------

@@ -267,7 +267,7 @@
                                     <option value="">Select Product</option>
 
                                     {% for p in products %}
-                                        <option value="{{ p.id }}">{{ p.name }}</option>
+                                    <option value="{{ p.id }}" data-hsn="{{ p.hsn_code }}">{{ p.name }}</option>
                                     {% endfor %}
 
                                 </select>
@@ -404,16 +404,20 @@ function applySelect2() {
             width: '100%',
             dropdownParent: $(this).parent(),
 
-            // Ithaanu HSN kaanikkanulla logic
             templateResult: function(product) {
                 if (!product.id) return product.text;
-                let hsn = $(product.element).data('hsn') || 'N/A';
-                return $('<span><b>' + product.text + '</b><br><small style="color: #007bff;">HSN: ' + hsn + '</small></span>');
+
+                // .data('hsn')-nu pakaram .attr('data-hsn') upayogikkunnu
+                var hsn = $(product.element).attr('data-hsn');
+                var hsnText = (hsn && hsn !== 'None' && hsn !== '') ? hsn : 'No HSN';
+
+                return $('<span><b>' + product.text + '</b><br><small style="color: #007bff; font-weight: bold;">HSN: ' + hsnText + '</small></span>');
             },
             templateSelection: function(product) {
                 if (!product.id) return product.text;
-                let hsn = $(product.element).data('hsn') || '';
-                return product.text + (hsn ? ' (HSN: ' + hsn + ')' : '');
+                var hsn = $(product.element).attr('data-hsn');
+                var hsnDisplay = (hsn && hsn !== 'None' && hsn !== '') ? ' (HSN: ' + hsn + ')' : '';
+                return product.text + hsnDisplay;
             }
         });
     });
