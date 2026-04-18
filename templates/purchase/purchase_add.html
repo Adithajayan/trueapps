@@ -398,26 +398,37 @@ $(document).on('blur', 'input[name="supplier_invoice_number"]', function() {
 // Select2 Initialization
 function applySelect2() {
     $('.searchable-select').each(function() {
+        let isProductDropdown = $(this).attr('name') === 'product[]';
+
         $(this).select2({
-            placeholder: "Search Product...",
+            placeholder: isProductDropdown ? "Search Product..." : "Select Supplier",
             allowClear: true,
             width: '100%',
             dropdownParent: $(this).parent(),
 
-            templateResult: function(product) {
-                if (!product.id) return product.text;
+            templateResult: function(item) {
+                if (!item.id) return item.text;
 
-                // .data('hsn')-nu pakaram .attr('data-hsn') upayogikkunnu
-                var hsn = $(product.element).attr('data-hsn');
-                var hsnText = (hsn && hsn !== 'None' && hsn !== '') ? hsn : 'No HSN';
+                // Product dropdown aaneil mathram HSN kanikkuka
+                if (isProductDropdown) {
+                    var hsn = $(item.element).attr('data-hsn');
+                    var hsnText = (hsn && hsn !== 'None' && hsn !== '') ? hsn : 'No HSN';
+                    return $('<span><b>' + item.text + '</b><br><small style="color: #007bff; font-weight: bold;">HSN: ' + hsnText + '</small></span>');
+                }
 
-                return $('<span><b>' + product.text + '</b><br><small style="color: #007bff; font-weight: bold;">HSN: ' + hsnText + '</small></span>');
+                // Supplier aaneil normal text mathram
+                return item.text;
             },
-            templateSelection: function(product) {
-                if (!product.id) return product.text;
-                var hsn = $(product.element).attr('data-hsn');
-                var hsnDisplay = (hsn && hsn !== 'None' && hsn !== '') ? ' (HSN: ' + hsn + ')' : '';
-                return product.text + hsnDisplay;
+            templateSelection: function(item) {
+                if (!item.id) return item.text;
+
+                if (isProductDropdown) {
+                    var hsn = $(item.element).attr('data-hsn');
+                    var hsnDisplay = (hsn && hsn !== 'None' && hsn !== '') ? ' (HSN: ' + hsn + ')' : '';
+                    return item.text + hsnDisplay;
+                }
+
+                return item.text;
             }
         });
     });
