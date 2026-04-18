@@ -29,8 +29,9 @@ def product_add(request):
         name = request.POST.get('name')
 
         # ✅ DUPLICATE CHECK
-        if Product.objects.filter(name=name, hsn_code=hsn_code).exists():
-            messages.error(request, "⚠ This product already exists.")
+
+        if Product.objects.filter(name__iexact=name, hsn_code__iexact=hsn_code).exists():
+            messages.error(request, f"⚠ Product with name '{name}' and HSN '{hsn_code}' already exists.")
             return redirect('product_add')
 
         Product.objects.create(
@@ -57,21 +58,38 @@ def product_edit(request, id):
     product = get_object_or_404(Product, id=id)
 
     if request.method == 'POST':
-        product.hsn_code = request.POST.get('hsn_code')
-        product.name = request.POST.get('name')
+
+        new_hsn_code = request.POST.get('hsn_code', '').strip()
+        new_name = request.POST.get('name', '').strip()
+
+        # ✅ DUPLICATE CHECK (Case-Insensitive)
+
+        duplicate_exists = Product.objects.filter(
+            name__iexact=new_name,
+            hsn_code__iexact=new_hsn_code
+        ).exclude(id=id).exists()
+
+        if duplicate_exists:
+            messages.error(request, f"⚠ Another product with name '{new_name}' and HSN '{new_hsn_code}' already exists.")
+            return render(request, 'product/product_form.html', {'product': product})
+
+
+        product.hsn_code = new_hsn_code
+        product.name = new_name
         product.description = request.POST.get('description')
-        product.purchase_rate = request.POST.get('purchase_rate')
-        product.sales_rate = request.POST.get('sales_rate')
-        product.mrp = request.POST.get('mrp')
-        product.discount = request.POST.get('discount', 0)
-        product.cgst = request.POST.get('cgst', 0)
-        product.sgst = request.POST.get('sgst', 0)
+        product.purchase_rate = request.POST.get('purchase_rate', 0) or 0
+        product.sales_rate = request.POST.get('sales_rate', 0) or 0
+        product.mrp = request.POST.get('mrp', 0) or 0
+        product.discount = request.POST.get('discount', 0) or 0
+        product.cgst = request.POST.get('cgst', 0) or 0
+        product.sgst = request.POST.get('sgst', 0) or 0
         product.unit = request.POST.get('unit')
 
         if request.FILES.get('image'):
             product.image = request.FILES.get('image')
 
         product.save()
+        messages.success(request, "✅ Product updated successfully.")
         return redirect('product_list')
 
     return render(request, 'product/product_form.html', {'product': product})

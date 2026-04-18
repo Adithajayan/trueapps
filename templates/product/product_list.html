@@ -148,6 +148,7 @@
                 <tr>
                     <th>Code</th>
                     <th>Name</th>
+                    <th>HSN</th>
                     <th>Unit</th>
                     <th>Purchase</th>
                     <th>Sales</th>
@@ -163,6 +164,8 @@
                     <td><strong>{{ p.product_code }}</strong></td>
 
                     <td>{{ p.name }}</td>
+
+                    <td>{{ p.hsn_code }}</td>
 
                     <td>
                         <span class="badge-unit">
@@ -196,7 +199,7 @@
 
             {% empty %}
                 <tr>
-                    <td colspan="7"
+                    <td colspan="8"
                         class="text-center text-muted py-4">
                         No products found
                     </td>

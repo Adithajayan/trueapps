@@ -193,7 +193,7 @@
                                 <select name="product[]" class="form-control searchable-select">
 
                                     {% for p in products %}
-                                        <option value="{{ p.id }}" {% if p.id == i.product.id %}selected{% endif %}>
+                                        <option value="{{ p.id }}" data-hsn="{{ p.hsn_code }}" {% if p.id == i.product.id %}selected{% endif %}>
                                             {{ p.name }}
                                         </option>
                                     {% endfor %}
@@ -397,18 +397,26 @@ $(document).on('blur', 'input[name="supplier_invoice_number"]', function() {
 
 // Select2 Initialization
 function applySelect2() {
-
     $('.searchable-select').each(function() {
-
         $(this).select2({
-            placeholder: "Search ...",
+            placeholder: "Search Product...",
             allowClear: true,
             width: '100%',
-            dropdownParent: $(this).parent()
+            dropdownParent: $(this).parent(),
+
+            // Ithaanu HSN kaanikkanulla logic
+            templateResult: function(product) {
+                if (!product.id) return product.text;
+                let hsn = $(product.element).data('hsn') || 'N/A';
+                return $('<span><b>' + product.text + '</b><br><small style="color: #007bff;">HSN: ' + hsn + '</small></span>');
+            },
+            templateSelection: function(product) {
+                if (!product.id) return product.text;
+                let hsn = $(product.element).data('hsn') || '';
+                return product.text + (hsn ? ' (HSN: ' + hsn + ')' : '');
+            }
         });
-
     });
-
 }
 
 $(document).ready(function() {
