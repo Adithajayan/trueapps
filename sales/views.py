@@ -41,7 +41,7 @@ def sales_create(request):
 
     if request.method == 'POST':
         customer_id = request.POST.get('customer_id')
-        # 🔥 Puthiya Field: B2B/B2C select box-il ninnu edukkunnu
+
         sale_type = request.POST.get('sale_type', 'B2C')
 
         if not customer_id:
@@ -104,7 +104,7 @@ def sales_create(request):
             if not product_ids[i]: continue
 
             product = Product.objects.get(id=product_ids[i])
-            requested_qty = int(qtys[i])
+            requested_qty = int(float(qtys[i]))
             sell_rate = Decimal(rates[i])
             s_cgst = Decimal(cgsts[i]) if (i < len(cgsts) and cgsts[i]) else Decimal(0)
             s_sgst = Decimal(sgsts[i]) if (i < len(sgsts) and sgsts[i]) else Decimal(0)
