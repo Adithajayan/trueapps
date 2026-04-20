@@ -59,7 +59,7 @@ def sales_create(request):
         for i in range(len(product_ids)):
             if not product_ids[i]: continue
             prod_obj = Product.objects.get(id=product_ids[i])
-            requested_qty = int(qtys[i])
+            requested_qty = int(float(qtys[i]))
             stock_obj = Stock.objects.filter(product=prod_obj).first()
             available = stock_obj.quantity if stock_obj else 0
             if available < requested_qty:
@@ -327,14 +327,14 @@ def sales_edit(request, pk):
         rates = request.POST.getlist('rate[]')
         cgsts = request.POST.getlist('cgst[]')
         sgsts = request.POST.getlist('sgst[]')
-        # 🔥 Puthiya Field: Form-il ninnu B2B/B2C type edukkunnu
+
         new_sale_type = request.POST.get('sale_type', 'B2C')
 
         # --- STEP 1: VALIDATE STOCK ---
         for i in range(len(product_ids)):
             if not product_ids[i]: continue
             prod_obj = Product.objects.get(id=product_ids[i])
-            new_qty = int(qtys[i])
+            new_qty = int(float(qtys[i]))
             old_item = items.filter(product=prod_obj).first()
             old_qty = old_item.qty if old_item else 0
             stock_obj = Stock.objects.filter(product=prod_obj).first()
@@ -362,7 +362,7 @@ def sales_edit(request, pk):
         for i in range(len(product_ids)):
             if not product_ids[i]: continue
             product = Product.objects.get(id=product_ids[i])
-            req_qty = int(qtys[i])
+            req_qty = int(float(qtys[i]))
             sell_rate = Decimal(rates[i])
             s_cgst = Decimal(cgsts[i]) if (i < len(cgsts) and cgsts[i]) else Decimal(0)
             s_sgst = Decimal(sgsts[i]) if (i < len(sgsts) and sgsts[i]) else Decimal(0)
@@ -425,8 +425,7 @@ def sales_edit(request, pk):
 
     return render(request, 'sales/sales_edit.html', {'sale': sale, 'items': items})
 
-from django.http import JsonResponse
-from product.models import Product
+
 
 
 def product_search_api(request):
