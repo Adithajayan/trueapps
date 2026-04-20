@@ -363,6 +363,7 @@ def sales_edit(request, pk):
             try:
                 s_cgst = Decimal(float(cgsts[i])) if (i < len(cgsts) and cgsts[i]) else Decimal(0)
                 s_sgst = Decimal(float(sgsts[i])) if (i < len(sgsts) and sgsts[i]) else Decimal(0)
+
             except (ValueError, TypeError):
                 s_cgst = Decimal(0)
                 s_sgst = Decimal(0)

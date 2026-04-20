@@ -12,7 +12,7 @@ class SalesMaster(models.Model):
     invoice_prefix = models.CharField(max_length=20, default='INV')
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True)
-    # Puthiya field ivide:
+
     sale_type = models.CharField(max_length=5, choices=SALE_TYPE_CHOICES, default='B2C')
     service_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     material_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)

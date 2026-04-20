@@ -167,14 +167,16 @@ step="0.01">
 <input type="number"
 name="cgst[]"
 class="form-control cgst text-center"
-value="{{ item.cgst }}">
+value="{{ item.cgst }}"
+step="any">
 </td>
 
 <td>
 <input type="number"
 name="sgst[]"
 class="form-control sgst text-center"
-value="{{ item.sgst }}">
+value="{{ item.sgst }}"
+step="any">
 </td>
 
 <td class="text-end fw-bold">
@@ -259,8 +261,8 @@ $(document).ready(function() {
             </td>
             <td><input type="number" name="qty[]" class="form-control qty text-center" value="1"></td>
             <td><input type="number" name="rate[]" class="form-control rate text-end" step="0.01" value="0"></td>
-            <td><input type="number" name="cgst[]" class="form-control cgst text-center" value="0"></td>
-            <td><input type="number" name="sgst[]" class="form-control sgst text-center" value="0"></td>
+            <td><input type="number" name="cgst[]" class="form-control cgst text-center" step="any" value="0"></td>
+            <td><input type="number" name="sgst[]" class="form-control sgst text-center" step="any" value="0"></td>
             <td class="text-end fw-bold">₹ <span class="row-total">0.00</span></td>
             <td><button type="button" class="btn btn-outline-danger btn-sm remove">✖</button></td>
         </tr>`;
