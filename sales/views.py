@@ -309,11 +309,7 @@ def sales_return(request):
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.contrib import messages
-from decimal import Decimal
-from .models import SalesMaster, SalesItem, SalesItemBatch
-from purchase.models import PurchaseItem
-from stock.models import Stock
-from product.models import Product
+
 
 
 @transaction.atomic
@@ -354,7 +350,7 @@ def sales_edit(request, pk):
                 pi.quantity_at_hand += ib.qty
                 pi.save()
 
-        # Pazhaya items delete cheyyunnu (Re-creation logic)
+
         items.delete()
 
         # --- STEP 3: RE-CREATE ITEMS WITH NEW DATA ---
@@ -364,8 +360,12 @@ def sales_edit(request, pk):
             product = Product.objects.get(id=product_ids[i])
             req_qty = int(float(qtys[i]))
             sell_rate = Decimal(rates[i])
-            s_cgst = Decimal(cgsts[i]) if (i < len(cgsts) and cgsts[i]) else Decimal(0)
-            s_sgst = Decimal(sgsts[i]) if (i < len(sgsts) and sgsts[i]) else Decimal(0)
+            try:
+                s_cgst = Decimal(float(cgsts[i])) if (i < len(cgsts) and cgsts[i]) else Decimal(0)
+                s_sgst = Decimal(float(sgsts[i])) if (i < len(sgsts) and sgsts[i]) else Decimal(0)
+            except (ValueError, TypeError):
+                s_cgst = Decimal(0)
+                s_sgst = Decimal(0)
 
             # Selling price with GST (Profit calculation-u vendi)
             sell_price_inc_gst = sell_rate + (sell_rate * (s_cgst + s_sgst) / 100)
