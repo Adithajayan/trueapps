@@ -1,53 +1,123 @@
-<!-- purchase/purchase_return_view.html -->
-<div class="max-w-4xl mx-auto p-8 bg-white shadow-sm rounded-lg border border-gray-100">
-    <div class="flex justify-between items-center mb-10">
-        <div>
-            <h1 class="text-2xl font-bold tracking-tight text-gray-900">Purchase Return</h1>
-            <p class="text-sm text-gray-500">ID: {{ return.return_no }}</p>
-        </div>
-        <div class="text-right">
-            <a href="{% url 'purchase_return_pdf' return.id %}" class="px-5 py-2 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 transition">
-                Download PDF
-            </a>
-        </div>
-    </div>
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Purchase Return - {{ return.return_no }}</title>
 
-    <div class="grid grid-cols-2 gap-8 mb-10 border-b pb-8">
-        <div>
-            <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-2">Supplier</p>
-            <p class="font-medium">{{ return.purchase.supplier.name }}</p>
-        </div>
-        <div class="text-right">
-            <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-2">Return Date</p>
-            <p class="font-medium">{{ return.return_date }}</p>
-        </div>
-    </div>
+<style>
+/* ... (Nee thanna same CSS styles ivide use cheyyam) ... */
+@page { size: A4; margin: 20mm 12mm 25mm 12mm; }
+body { font-family: Arial, sans-serif; font-size: 11px; margin:0; }
+.company-name{ font-size:16px; font-weight:bold; }
+.invoice-title{ font-size:20px; font-weight:bold; color:#8B4513; } /* Return-u vendi Brown color */
+table{ width:100%; border-collapse:collapse; margin-bottom:12px; }
+th,td{ border:1px solid #000; padding:8px; }
+.no-border td{ border:none!important; }
+.customer-title{ background:#8B4513; color:#fff; font-weight:bold; padding:7px; }
+.box{ border:1px solid #000; padding:10px; margin-bottom:12px; }
+.bold{ font-weight:bold; }
+.right{ text-align:right; }
+.center{ text-align:center; }
 
-    <table class="w-full mb-10">
-        <thead>
-            <tr class="text-left border-b border-gray-100">
-                <th class="py-4 font-semibold text-gray-600">Product</th>
-                <th class="py-4 font-semibold text-gray-600 text-center">Qty</th>
-                <th class="py-4 font-semibold text-gray-600 text-right">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in return.return_items.all %}
-            <tr class="border-b border-gray-50">
-                <td class="py-4">{{ item.purchase_item.product.name }}</td>
-                <td class="py-4 text-center">{{ item.qty }}</td>
-                <td class="py-4 text-right">₹{{ item.total }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+@media screen{
+    body{ background:#f0f2f5; padding:30px; }
+    .preview{ width:210mm; margin:auto; background:#fff; padding:15mm; box-shadow:0 0 10px rgba(0,0,0,.15); }
+}
+</style>
+</head>
 
-    <div class="flex justify-end">
-        <div class="w-64">
-            <div class="flex justify-between py-2">
-                <span class="text-gray-500">Total Return Amount</span>
-                <span class="font-bold text-xl">₹{{ return.total_return_amount }}</span>
-            </div>
-        </div>
-    </div>
+<body>
+
+<div class="preview">
+
+<!-- ================= HEADER ================= -->
+<table class="no-border">
+<tr>
+<td width="65%">
+<div class="company-name">TRUEBIT TECHNOLOGIES AND INVENTIONS PVT LTD</div>
+P.O KAIPAMANGALAM, KOPRAKALAM, MATHILAKAM<br>
+Kerala [32]<br>
+Contact : 7558877703, 7561837208<br>
+Email : truebittechnologies@gmail.com<br>
+GSTIN : 32AAGCT4153J1ZD
+</td>
+
+<td width="35%" class="right">
+<div class="invoice-title">Purchase Return</div><br>
+<b>Return No :</b> {{ return.return_no }}<br>
+<b>Date :</b> {{ return.return_date }}<br>
+<b>Ref Inv :</b> {{ return.purchase.invoice_no }}
+</td>
+</tr>
+</table>
+
+<hr style="border:0.6px solid #000;margin:10px 0;">
+
+<!-- ================= SUPPLIER ================= -->
+<div class="customer-title">Supplier Details</div>
+<div class="box">
+<div class="bold">{{ return.purchase.supplier.name }}</div>
+{% if return.purchase.supplier.address %}Address : {{ return.purchase.supplier.address }}<br>{% endif %}
+{% if return.purchase.supplier.gstin %}GSTIN : {{ return.purchase.supplier.gstin }}{% endif %}
 </div>
+
+<!-- ================= PRODUCT TABLE ================= -->
+<table>
+<thead>
+<tr style="background:#f2f2f2;">
+<th width="10%">No</th>
+<th width="50%">Product Name</th>
+<th width="15%">Qty</th>
+<th width="25%" class="right">Total</th>
+</tr>
+</thead>
+
+<tbody>
+{% for i in return.return_items.all %}
+<tr>
+<td class="center">{{ forloop.counter }}</td>
+<td class="bold">{{ i.purchase_item.product.name }}</td>
+<td class="center">{{ i.qty }}</td>
+<td class="right">₹ {{ i.total }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<!-- ================= TOTAL & REASON ================= -->
+<table class="no-border">
+<tr>
+<td width="55%">
+    {% if return.reason %}
+    <div class="box">
+        <b>Reason for Return:</b><br>
+        {{ return.reason }}
+    </div>
+    {% endif %}
+    <div style="margin-top:45px;border-top:1px solid #000;width:160px;">
+    <b>Authorised Signatory</b>
+    </div>
+</td>
+
+<td width="45%">
+<table>
+<tr class="bold" style="background:#f2f2f2; font-size: 14px;">
+<td>Total Refund</td>
+<td class="right text-success">₹ {{ return.total_return_amount }}</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+<!-- PDF Download Button (Only visible on Screen) -->
+<div class="center" style="margin-top: 30px; display: block;" id="download-btn">
+    <a href="{% url 'purchase_return_pdf' return.id %}" style="background: #000; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+        Download PDF Official
+    </a>
+</div>
+
+</div>
+</body>
+</html>
