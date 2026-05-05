@@ -7,10 +7,7 @@ class Staff(models.Model):
     name = models.CharField(max_length=100)
     designation = models.CharField(max_length=100)
     address = models.TextField()
-    daily_salary = models.DecimalField(
-        max_digits=15,
-        decimal_places=10
-    )
+    daily_salary = models.DecimalField(max_digits=20, decimal_places=10, default=0.00)
     status = models.BooleanField(default=True)
 
     def __str__(self):
