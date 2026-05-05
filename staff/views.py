@@ -30,7 +30,8 @@ def staff_add(request):
         name = request.POST.get('name')
         designation = request.POST.get('designation')
         address = request.POST.get('address')
-        daily_salary = request.POST.get('daily_salary')
+        daily_salary_raw = request.POST.get('daily_salary')
+        daily_salary = Decimal(daily_salary_raw) if daily_salary_raw else Decimal('0.00')
 
         # Login credentials from form
         username = request.POST.get('username')
