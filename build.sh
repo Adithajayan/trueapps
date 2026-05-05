@@ -18,10 +18,10 @@ apt-get install -y \
 pip install -r requirements.txt
 
 
-#python manage.py makemigrations --noinput
-#
-#
-#python manage.py flush --noinput
+# Force migration for staff app during build
+python manage.py makemigrations staff --noinput
+
+# Apply the migration to Postgres
 python manage.py migrate --noinput
 
 
