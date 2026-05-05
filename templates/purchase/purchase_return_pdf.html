@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; color: #333; }
+        .header { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
+        .title { font-size: 24px; font-weight: bold; }
+        .details-table { width: 100%; margin-bottom: 40px; }
+        .items-table { width: 100%; border-collapse: collapse; }
+        .items-table th { background: #f8f9fa; text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        .items-table td { padding: 12px; border-bottom: 1px solid #eee; }
+        .total-section { text-align: right; margin-top: 30px; }
+        .total-box { display: inline-block; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">Purchase Return Note</div>
+        <p>Return ID: {{ return.return_no }} | Reference Invoice: {{ return.purchase.invoice_no }}</p>
+    </div>
+
+    <table class="details-table">
+        <tr>
+            <td>
+                <strong>Supplier:</strong><br>
+                {{ return.purchase.supplier.name }}
+            </td>
+            <td style="text-align: right;">
+                <strong>Date:</strong><br>
+                {{ return.return_date }}
+            </td>
+        </tr>
+    </table>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th style="text-align: center;">Qty</th>
+                <th style="text-align: center;">Rate</th>
+                <th style="text-align: right;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in return.return_items.all %}
+            <tr>
+                <td>{{ item.purchase_item.product.name }}</td>
+                <td style="text-align: center;">{{ item.qty }}</td>
+                <td style="text-align: center;">{{ item.rate }}</td>
+                <td style="text-align: right;">{{ item.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <div class="total-box">
+            <strong>Total Refund Amount: ₹ {{ return.total_return_amount }}</strong>
+        </div>
+    </div>
+</body>
+</html>

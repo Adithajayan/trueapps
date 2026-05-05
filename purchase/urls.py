@@ -16,5 +16,8 @@ urlpatterns = [
     path('returns/', views.purchase_return_list, name='purchase_return_list'),
     path('returns/add/<int:purchase_id>/', views.purchase_return_add, name='purchase_return_add'),
     path('check-supplier-invoice/', views.check_supplier_invoice, name='check_supplier_invoice'),
+
+    path('returns/view/<int:pk>/', views.purchase_return_view, name='purchase_return_view'),
+    path('returns/pdf/<int:pk>/', views.purchase_return_pdf, name='purchase_return_pdf'),
 ]
 

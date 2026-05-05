@@ -68,60 +68,42 @@
             </thead>
 
             <tbody>
+    {% for r in returns %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td class="fw-bold text-danger">{{ r.return_no }}</td>
+        <td class="text-muted">{{ r.purchase.invoice_no }}</td>
+        <td>{{ r.purchase.supplier.name }}</td>
+        <td>{{ r.return_date }}</td>
+        <td class="fw-bold text-success">₹ {{ r.total_return_amount }}</td>
 
-                {% for r in returns %}
+        <!-- Ellam koode ee ore Action column-il mathi -->
+        <td>
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-2">
+                <!-- Reason (Mobile-il hide cheyyunathaanu nallathu for space) -->
+                {% if r.reason %}
+                <span class="badge bg-light text-dark border d-none d-lg-inline-block">
+                    {{ r.reason|truncatechars:15 }}
+                </span>
+                {% endif %}
 
-                <tr>
-
-                    <td>{{ forloop.counter }}</td>
-
-                    <td class="fw-bold text-danger">
-                        {{ r.return_no }}
-                    </td>
-
-                    <td class="text-muted">
-                        {{ r.purchase.invoice_no }}
-                    </td>
-
-                    <td>
-                        {{ r.purchase.supplier.name }}
-                    </td>
-
-                    <td>
-                        {{ r.return_date }}
-                    </td>
-
-                    <td class="fw-bold text-success">
-                        ₹ {{ r.total_return_amount }}
-                    </td>
-
-                    <td>
-
-                        <div class="action-group d-flex justify-content-center">
-
-                            <span class="badge bg-light text-dark border">
-                                {{ r.reason|truncatechars:20 }}
-                            </span>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr>
-
-                    <td colspan="7">
-                        No returns recorded
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'purchase_return_view' r.id %}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                        View
+                    </a>
+                    <a href="{% url 'purchase_return_pdf' r.id %}" class="btn btn-sm btn-dark rounded-pill px-3">
+                        PDF
+                    </a>
+                </div>
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7">No returns recorded</td>
+    </tr>
+    {% endfor %}
+</tbody>
 
         </table>
 
