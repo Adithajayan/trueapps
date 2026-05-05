@@ -71,9 +71,9 @@
                 </td>
                 <td width="40%" class="right">
                     <div class="invoice-title">Purchase Return</div>
-                    <strong>Return No:</strong> {{ return.return_no }}<br>
-                    <strong>Date:</strong> {{ return.return_date }}<br>
-                    <strong>Ref Inv:</strong> {{ return.purchase.invoice_no }}
+                    <strong>Return No:</strong> {{ return_obj.return_no }}<br>
+                    <strong>Date:</strong> {{ return_obj.return_date }}<br>
+                    <strong>Ref Inv:</strong> {{ return_obj.purchase.invoice_no }}
                 </td>
             </tr>
         </table>
@@ -81,9 +81,9 @@
         <!-- Supplier Info -->
         <div class="customer-title">Supplier Details</div>
         <div class="box">
-            <strong>{{ return.purchase.supplier.name }}</strong><br>
-            {% if return.purchase.supplier.address %}Address: {{ return.purchase.supplier.address }}<br>{% endif %}
-            {% if return.purchase.supplier.gstin %}GSTIN: {{ return.purchase.supplier.gstin }}{% endif %}
+            <strong>{{ return_obj.purchase.supplier.name }}</strong><br>
+            {% if return_obj.purchase.supplier.address %}Address: {{ return_obj.purchase.supplier.address }}<br>{% endif %}
+            {% if return_obj.purchase.supplier.gstin %}GSTIN: {{ return_obj.purchase.supplier.gstin }}{% endif %}
         </div>
 
         <!-- Items Table -->
@@ -97,12 +97,16 @@
                 </tr>
             </thead>
             <tbody>
-                {% for item in return.return_items.all %}
+                {% for item in return_obj.return_items.all %}
                 <tr>
                     <td class="center">{{ forloop.counter }}</td>
                     <td>{{ item.purchase_item.product.name }}</td>
                     <td class="center">{{ item.qty }}</td>
                     <td class="right">₹ {{ item.total }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="center">No return items found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -112,10 +116,10 @@
         <table style="width: 100%;">
             <tr>
                 <td width="60%">
-                    {% if return.reason %}
+                    {% if return_obj.reason %}
                     <div style="border: 1px solid #ccc; padding: 10px; font-size: 10px; width: 80%;">
                         <strong>Reason for Return:</strong><br>
-                        {{ return.reason }}
+                        {{ return_obj.reason }}
                     </div>
                     {% endif %}
                 </td>
@@ -123,7 +127,7 @@
                     <table width="100%" style="border-collapse: collapse;">
                         <tr class="grand-total">
                             <td style="border: 1px solid #000; padding: 10px;">Total Refund</td>
-                            <td style="border: 1px solid #000; padding: 10px;" class="right">₹ {{ return.total_return_amount }}</td>
+                            <td style="border: 1px solid #000; padding: 10px;" class="right">₹ {{ return_obj.total_return_amount }}</td>
                         </tr>
                     </table>
                 </td>

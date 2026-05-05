@@ -88,10 +88,10 @@
                 {% endif %}
 
                 <div class="d-flex gap-2">
-                    <a href="{% url 'purchase_return_view' r.id %}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                    <a href="{% url 'purchase_return_view' r.id %}" target="_blank" class="btn btn-sm btn-outline-dark rounded-pill px-3">
                         View
                     </a>
-                    <a href="{% url 'purchase_return_pdf' r.id %}" class="btn btn-sm btn-dark rounded-pill px-3">
+                    <a href="{% url 'purchase_return_pdf' r.id %}" target="_blank" class="btn btn-sm btn-dark rounded-pill px-3">
                         PDF
                     </a>
                 </div>

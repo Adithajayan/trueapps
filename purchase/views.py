@@ -528,17 +528,16 @@ def purchase_return_view(request, pk):
         'return': p_return,
     })
 
-
 # --- PURCHASE RETURN PDF ---
 def purchase_return_pdf(request, pk):
     p_return = get_object_or_404(PurchaseReturn, id=pk)
 
     context = {
-        "p_return": p_return,
-        "company_name": "Nuttribe",  # Nammude branding
+        "return_obj": p_return,
+        "company_name": "Nuttribe",
     }
 
     filename = f"Return_{p_return.return_no}.pdf"
-    template_path = "purchase/purchase_return_pdf_template.html"  # PDF-nu vendi separate light-weight template
+    template_path = "purchase/purchase_return_pdf_template.html"
 
     return generate_pdf(template_path, context, filename)
