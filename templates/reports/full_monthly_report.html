@@ -108,7 +108,7 @@
         }
 
         .summary-grid td{
-            width:20%;
+            width:25%;
             border:1px solid #ddd;
             padding:15px;
             text-align:center;
@@ -402,72 +402,60 @@
         </table>
 
         <!-- =========================================================
-             SUMMARY SECTION
-        ========================================================== -->
+     SUMMARY SECTION
+========================================================== -->
 
-        <div class="summary-grid">
+<div class="summary-grid">
 
-            <table>
+    <table>
 
-                <tr>
+        <tr>
 
-                    <td>
-                        <div class="summary-label">
-                            Total Invoices
-                        </div>
+            <td>
+                <div class="summary-label">
+                    Total Taxable Amount
+                </div>
 
-                        <div class="summary-value">
-                            {{ sales|length }}
-                        </div>
-                    </td>
+                <div class="summary-value">
+                    ₹ {{ total_taxable }}
+                </div>
+            </td>
 
-                    <td>
-                        <div class="summary-label">
-                            Total Sales
-                        </div>
+            <td>
+                <div class="summary-label">
+                    Total SGST Amount
+                </div>
 
-                        <div class="summary-value">
-                            ₹ {{ overall_total }}
-                        </div>
-                    </td>
+                <div class="summary-value">
+                    ₹ {{ total_gst_split }}
+                </div>
+            </td>
 
-                    <td>
-                        <div class="summary-label">
-                            Taxable Amount
-                        </div>
+            <td>
+                <div class="summary-label">
+                    Total CGST Amount
+                </div>
 
-                        <div class="summary-value">
-                            ₹ {{ total_taxable }}
-                        </div>
-                    </td>
+                <div class="summary-value">
+                    ₹ {{ total_gst_split }}
+                </div>
+            </td>
 
-                    <td>
-                        <div class="summary-label">
-                            Total GST
-                        </div>
+            <td>
+                <div class="summary-label">
+                    OVERALL GRAND TOTAL
+                </div>
 
-                        <div class="summary-value">
-                            ₹ {{ total_gst }}
-                        </div>
-                    </td>
+                <div class="summary-value">
+                    ₹ {{ overall_total }}
+                </div>
+            </td>
 
-                    <td>
-                        <div class="summary-label">
-                            Avg Invoice
-                        </div>
+        </tr>
 
-                        <div class="summary-value">
-                            ₹ {{ average_invoice }}
-                        </div>
-                    </td>
+    </table>
 
-                </tr>
-
-            </table>
-
-        </div>
-
-    </div>
+</div>
 
     <!-- =========================================================
          SALES LOOP

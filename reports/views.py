@@ -697,12 +697,12 @@ def export_all_excel(request):
     return response
 
 
-
-
 import calendar
+from datetime import datetime
 from decimal import Decimal
-from django.db.models import Sum
+from django.shortcuts import render
 from sales.models import SalesMaster
+from config.utils.pdf import generate_pdf
 
 
 def full_monthly_report_pdf(request):
@@ -711,52 +711,69 @@ def full_monthly_report_pdf(request):
     month = request.GET.get('month')
     year = request.GET.get('year')
 
-    # Prefetch items for better performance
+    # Prefetch items for better performance while calculating properties
     sales = SalesMaster.objects.all().prefetch_related('items').order_by('date')
 
-    # --- DATE FILTER LOGIC ---
-    report_title = "SALES BILL"
+    # --- DATE FILTER & FILENAME LOGIC ---
+    report_month_name = ""
+    report_year = ""
+
     if from_date and to_date:
         sales = sales.filter(date__range=[from_date, to_date])
-        report_title = f"{from_date}_TO_{to_date}_SALES"
+        try:
+            # from_date-il ninnu month name extract cheyyunnu
+            dt_obj = datetime.strptime(from_date, '%Y-%m-%d')
+            report_month_name = calendar.month_name[dt_obj.month].upper()
+            report_year = dt_obj.year
+        except:
+            report_month_name = "CUSTOM"
+            report_year = ""
+
     elif month and year:
         sales = sales.filter(date__month=month, date__year=year)
-        # Month name convert cheyyunnu (e.g., 3 -> MARCH)
-        month_name = calendar.month_name[int(month)].upper()
-        report_title = f"{month_name}_SALES_BILL"
+        report_month_name = calendar.month_name[int(month)].upper()
+        report_year = year
+    else:
+        # Filter onnum illenkil current month/year default aayi edukkum
+        now = datetime.now()
+        report_month_name = calendar.month_name[now.month].upper()
+        report_year = now.year
+
+    # Dynamic Filename: e.g., APRIL 2026 SALES BILL.pdf
+    filename = f"{report_month_name} {report_year} SALES BILL.pdf"
 
     # --- SUMMARY CALCULATIONS ---
-    # Python-il thanne summarize cheyyunnu (Since we already have prefetch_related)
     overall_total = Decimal('0')
     total_taxable = Decimal('0')
     total_gst = Decimal('0')
 
     for sale in sales:
         overall_total += sale.total_amount
-        total_taxable += sale.get_taxable_total
-        total_gst += sale.get_gst_total
+        # Model property-il ninnu values calculate cheyyunnu
+        total_taxable += Decimal(str(sale.get_taxable_total))
+        total_gst += Decimal(str(sale.get_gst_total))
 
     invoice_count = sales.count()
+    # Average calculation with zero division check
     average_invoice = overall_total / invoice_count if invoice_count > 0 else Decimal('0')
 
-    # --- DATA CONTEXT ---
+    # --- DATA CONTEXT FOR HTML ---
     context = {
         'sales': sales,
         'from_date': from_date,
         'to_date': to_date,
-        'month_name': calendar.month_name[int(month)] if month else None,
-        'year': year,
+        'report_month': report_month_name,
+        'report_year': report_year,
 
-        # Summary variables for HTML cards
+        # Summary variables for your HTML cards
         'overall_total': overall_total,
         'total_taxable': total_taxable,
-        'total_gst_split': total_gst / 2,  # CGST & SGST (assuming equal split)
+        'total_gst_split': total_gst / 2,  # CGST/SGST split
         'average_invoice': round(average_invoice, 2),
         'invoice_count': invoice_count,
     }
 
-    # Dynamic Filename (e.g., MARCH_SALES_BILL.pdf)
-    filename = f"{report_title}.pdf"
     template_path = 'reports/full_monthly_report.html'
 
+    # Final PDF Generation
     return generate_pdf(template_path, context, filename)
