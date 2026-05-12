@@ -64,14 +64,19 @@
 
 <div class="col-md-3 d-grid">
 
-<button class="btn btn-primary mt-4">
-View Report
-</button>
+    <button class="btn btn-primary mt-4">
+        View Report
+    </button>
 
-<a href="{% url 'sales_report_pdf' %}?from_date={{ request.GET.from_date }}&to_date={{ request.GET.to_date }}&sale_type={{ request.GET.sale_type }}"
-class="btn btn-danger mt-2">
-Download PDF
-</a>
+    <a href="{% url 'sales_report_pdf' %}?from_date={{ request.GET.from_date }}&to_date={{ request.GET.to_date }}&sale_type={{ request.GET.sale_type }}"
+    class="btn btn-danger mt-2">
+        Download Summary PDF
+    </a>
+
+    <a href="{% url 'full_monthly_report_pdf' %}?from_date={{ request.GET.from_date }}&to_date={{ request.GET.to_date }}"
+    class="btn btn-dark mt-2">
+        Detailed Sales Book
+    </a>
 
 </div>
 

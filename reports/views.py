@@ -695,3 +695,33 @@ def export_all_excel(request):
     response["Content-Disposition"] = 'attachment; filename="system_export.zip"'
 
     return response
+
+
+# reports/views.py-il add cheyyendathu:
+
+from sales.models import SalesMaster # Sales model import cheyyunnu
+
+def full_monthly_report_pdf(request):
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
+    month = request.GET.get('month')
+    year = request.GET.get('year')
+
+    sales = SalesMaster.objects.all().prefetch_related('items').order_by('date')
+
+    # Date filter handle cheyyunnu
+    if from_date and to_date:
+        sales = sales.filter(date__range=[from_date, to_date])
+    elif month and year:
+        sales = sales.filter(date__month=month, date__year=year)
+
+    context = {
+        'sales': sales,
+        'from_date': from_date or month,
+        'to_date': to_date or year,
+    }
+
+    filename = f"Detailed_Sales_Report.pdf"
+    template_path = 'reports/pdf/full_monthly_report.html'
+
+    return generate_pdf(template_path, context, filename)

@@ -12,4 +12,6 @@ urlpatterns = [
     path('profit-loss/pdf/',views.profit_loss_pdf,name='profit_loss_pdf'),
     path('export-all-excel/', views.export_all_excel, name='export_all_excel'),
 
+    path('full-monthly-report-pdf/', views.full_monthly_report_pdf, name='full_monthly_report_pdf'),
+
 ]

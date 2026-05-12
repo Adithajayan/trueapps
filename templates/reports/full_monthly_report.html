@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* PAGE & BODY SETTINGS */
+        @page { size: A4; margin: 10mm; }
+        body { font-family: 'Helvetica','Arial',sans-serif; font-size: 11px; color: #1a1a1a; margin: 0; }
+
+        /* REPORT TITLE SECTION */
+        .report-header { text-align: center; border-bottom: 3px solid #d32f2f; padding-bottom: 10px; margin-bottom: 20px; }
+        .report-title { font-size: 22px; font-weight: bold; color: #d32f2f; text-transform: uppercase; margin: 0; }
+
+        /* INDIVIDUAL INVOICE BOX - Ithaanu magic */
+        .invoice-wrapper { border: 1px solid #333; margin-bottom: 30px; page-break-inside: avoid; }
+
+        .invoice-top-bar { background-color: #d32f2f; color: #fff; padding: 6px 12px; display: flex; justify-content: space-between; font-weight: bold; }
+
+        .customer-info-row { padding: 10px; border-bottom: 1px solid #eee; background: #fafafa; }
+
+        /* ITEMS TABLE */
+        .items-table { width: 100%; border-collapse: collapse; }
+        .items-table th, .items-table td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+        .items-table th { background: #f2f2f2; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .text-left { text-align: left !important; }
+
+        /* TOTALS SECTION */
+        .total-strip { background: #333; color: #fff; padding: 8px; text-align: right; font-size: 13px; font-weight: bold; }
+
+        /* COMPANY BRANDING (Optional Header on Top of Report) */
+        .company-branding { font-size: 14px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="report-header">
+        <div class="company-branding">TRUEBIT TECHNOLOGIES AND INVENTIONS PVT LTD</div>
+        <h1 class="report-title">Monthly Sales Book (Detailed)</h1>
+        <div>Period: {{ from_date }} to {{ to_date }}</div>
+    </div>
+
+    {% for sale in sales %}
+    <div class="invoice-wrapper">
+
+        <div class="invoice-top-bar">
+            <span>INVOICE: {{ sale.invoice_no }}</span>
+            <span style="float: right;">DATE: {{ sale.date|date:"d-m-Y" }}</span>
+        </div>
+
+        <div class="customer-info-row">
+            <strong>Customer:</strong> {{ sale.customer.name }} |
+            <strong>Place:</strong> {{ sale.customer.place|default:"N/A" }} |
+            <strong>Phone:</strong> {{ sale.customer.phone|default:"N/A" }}
+            {% if sale.customer.gst_number %}
+                | <strong>GSTIN:</strong> {{ sale.customer.gst_number }}
+            {% endif %}
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th width="5%">No</th>
+                    <th class="text-left">Product Name</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>SGST%</th>
+                    <th>CGST%</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sale.items.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td class="text-left"><strong>{{ item.product.name }}</strong></td>
+                    <td>{{ item.qty }}</td>
+                    <td>{{ item.selling_price }}</td>
+                    <td>{{ item.sgst }}</td>
+                    <td>{{ item.cgst }}</td>
+                    <td>{{ item.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-strip">
+            Invoice Grand Total: ₹ {{ sale.total_amount }}
+        </div>
+    </div>
+    {% endfor %}
+
+</body>
+</html>
