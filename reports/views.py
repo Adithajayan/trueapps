@@ -722,6 +722,6 @@ def full_monthly_report_pdf(request):
     }
 
     filename = f"Detailed_Sales_Report.pdf"
-    template_path = 'reports/pdf/full_monthly_report.html'
+    template_path = 'reports/full_monthly_report.html'
 
     return generate_pdf(template_path, context, filename)
