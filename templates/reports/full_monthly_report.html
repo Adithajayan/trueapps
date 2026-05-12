@@ -2,92 +2,756 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Monthly Sales Report</title>
+
     <style>
-        /* PAGE & BODY SETTINGS */
-        @page { size: A4; margin: 10mm; }
-        body { font-family: 'Helvetica','Arial',sans-serif; font-size: 11px; color: #1a1a1a; margin: 0; }
 
-        /* REPORT TITLE SECTION */
-        .report-header { text-align: center; border-bottom: 3px solid #d32f2f; padding-bottom: 10px; margin-bottom: 20px; }
-        .report-title { font-size: 22px; font-weight: bold; color: #d32f2f; text-transform: uppercase; margin: 0; }
+        /* =========================================================
+           PAGE SETTINGS
+        ========================================================== */
 
-        /* INDIVIDUAL INVOICE BOX - Ithaanu magic */
-        .invoice-wrapper { border: 1px solid #333; margin-bottom: 30px; page-break-inside: avoid; }
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
 
-        .invoice-top-bar { background-color: #d32f2f; color: #fff; padding: 6px 12px; display: flex; justify-content: space-between; font-weight: bold; }
+        body{
+            font-family: 'Helvetica','Arial',sans-serif;
+            font-size: 11px;
+            color:#1a1a1a;
+            margin:0;
+            padding:0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
 
-        .customer-info-row { padding: 10px; border-bottom: 1px solid #eee; background: #fafafa; }
+        *{
+            box-sizing:border-box;
+        }
 
-        /* ITEMS TABLE */
-        .items-table { width: 100%; border-collapse: collapse; }
-        .items-table th, .items-table td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-        .items-table th { background: #f2f2f2; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .text-left { text-align: left !important; }
+        /* =========================================================
+           MAIN CONTAINER
+        ========================================================== */
 
-        /* TOTALS SECTION */
-        .total-strip { background: #333; color: #fff; padding: 8px; text-align: right; font-size: 13px; font-weight: bold; }
+        .report-container{
+            width:100%;
+        }
 
-        /* COMPANY BRANDING (Optional Header on Top of Report) */
-        .company-branding { font-size: 14px; font-weight: bold; }
+        /* =========================================================
+           REPORT HEADER
+        ========================================================== */
+
+        .report-header{
+            border:1px solid #dcdcdc;
+            padding:20px;
+            margin-bottom:25px;
+        }
+
+        .header-top{
+            width:100%;
+            border-bottom:3px solid #d32f2f;
+            padding-bottom:15px;
+            margin-bottom:15px;
+        }
+
+        .company-name{
+            font-size:24px;
+            font-weight:800;
+            text-transform:uppercase;
+            color:#111;
+            margin-bottom:6px;
+        }
+
+        .company-details{
+            font-size:12px;
+            line-height:1.7;
+            color:#444;
+        }
+
+        .report-title-section{
+            text-align:right;
+            margin-top:10px;
+        }
+
+        .report-title{
+            font-size:30px;
+            font-weight:900;
+            color:#d32f2f;
+            margin:0;
+            text-transform:uppercase;
+        }
+
+        .report-period{
+            margin-top:8px;
+            font-size:13px;
+            font-weight:600;
+        }
+
+        .generated-date{
+            margin-top:5px;
+            font-size:11px;
+            color:#666;
+        }
+
+        /* =========================================================
+           SUMMARY SECTION
+        ========================================================== */
+
+        .summary-grid{
+            width:100%;
+            margin-bottom:30px;
+        }
+
+        .summary-grid table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .summary-grid td{
+            width:20%;
+            border:1px solid #ddd;
+            padding:15px;
+            text-align:center;
+            background:#fafafa;
+        }
+
+        .summary-label{
+            font-size:11px;
+            color:#666;
+            text-transform:uppercase;
+            font-weight:700;
+            margin-bottom:8px;
+        }
+
+        .summary-value{
+            font-size:20px;
+            font-weight:800;
+            color:#d32f2f;
+        }
+
+        /* =========================================================
+           INVOICE CARD
+        ========================================================== */
+
+        .invoice-card{
+            border:1px solid #d7d7d7;
+            margin-bottom:30px;
+            page-break-inside:avoid;
+        }
+
+        /* =========================================================
+           INVOICE TOP BAR
+        ========================================================== */
+
+        .invoice-topbar{
+            background:#d32f2f;
+            color:#fff;
+            padding:10px 15px;
+        }
+
+        .topbar-table{
+            width:100%;
+        }
+
+        .topbar-left{
+            font-size:14px;
+            font-weight:800;
+        }
+
+        .topbar-right{
+            text-align:right;
+            font-size:13px;
+            font-weight:700;
+        }
+
+        /* =========================================================
+           CUSTOMER SECTION
+        ========================================================== */
+
+        .customer-section{
+            padding:15px;
+            border-bottom:1px solid #ececec;
+            background:#fcfcfc;
+        }
+
+        .customer-title{
+            font-size:13px;
+            font-weight:800;
+            margin-bottom:10px;
+            color:#d32f2f;
+            text-transform:uppercase;
+        }
+
+        .customer-table{
+            width:100%;
+        }
+
+        .customer-table td{
+            padding:4px 0;
+            font-size:12px;
+        }
+
+        .customer-name{
+            font-size:16px;
+            font-weight:800;
+        }
+
+        /* =========================================================
+           ITEMS TABLE
+        ========================================================== */
+
+        .items-wrapper{
+            padding:15px;
+        }
+
+        .items-table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .items-table th,
+        .items-table td{
+            border:1px solid #cfcfcf;
+            padding:8px;
+            text-align:center;
+        }
+
+        .items-table th{
+            background:#f3f3f3;
+            font-size:10px;
+            font-weight:800;
+            text-transform:uppercase;
+        }
+
+        .items-table td{
+            font-size:11px;
+        }
+
+        .text-left{
+            text-align:left !important;
+        }
+
+        .product-name{
+            font-weight:700;
+        }
+
+        /* =========================================================
+           TOTAL SECTION
+        ========================================================== */
+
+        .totals-section{
+            padding:15px;
+            border-top:1px solid #ececec;
+            background:#fff;
+        }
+
+        .totals-box{
+            width:320px;
+            margin-left:auto;
+        }
+
+        .total-row{
+            display:flex;
+            justify-content:space-between;
+            padding:6px 0;
+            border-bottom:1px dashed #ddd;
+            font-size:12px;
+        }
+
+        .grand-total{
+            margin-top:10px;
+            background:#d32f2f;
+            color:#fff;
+            padding:12px;
+            font-size:16px;
+            font-weight:800;
+        }
+
+        .grand-total table{
+            width:100%;
+        }
+
+        /* =========================================================
+           FINAL REPORT TOTAL
+        ========================================================== */
+
+        .final-report-box{
+            margin-top:40px;
+            border:2px solid #333;
+        }
+
+        .final-header{
+            background:#333;
+            color:#fff;
+            padding:12px;
+            font-size:16px;
+            font-weight:800;
+            text-transform:uppercase;
+        }
+
+        .final-body{
+            padding:20px;
+        }
+
+        .final-total-table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .final-total-table td{
+            border:1px solid #ddd;
+            padding:12px;
+            font-size:13px;
+        }
+
+        .final-total-table td:first-child{
+            font-weight:700;
+            background:#fafafa;
+        }
+
+        .highlight-total{
+            background:#d32f2f !important;
+            color:#fff;
+            font-size:18px !important;
+            font-weight:800 !important;
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================== */
+
+        .report-footer{
+            margin-top:60px;
+        }
+
+        .signature-box{
+            width:220px;
+            text-align:center;
+            border-top:1px solid #000;
+            padding-top:8px;
+            margin-left:auto;
+            font-weight:700;
+        }
+
+        /* =========================================================
+           PRINT FIX
+        ========================================================== */
+
+        @media print{
+
+            .invoice-card{
+                box-shadow:none;
+            }
+
+        }
+
     </style>
 </head>
+
 <body>
 
+<div class="report-container">
+
+    <!-- =========================================================
+         REPORT HEADER
+    ========================================================== -->
+
     <div class="report-header">
-        <div class="company-branding">TRUEBIT TECHNOLOGIES AND INVENTIONS PVT LTD</div>
-        <h1 class="report-title">Monthly Sales Book (Detailed)</h1>
-        <div>Period: {{ from_date }} to {{ to_date }}</div>
-    </div>
 
-    {% for sale in sales %}
-    <div class="invoice-wrapper">
+        <table class="header-top">
+            <tr>
 
-        <div class="invoice-top-bar">
-            <span>INVOICE: {{ sale.invoice_no }}</span>
-            <span style="float: right;">DATE: {{ sale.date|date:"d-m-Y" }}</span>
-        </div>
+                <td width="60%">
 
-        <div class="customer-info-row">
-            <strong>Customer:</strong> {{ sale.customer.name }} |
-            <strong>Place:</strong> {{ sale.customer.place|default:"N/A" }} |
-            <strong>Phone:</strong> {{ sale.customer.phone|default:"N/A" }}
-            {% if sale.customer.gst_number %}
-                | <strong>GSTIN:</strong> {{ sale.customer.gst_number }}
-            {% endif %}
-        </div>
+                    <div class="company-name">
+                        TRUEBIT TECHNOLOGIES AND INVENTIONS PVT LTD
+                    </div>
 
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th width="5%">No</th>
-                    <th class="text-left">Product Name</th>
-                    <th>Qty</th>
-                    <th>Rate</th>
-                    <th>SGST%</th>
-                    <th>CGST%</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in sale.items.all %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td class="text-left"><strong>{{ item.product.name }}</strong></td>
-                    <td>{{ item.qty }}</td>
-                    <td>{{ item.selling_price }}</td>
-                    <td>{{ item.sgst }}</td>
-                    <td>{{ item.cgst }}</td>
-                    <td>{{ item.total }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+                    <div class="company-details">
+                        P.O KAIPAMANGALAM, KOPRAKALAM, MATHILAKAM<br>
+                        Kerala [32]<br>
+                        Contact : 7558877703, 7561837208<br>
+                        GSTIN : 32AAGCT4153J1ZD
+                    </div>
+
+                </td>
+
+                <td width="40%">
+
+                    <div class="report-title-section">
+
+                        <h1 class="report-title">
+                            Sales Report
+                        </h1>
+
+                        <div class="report-period">
+                            From : {{ from_date }} <br>
+                            To : {{ to_date }}
+                        </div>
+
+                        <div class="generated-date">
+                            Generated On :
+                            {% now "d-m-Y h:i A" %}
+                        </div>
+
+                    </div>
+
+                </td>
+
+            </tr>
         </table>
 
-        <div class="total-strip">
-            Invoice Grand Total: ₹ {{ sale.total_amount }}
+        <!-- =========================================================
+             SUMMARY SECTION
+        ========================================================== -->
+
+        <div class="summary-grid">
+
+            <table>
+
+                <tr>
+
+                    <td>
+                        <div class="summary-label">
+                            Total Invoices
+                        </div>
+
+                        <div class="summary-value">
+                            {{ sales|length }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="summary-label">
+                            Total Sales
+                        </div>
+
+                        <div class="summary-value">
+                            ₹ {{ overall_total }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="summary-label">
+                            Taxable Amount
+                        </div>
+
+                        <div class="summary-value">
+                            ₹ {{ total_taxable }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="summary-label">
+                            Total GST
+                        </div>
+
+                        <div class="summary-value">
+                            ₹ {{ total_gst }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="summary-label">
+                            Avg Invoice
+                        </div>
+
+                        <div class="summary-value">
+                            ₹ {{ average_invoice }}
+                        </div>
+                    </td>
+
+                </tr>
+
+            </table>
+
         </div>
+
     </div>
+
+    <!-- =========================================================
+         SALES LOOP
+    ========================================================== -->
+
+    {% for sale in sales %}
+
+    <div class="invoice-card">
+
+        <!-- TOP BAR -->
+
+        <div class="invoice-topbar">
+
+            <table class="topbar-table">
+
+                <tr>
+
+                    <td class="topbar-left">
+                        INVOICE NO : {{ sale.invoice_no }}
+                    </td>
+
+                    <td class="topbar-right">
+                        DATE : {{ sale.date|date:"d-m-Y" }}
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+        <!-- CUSTOMER SECTION -->
+
+        <div class="customer-section">
+
+            <div class="customer-title">
+                Customer Details
+            </div>
+
+            <table class="customer-table">
+
+                <tr>
+                    <td colspan="2" class="customer-name">
+                        {{ sale.customer.name }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <strong>Place :</strong>
+                        {{ sale.customer.place|default:"N/A" }}
+                    </td>
+
+                    <td>
+                        <strong>Phone :</strong>
+                        {{ sale.customer.phone|default:"N/A" }}
+                    </td>
+                </tr>
+
+                {% if sale.customer.gst_number %}
+
+                <tr>
+                    <td colspan="2">
+                        <strong>GSTIN :</strong>
+                        {{ sale.customer.gst_number }}
+                    </td>
+                </tr>
+
+                {% endif %}
+
+            </table>
+
+        </div>
+
+        <!-- ITEMS TABLE -->
+
+        <div class="items-wrapper">
+
+            <table class="items-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th width="5%">No</th>
+
+                        <th width="35%" class="text-left">
+                            Product
+                        </th>
+
+                        <th width="10%">
+                            HSN
+                        </th>
+
+                        <th width="10%">
+                            Qty
+                        </th>
+
+                        <th width="12%">
+                            Rate
+                        </th>
+
+                        <th width="8%">
+                            SGST%
+                        </th>
+
+                        <th width="8%">
+                            CGST%
+                        </th>
+
+                        <th width="12%">
+                            Total
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for item in sale.items.all %}
+
+                    <tr>
+
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
+
+                        <td class="text-left product-name">
+                            {{ item.product.name }}
+                        </td>
+
+                        <td>
+                            {{ item.hsn_code }}
+                        </td>
+
+                        <td>
+                            {{ item.qty }}
+                        </td>
+
+                        <td>
+                            ₹ {{ item.selling_price }}
+                        </td>
+
+                        <td>
+                            {{ item.sgst }}%
+                        </td>
+
+                        <td>
+                            {{ item.cgst }}%
+                        </td>
+
+                        <td>
+                            <strong>
+                                ₹ {{ item.total }}
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- TOTAL SECTION -->
+
+        <div class="totals-section">
+
+            <div class="totals-box">
+
+                <div class="total-row">
+                    <span>Taxable Amount</span>
+                    <span>
+                        ₹ {{ sale.get_taxable_total }}
+                    </span>
+                </div>
+
+                <div class="total-row">
+                    <span>SGST Amount</span>
+                    <span>
+                        ₹ {{ sale.get_gst_split }}
+                    </span>
+                </div>
+
+                <div class="total-row">
+                    <span>CGST Amount</span>
+                    <span>
+                        ₹ {{ sale.get_gst_split }}
+                    </span>
+                </div>
+
+                <div class="grand-total">
+
+                    <table>
+                        <tr>
+
+                            <td>
+                                GRAND TOTAL
+                            </td>
+
+                            <td style="text-align:right;">
+                                ₹ {{ sale.total_amount }}
+                            </td>
+
+                        </tr>
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
     {% endfor %}
+
+    <!-- =========================================================
+         FINAL REPORT TOTAL
+    ========================================================== -->
+
+    <div class="final-report-box">
+
+        <div class="final-header">
+            Overall Report Summary
+        </div>
+
+        <div class="final-body">
+
+            <table class="final-total-table">
+
+                <tr>
+                    <td>Total Invoices</td>
+                    <td>{{ sales|length }}</td>
+                </tr>
+
+                <tr>
+                    <td>Total Taxable Amount</td>
+                    <td>₹ {{ total_taxable }}</td>
+                </tr>
+
+                <tr>
+                    <td>Total SGST Amount</td>
+                    <td>₹ {{ total_gst_split }}</td>
+                </tr>
+
+                <tr>
+                    <td>Total CGST Amount</td>
+                    <td>₹ {{ total_gst_split }}</td>
+                </tr>
+
+                <tr>
+                    <td class="highlight-total">
+                        OVERALL GRAND TOTAL
+                    </td>
+
+                    <td class="highlight-total">
+                        ₹ {{ overall_total }}
+                    </td>
+                </tr>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- =========================================================
+         FOOTER
+    ========================================================== -->
+
+    <div class="report-footer">
+
+        <div class="signature-box">
+            Authorised Signatory
+        </div>
+
+    </div>
+
+</div>
 
 </body>
 </html>

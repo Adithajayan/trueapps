@@ -697,9 +697,13 @@ def export_all_excel(request):
     return response
 
 
-# reports/views.py-il add cheyyendathu:
 
-from sales.models import SalesMaster # Sales model import cheyyunnu
+
+import calendar
+from decimal import Decimal
+from django.db.models import Sum
+from sales.models import SalesMaster
+
 
 def full_monthly_report_pdf(request):
     from_date = request.GET.get('from_date')
@@ -707,21 +711,52 @@ def full_monthly_report_pdf(request):
     month = request.GET.get('month')
     year = request.GET.get('year')
 
+    # Prefetch items for better performance
     sales = SalesMaster.objects.all().prefetch_related('items').order_by('date')
 
-    # Date filter handle cheyyunnu
+    # --- DATE FILTER LOGIC ---
+    report_title = "SALES BILL"
     if from_date and to_date:
         sales = sales.filter(date__range=[from_date, to_date])
+        report_title = f"{from_date}_TO_{to_date}_SALES"
     elif month and year:
         sales = sales.filter(date__month=month, date__year=year)
+        # Month name convert cheyyunnu (e.g., 3 -> MARCH)
+        month_name = calendar.month_name[int(month)].upper()
+        report_title = f"{month_name}_SALES_BILL"
 
+    # --- SUMMARY CALCULATIONS ---
+    # Python-il thanne summarize cheyyunnu (Since we already have prefetch_related)
+    overall_total = Decimal('0')
+    total_taxable = Decimal('0')
+    total_gst = Decimal('0')
+
+    for sale in sales:
+        overall_total += sale.total_amount
+        total_taxable += sale.get_taxable_total
+        total_gst += sale.get_gst_total
+
+    invoice_count = sales.count()
+    average_invoice = overall_total / invoice_count if invoice_count > 0 else Decimal('0')
+
+    # --- DATA CONTEXT ---
     context = {
         'sales': sales,
-        'from_date': from_date or month,
-        'to_date': to_date or year,
+        'from_date': from_date,
+        'to_date': to_date,
+        'month_name': calendar.month_name[int(month)] if month else None,
+        'year': year,
+
+        # Summary variables for HTML cards
+        'overall_total': overall_total,
+        'total_taxable': total_taxable,
+        'total_gst_split': total_gst / 2,  # CGST & SGST (assuming equal split)
+        'average_invoice': round(average_invoice, 2),
+        'invoice_count': invoice_count,
     }
 
-    filename = f"Detailed_Sales_Report.pdf"
+    # Dynamic Filename (e.g., MARCH_SALES_BILL.pdf)
+    filename = f"{report_title}.pdf"
     template_path = 'reports/full_monthly_report.html'
 
     return generate_pdf(template_path, context, filename)
