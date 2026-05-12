@@ -60,6 +60,15 @@
                    value="{{ customer.place|default:'' }}">
         </div>
 
+        <div class="mb-3">
+            <label class="fw-semibold">GST Number</label>
+            <input type="text"
+                   name="gst_number"
+                   class="form-control"
+                   value="{% if customer %}{{ customer.gst_number }}{% else %}{{ gst_number }}{% endif %}"
+                   placeholder="Enter GST Number (Optional)">
+        </div>
+
         <button class="btn btn-success w-100 py-2 fw-semibold">
             Save
         </button>

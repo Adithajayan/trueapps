@@ -264,6 +264,12 @@ CUSTOMER DETAILS
 <td><b>Phone</b> : {{ sale.customer.phone|default:"N/A" }}</td>
 </tr>
 
+{% if sale.customer.gst_number %}
+<tr>
+<td><b>GSTIN</b> : {{ sale.customer.gst_number }}</td>
+</tr>
+{% endif %}
+
 </table>
 
 </div>

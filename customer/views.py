@@ -42,6 +42,7 @@ def customer_add(request):
         name = request.POST.get("name").strip()
         phone = request.POST.get("phone")
         place = request.POST.get("place")
+        gst_number = request.POST.get("gst_number")
 
         # 🔥 DUPLICATE NAME CHECK (case-insensitive)
         if Customer.objects.filter(name__iexact=name).exists():
@@ -52,13 +53,15 @@ def customer_add(request):
             return render(request, "customer/customer_add.html", {
                 "name": name,
                 "phone": phone,
-                "place": place
+                "place": place,
+                "gst_number": gst_number
             })
 
         Customer.objects.create(
             name=name,
             phone=phone,
-            place=place
+            place=place,
+            gst_number=gst_number
         )
 
         messages.success(request, "Customer added successfully")
@@ -79,6 +82,7 @@ def customer_edit(request, pk):
         name = request.POST.get("name").strip()
         phone = request.POST.get("phone")
         place = request.POST.get("place")
+        gst_number = request.POST.get("gst_number")
 
         # 🔥 Duplicate check except current customer
         if Customer.objects.filter(name__iexact=name).exclude(id=customer.id).exists():
@@ -93,6 +97,7 @@ def customer_edit(request, pk):
         customer.name = name
         customer.phone = phone
         customer.place = place
+        customer.gst_number = gst_number
         customer.save()
 
         messages.success(request, "Customer updated successfully")

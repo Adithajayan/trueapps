@@ -6,6 +6,7 @@ class Customer(models.Model):
     name = models.CharField(max_length=150)
     phone = models.CharField(max_length=100, blank=True)
     place = models.CharField(max_length=150, blank=True)
+    gst_number = models.CharField(max_length=15, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
