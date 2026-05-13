@@ -22,6 +22,35 @@
     padding:6px 14px;
 }
 
+/* Button Styles */
+.btn {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-group .btn {
+    font-size: 0.85rem;
+    padding: 8px 5px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Card Hover effect */
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: scale(1.01);
+}
+
+/* Icons styling (Bootstrap Icons link cheythittundenkil) */
+.bi {
+    vertical-align: middle;
+}
+
 </style>
 
 <div class="container-fluid">
@@ -62,22 +91,31 @@
 </select>
 </div>
 
-<div class="col-md-3 d-grid">
+<div class="col-md-3">
+    <label class="d-none d-md-block">&nbsp;</label> <div class="d-flex flex-column gap-2">
 
-    <button class="btn btn-primary mt-4">
-        View Report
-    </button>
+        <button class="btn btn-primary w-100 fw-bold">
+            <i class="bi bi-eye"></i> View Report
+        </button>
 
-    <a href="{% url 'sales_report_pdf' %}?from_date={{ request.GET.from_date }}&to_date={{ request.GET.to_date }}&sale_type={{ request.GET.sale_type }}"
-    class="btn btn-danger mt-2">
-        Download Summary PDF
-    </a>
+        <div class="btn-group w-100" role="group">
+            <a href="{% url 'sales_report_pdf' %}?from_date={{ request.GET.from_date }}&to_date={{ request.GET.to_date }}&sale_type={{ request.GET.sale_type }}"
+               class="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center gap-1">
+                <i class="bi bi-file-pdf"></i> Summary
+            </a>
 
-    <a href="{% url 'full_monthly_report_pdf' %}?from_date={{ request.GET.from_date }}&to_date={{ request.GET.to_date }}"
-    class="btn btn-dark mt-2">
-        Detailed Sales Book
-    </a>
+            <a href="{% url 'full_monthly_report_pdf' %}?from_date={{ request.GET.from_date }}&to_date={{ request.GET.to_date }}"
+               class="btn btn-outline-dark btn-sm d-flex align-items-center justify-content-center gap-1">
+                <i class="bi bi-file-earmark-pdf"></i> Detailed
+            </a>
 
+            <a href="{% url 'export_sales_excel' %}?from_date={{ request.GET.from_date }}&to_date={{ request.GET.to_date }}"
+               class="btn btn-outline-success btn-sm d-flex align-items-center justify-content-center gap-1">
+                <i class="bi bi-file-earmark-excel"></i> Excel
+            </a>
+        </div>
+
+    </div>
 </div>
 
 </form>

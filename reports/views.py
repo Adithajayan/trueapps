@@ -777,3 +777,94 @@ def full_monthly_report_pdf(request):
 
     # Final PDF Generation
     return generate_pdf(template_path, context, filename)
+
+
+import xlwt
+from django.http import HttpResponse
+from decimal import Decimal
+import calendar
+
+def export_sales_excel(request):
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
+    month = request.GET.get('month')
+    year = request.GET.get('year')
+
+    # Querying the data
+    sales = SalesMaster.objects.all().select_related('customer').order_by('date')
+
+    # Date Filters (PDF-il upayogicha athe logic)
+    if from_date and to_date:
+        sales = sales.filter(date__range=[from_date, to_date])
+        filename_prefix = f"{from_date}_TO_{to_date}"
+    elif month and year:
+        sales = sales.filter(date__month=month, date__year=year)
+        filename_prefix = f"{calendar.month_name[int(month)].upper()}_{year}"
+    else:
+        filename_prefix = "SALES_REPORT"
+
+    # Excel Response Setup
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = f'attachment; filename="{filename_prefix}_SALES_REPORT.xls"'
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Sales Data')
+
+    # --- Header Style ---
+    header_style = xlwt.XFStyle()
+    header_style.font.bold = True
+    # Background color (Optional - for a professional look)
+    header_style.pattern.pattern = xlwt.Pattern.SOLID_PATTERN
+    header_style.pattern.pattern_fore_colour = xlwt.Style.colour_map['gray25']
+
+    # --- All Columns (As per your list) ---
+    columns = [
+        'Invoice ID', 'Invoice No.', 'Invoice Date', 'Tax Type', 'CID',
+        'Customer ID', 'Customer Name', 'Contact No.', 'State', 'GSTIN',
+        'SM_ID', 'Salesman ID', 'Salesman', 'Sub Total', 'CGST',
+        'SGST/UTGST', 'IGST', 'CESS', 'Freight Charges', 'Other Charges',
+        'Total', 'Round Off', 'Grand Total', 'Total Payment', 'Payment Due', 'Remarks'
+    ]
+
+    for col_num in range(len(columns)):
+        ws.write(0, col_num, columns[col_num], header_style)
+
+    # --- Writing Data ---
+    row_num = 1
+    font_style = xlwt.XFStyle()
+
+    for sale in sales:
+        # Field values assign cheyyunnu
+        # Note: Database-il illatha values (Salesman, GSTIN etc.) temporary aayi empty string idunnu
+        data_row = [
+            sale.id,                                     # Invoice ID
+            sale.invoice_no,                             # Invoice No.
+            sale.date.strftime('%Y-%m-%d'),              # Invoice Date
+            sale.sale_type,                              # Tax Type (B2B/B2C)
+            sale.customer.id,                            # CID
+            f"C-{sale.customer.id:04d}",                 # Customer ID (Formatted)
+            sale.customer.name,                          # Customer Name
+            sale.customer.phone or "NA",                 # Contact No.
+            "Kerala [32]",                               # State (Default)
+            "",                                          # GSTIN (If you have it in Customer model)
+            "", "", "",                                  # Salesman details
+            sale.get_taxable_total,                      # Sub Total
+            sale.get_gst_total / 2,                      # CGST
+            sale.get_gst_total / 2,                      # SGST
+            0, 0,                                        # IGST, CESS
+            0,                                           # Freight
+            sale.service_charge + sale.material_charge,  # Other Charges
+            sale.total_amount,                           # Total
+            0,                                           # Round Off
+            sale.total_amount,                           # Grand Total
+            sale.total_amount,                           # Total Payment
+            0,                                           # Payment Due
+            ""                                           # Remarks
+        ]
+
+        for col_num in range(len(data_row)):
+            ws.write(row_num, col_num, data_row[col_num], font_style)
+        row_num += 1
+
+    wb.save(response)
+    return response

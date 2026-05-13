@@ -13,5 +13,6 @@ urlpatterns = [
     path('export-all-excel/', views.export_all_excel, name='export_all_excel'),
 
     path('full-monthly-report-pdf/', views.full_monthly_report_pdf, name='full_monthly_report_pdf'),
+    path('sales/excel/', views.export_sales_excel, name='export_sales_excel'),
 
 ]
