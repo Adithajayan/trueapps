@@ -93,6 +93,18 @@
             color:#666;
         }
 
+        .type-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-left: 10px;
+            border: 1px solid #fff;
+        }
+        .b2b { background: #fff; color: #d32f2f; }
+        .b2c { background: #ffdada; color: #d32f2f; }
+
         /* =========================================================
            SUMMARY SECTION
         ========================================================== */
@@ -475,6 +487,9 @@
 
                     <td class="topbar-left">
                         INVOICE NO : {{ sale.invoice_no }}
+                        <span class="type-badge {% if sale.sale_type == 'B2B' %}b2b{% else %}b2c{% endif %}">
+                            {{ sale.sale_type }}
+                        </span>
                     </td>
 
                     <td class="topbar-right">
