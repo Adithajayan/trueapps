@@ -285,7 +285,11 @@ def advance_edit(request, id):
     if request.method == 'POST':
         adv.staff_id = request.POST['staff']
         adv.date = request.POST['date']
-        adv.amount = request.POST['amount']
+        amount_raw = request.POST.get('amount', '0')
+        try:
+            adv.amount = int(float(amount_raw))
+        except ValueError:
+            adv.amount = 0
         adv.payment_mode = request.POST['payment_mode']
         adv.note = request.POST.get('note')
         adv.save()
