@@ -11,7 +11,14 @@
     .filter-section .input-group-text { border-radius: 6px 0 0 6px; }
     .filter-section .form-select { border-radius: 0 6px 6px 0; }
     @media (max-width: 768px) {
-        .filter-section { justify-content: flex-start !important; margin-top: 15px; }
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 10px !important;
+        }
+        .filter-section .input-group, .filter-section button, .filter-section a {
+            width: 100% !important;
+        }
     }
 </style>
 
@@ -26,6 +33,11 @@
 
                 <div class="col-md-8 col-12">
                     <form method="get" class="d-flex flex-wrap justify-content-md-end align-items-center gap-2 filter-section">
+                        <div class="input-group input-group-sm" style="min-width: 200px;">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa fa-search text-muted"></i></span>
+                            <input type="text" name="search" class="form-control border-start-0 shadow-none" placeholder="Search Invoice / Customer" value="{{ search_query }}">
+                        </div>
+
                         <div class="input-group input-group-sm" style="width: 160px;">
                             <span class="input-group-text bg-light border-end-0"><i class="fa fa-calendar-alt text-muted"></i></span>
                             <select name="month" class="form-select border-start-0 shadow-none">

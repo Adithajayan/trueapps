@@ -222,6 +222,7 @@ def update_invoice_prefix(request):
 
 from .models import SalesMaster, SalesItem, InvoiceSetting
 from customer.models import Customer
+from django.db.models import Q
 
 
 # ---------------- SALES LIST WITH MONTHLY FILTER ----------------
@@ -230,11 +231,18 @@ def sales_list(request):
     now = datetime.now()
     month = request.GET.get('month', now.month)
     year = request.GET.get('year', now.year)
+    search_query = request.GET.get('search', '')
 
     sales = SalesMaster.objects.filter(
         date__month=month,
         date__year=year
     ).order_by('-id')
+
+    if search_query:
+        sales = sales.filter(
+            Q(invoice_no__icontains=search_query) |
+            Q(customer__name__icontains=search_query)
+        )
 
 
     years = range(2024, 2031)
@@ -250,6 +258,7 @@ def sales_list(request):
         'current_year': int(year),
         'months': months,
         'years': years,
+        'search_query': search_query,
     })
 
 
