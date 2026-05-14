@@ -227,23 +227,24 @@ from django.db.models import Q
 
 # ---------------- SALES LIST WITH MONTHLY FILTER ----------------
 def sales_list(request):
-    # Get current year and month as default
+
     now = datetime.now()
     month = request.GET.get('month', now.month)
     year = request.GET.get('year', now.year)
     search_query = request.GET.get('search', '')
 
-    sales = SalesMaster.objects.filter(
-        date__month=month,
-        date__year=year
-    ).order_by('-id')
-
     if search_query:
-        sales = sales.filter(
+
+        sales = SalesMaster.objects.filter(
             Q(invoice_no__icontains=search_query) |
             Q(customer__name__icontains=search_query)
-        )
+        ).order_by('-id')
+    else:
 
+        sales = SalesMaster.objects.filter(
+            date__month=month,
+            date__year=year
+        ).order_by('-id')
 
     years = range(2024, 2031)
     months = [
