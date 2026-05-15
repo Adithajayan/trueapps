@@ -581,9 +581,7 @@ def sales_return_view(request, pk):
         'return_items': return_items
     })
 
-from django.http import JsonResponse
-from django.db.models import Sum
-from purchase.models import PurchaseItem
+
 from sales.models import SalesItemBatch
 
 from django.http import JsonResponse
@@ -608,8 +606,8 @@ def product_batch_info(request, product_id):
             'available_qty': float(b.quantity_at_hand),
             'purchase_rate': float(b.rate),
             'selling_rate': float(b.selling_rate) if b.selling_rate else 0,
-            'cgst': float(b.cgst),
-            'sgst': float(b.sgst),
+            'cgst': float(b.cgst) if b.cgst is not None else 0,
+            'sgst': float(b.sgst) if b.sgst is not None else 0,
         })
 
     return JsonResponse({
