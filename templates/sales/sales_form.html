@@ -237,8 +237,8 @@ function selectProduct(row, p) {
   row.querySelector('.product_id').value = p.id;
   row.querySelector('.product_suggestions').innerHTML = '';
   row.querySelector('.rate').value = p.rate;
-  row.querySelector('.cgst').value = p.cgst;
-  row.querySelector('.sgst').value = p.sgst;
+  row.querySelector('.cgst').value = p.cgst || 0;
+  row.querySelector('.sgst').value = p.sgst || 0;
 
   fetch(`/sales/product-batch-info/${p.id}/`)
     .then(r => r.json())
@@ -250,8 +250,15 @@ function selectProduct(row, p) {
       row.dataset.totalStock = data.total_stock;
       row.dataset.batches = JSON.stringify(data.batches);
 
-      if (data.batches.length > 0 && data.batches[0].selling_rate > 0) {
-          row.querySelector('.rate').value = data.batches[0].selling_rate;
+      if (data.batches.length > 0) {
+
+          if (data.batches[0].selling_rate > 0) {
+              row.querySelector('.rate').value = data.batches[0].selling_rate;
+          }
+
+
+          row.querySelector('.cgst').value = data.batches[0].cgst || 0;
+          row.querySelector('.sgst').value = data.batches[0].sgst || 0;
       }
 
       calculateRowTotal(row);
