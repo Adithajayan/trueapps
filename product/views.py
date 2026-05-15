@@ -23,6 +23,7 @@ def product_list(request):
 from django.contrib import messages
 
 def product_add(request):
+    all_products = Product.objects.all()
     if request.method == 'POST':
 
         hsn_code = request.POST.get('hsn_code')
@@ -33,6 +34,8 @@ def product_add(request):
         if Product.objects.filter(name__iexact=name, hsn_code__iexact=hsn_code).exists():
             messages.error(request, f"⚠ Product with name '{name}' and HSN '{hsn_code}' already exists.")
             return redirect('product_add')
+
+
 
         Product.objects.create(
             hsn_code=hsn_code,
@@ -51,7 +54,9 @@ def product_add(request):
         messages.success(request, "✅ Product added successfully.")
         return redirect('product_list')
 
-    return render(request, 'product/product_form.html')
+    return render(request, 'product/product_form.html', {
+        'all_products': all_products
+    })
 
 
 def product_edit(request, id):

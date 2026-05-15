@@ -122,12 +122,18 @@ label{
 </div>
 
 <div class="col-md-4">
-<label>Product Name</label>
-<input type="text"
-       name="name"
-       class="form-control"
-       value="{{ product.name|default:'' }}"
-       required>
+    <label>Product Name</label>
+    <input type="text"
+           name="name"
+           class="form-control"
+           value="{{ product.name|default:'' }}"
+           list="product-suggestions"  autocomplete="off"          required>
+
+    <datalist id="product-suggestions">
+        {% for p in all_products %}
+            <option value="{{ p.name }}">
+        {% endfor %}
+    </datalist>
 </div>
 
 <div class="col-md-6">
