@@ -125,9 +125,13 @@ label{
     <label>Product Name</label>
     <input type="text"
            name="name"
+           id="p_name"
            class="form-control"
            value="{{ product.name|default:'' }}"
-           list="product-suggestions"  autocomplete="off"          required>
+           list=""
+           oninput="if(this.value.length >= 2){ this.setAttribute('list','product-suggestions') } else { this.setAttribute('list','') }"
+           autocomplete="off"
+           required>
 
     <datalist id="product-suggestions">
         {% for p in all_products %}
