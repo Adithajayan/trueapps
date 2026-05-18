@@ -466,7 +466,7 @@ def purchase_return_add(request, purchase_id):
                     total=row_total
                 )
 
-                # 📉 STOCK KURAYKKANAM (Return poyille...)
+
                 # Batch update
                 p_item.quantity_at_hand -= qty_to_return
                 p_item.save()
@@ -485,7 +485,7 @@ def purchase_return_add(request, purchase_id):
         SupplierLedger.objects.create(
             supplier=purchase.supplier,
             date=return_date,
-            particular=f"Purchase Return {p_return.return_no} (Inv: {purchase.invoice_no})",
+            particular=f"Purchase Return {p_return.return_no} (Our Inv: {purchase.invoice_no} | Supplier Bill: {purchase.supplier_invoice_number or 'N/A'})",
             debit=0,
             credit=grand_return_total,  # Balance kuraykkan credit-il idunnu
             source='PURCHASE',  # Or 'RETURN' choice models-il undengil athu

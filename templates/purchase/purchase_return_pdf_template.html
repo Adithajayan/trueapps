@@ -73,7 +73,8 @@
                     <div class="invoice-title">Purchase Return</div>
                     <strong>Return No:</strong> {{ return_obj.return_no }}<br>
                     <strong>Date:</strong> {{ return_obj.return_date }}<br>
-                    <strong>Ref Inv:</strong> {{ return_obj.purchase.invoice_no }}
+                    <strong>Ref Inv:</strong> {{ return_obj.purchase.invoice_no }}<br>
+                    <strong>Supplier Bill No:</strong> {{ return_obj.purchase.supplier_invoice_number|default_if_none:"N/A" }}
                 </td>
             </tr>
         </table>

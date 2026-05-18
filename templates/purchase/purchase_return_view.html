@@ -47,7 +47,8 @@ GSTIN : 32AAGCT4153J1ZD
 <div class="invoice-title">Purchase Return</div><br>
 <b>Return No :</b> {{ return.return_no }}<br>
 <b>Date :</b> {{ return.return_date }}<br>
-<b>Ref Inv :</b> {{ return.purchase.invoice_no }}
+<b>Ref Inv :</b> {{ return.purchase.invoice_no }}<br>
+<b>Supplier Bill No :</b> {{ return.purchase.supplier_invoice_number|default_if_none:"N/A" }}
 </td>
 </tr>
 </table>
