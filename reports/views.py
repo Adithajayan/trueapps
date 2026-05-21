@@ -697,9 +697,6 @@ def export_all_excel(request):
     return response
 
 
-import calendar
-from datetime import datetime
-from decimal import Decimal
 from django.shortcuts import render
 from sales.models import SalesMaster
 from config.utils.pdf import generate_pdf
@@ -712,7 +709,7 @@ def full_monthly_report_pdf(request):
     year = request.GET.get('year')
 
     # Prefetch items for better performance while calculating properties
-    sales = SalesMaster.objects.all().prefetch_related('items').order_by('date')
+    sales = SalesMaster.objects.all().prefetch_related('items').order_by('invoice_no')
 
     # --- DATE FILTER & FILENAME LOGIC ---
     report_month_name = ""
@@ -793,7 +790,7 @@ def export_sales_excel(request):
     year = request.GET.get('year')
 
     # Querying the data
-    sales = SalesMaster.objects.all().select_related('customer').order_by('date')
+    sales = SalesMaster.objects.all().select_related('customer').order_by('invoice_no')
 
     # Date Filters
     if from_date and to_date:
