@@ -544,37 +544,4 @@ def purchase_return_pdf(request, pk):
     return generate_pdf(template_path, context, filename)
 
 
-from django.http import HttpResponse
-from decimal import Decimal, ROUND_HALF_UP
-from .models import PurchaseReturn
-from supplier_ledger.models import SupplierLedger
 
-
-def Dynamic_Update_Old_Returns(request):
-    # 1. Ellam purchase returns-um edukkuka
-    all_returns = PurchaseReturn.objects.all()
-    updated_count = 0
-
-    for p_return in all_returns:
-        current_total = p_return.total_return_amount
-
-        if current_total:
-            # Rounding logic
-            rounded_total = current_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-
-            # Change undengil mathram update cheyyaam
-            if current_total != rounded_total:
-                # Master table update
-                p_return.total_return_amount = rounded_total
-                p_return.save()
-
-                # Ledger table update
-                SupplierLedger.objects.filter(
-                    source='PURCHASE',
-                    reference_id=p_return.id
-                ).update(credit=rounded_total)
-
-                updated_count += 1
-
-    return HttpResponse(
-        f"<h1>✅ Success, Bro!</h1><p>Total {updated_count} old returns successfully rounded in Database.</p>")
