@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.db.models import Sum  # 🔥 Ithu nirbandhamaanu
+from django.db.models import Sum
 from supplier_master.models import Supplier
 from product.models import Product
 
@@ -125,6 +125,7 @@ class PurchaseReturn(models.Model):
     reason = models.TextField(blank=True, null=True)
     total_return_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
+
     def save(self, *args, **kwargs):
         if not self.return_no:
             # Simple logic for Return No (e.g., TBT-RET-001)
@@ -136,12 +137,19 @@ class PurchaseReturn(models.Model):
             self.return_no = f"TBT-RET-{str(last_id).zfill(3)}"
         super().save(*args, **kwargs)
 
+
+
+
+
 class PurchaseReturnItem(models.Model):
     purchase_return = models.ForeignKey(PurchaseReturn, on_delete=models.CASCADE, related_name='return_items')
     purchase_item = models.ForeignKey(PurchaseItem, on_delete=models.CASCADE)
     qty = models.DecimalField(max_digits=10, decimal_places=2)
-    rate = models.DecimalField(max_digits=10, decimal_places=2) # Return rate (usually same as purchase rate)
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=12, decimal_places=2)
 
     def __str__(self):
         return f"Return: {self.purchase_item.product.name}"
+
+
+

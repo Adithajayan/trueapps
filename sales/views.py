@@ -311,12 +311,7 @@ def sales_return(request):
         'returns': returns
     })
 
-# def sales_view(request, pk):
-#     sale = get_object_or_404(SalesMaster, pk=pk)
-#     return render(request, 'sales/sales_view.html', {'sale': sale})
 
-
-from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.contrib import messages
 
@@ -769,3 +764,22 @@ def magic_capital_update(request):
         sale.save()
 
     return HttpResponse("<h2>Success! Ella invoices-um Capital aayi mariyittundu.</h2>")
+
+
+
+def sales_return_pdf(request, pk):
+
+    return_obj = get_object_or_404(SalesReturn, pk=pk)
+
+    return_items = return_obj.return_items.all()
+
+    context = {
+        'return_obj': return_obj,
+        'return_items': return_items,
+    }
+
+    filename = f"Return_{return_obj.sale.invoice_no}.pdf"
+    template_path = 'sales/sales_return_print.html'
+
+
+    return generate_pdf(template_path, context, filename)

@@ -33,7 +33,7 @@ urlpatterns = [
 
 
    path('magic-update/', views.magic_capital_update, name='magic_capital_update'),
-
+   path('return/<int:pk>/pdf/', views.sales_return_pdf, name='sales_return_pdf'),
 
 
 ]

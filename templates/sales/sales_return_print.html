@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Credit Note - {{ return_obj.sale.invoice_no }}</title>
+
+<style>
+
+body{
+font-family:'Helvetica','Arial',sans-serif;
+margin:0;
+padding:20px;
+font-size:13px;
+color:#1a1a1a;
+background:#f4f4f4;
+}
+
+.invoice-container{
+max-width:850px;
+margin:auto;
+padding:20px;
+background:#fff;
+border:1px solid #ddd;
+}
+
+/* HEADER */
+
+.header-table{
+width:100%;
+border-bottom:2px solid #333;
+margin-bottom:15px;
+padding-bottom:10px;
+}
+
+.company-name{
+font-size:20px;
+font-weight:800;
+text-transform:uppercase;
+}
+
+.tax-invoice-title{
+font-size:24px;
+font-weight:bold;
+color:#d32f2f;
+margin:0;
+}
+
+/* CUSTOMER */
+
+.customer-section-header{
+background-color:#d32f2f;
+color:#fff;
+padding:8px 12px;
+font-weight:bold;
+font-size:14px;
+margin-top:15px;
+}
+
+.customer-box{
+border:1px solid #333;
+padding:12px;
+margin-bottom:20px;
+}
+
+.cust-name{
+font-size:16px;
+font-weight:800;
+margin-bottom:8px;
+display:block;
+}
+
+.info-table{
+width:100%;
+}
+
+.info-table td{
+padding:2px 0;
+}
+
+/* ITEMS TABLE */
+
+.items-table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+.items-table th,
+.items-table td{
+border:1px solid #333;
+padding:8px;
+text-align:center;
+}
+
+.items-table th{
+background:#f2f2f2;
+font-size:11px;
+font-weight:800;
+text-transform:uppercase;
+}
+
+.text-left{
+text-align:left !important;
+}
+
+/* TOTALS */
+
+.footer-layout{
+display:flex;
+justify-content:space-between;
+flex-wrap:wrap;
+margin-top:25px;
+}
+
+.bank-details{
+width:52%;
+border:1px solid #333;
+padding:12px;
+font-size:12px;
+}
+
+.bank-details b{
+text-decoration:underline;
+display:block;
+margin-bottom:5px;
+}
+
+.total-section{
+width:42%;
+}
+
+.total-row{
+display:flex;
+justify-content:space-between;
+padding:5px 0;
+border-bottom:1px solid #eee;
+}
+
+.grand-total{
+border-top:2px solid #333;
+border-bottom:2px solid #333;
+font-size:17px;
+padding:8px 0;
+}
+
+.grand-total span:last-child{
+color:#d32f2f;
+font-size:19px;
+font-weight:bold;
+}
+
+/* BUTTON */
+
+.top-actions{
+text-align:center;
+margin-bottom:15px;
+}
+
+.btn{
+padding:8px 16px;
+border-radius:4px;
+font-weight:bold;
+border:none;
+cursor:pointer;
+text-decoration:none;
+background:#555;
+color:#fff;
+}
+
+/* PRINT */
+
+@media print{
+
+body{
+background:white;
+padding:0;
+}
+
+.top-actions{
+display:none;
+}
+
+.invoice-container{
+border:none;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="top-actions">
+<a href="{% url 'sales_return' %}" class="btn">← Back to Returns</a>
+</div>
+
+<div class="invoice-container">
+
+<table class="header-table">
+
+<tr>
+
+<td width="65%">
+
+<div class="company-name">
+TRUEBIT TECHNOLOGIES AND INVENTIONS PVT LTD
+</div>
+
+<div style="font-size:12px;margin-top:5px;">
+
+P.O KAIPAMANGALAM, KOPRAKALAM, MATHILAKAM<br>
+
+Kerala [32] | Contact: 7558877703, 7561837208<br>
+
+<b>GSTIN:</b> 32AAGCT4153J1ZD
+
+</div>
+
+</td>
+
+<td width="35%" style="text-align:right;">
+
+<h1 class="tax-invoice-title" style="font-size:20px;">Credit Note</h1>
+<small style="font-weight:bold; color:#555;">(Sales Return)</small>
+
+<div style="font-size:13px;margin-top:10px;">
+
+Return ID : <b>#SR-{{ return_obj.id }}</b><br>
+
+Original Inv : <b>{{ return_obj.sale.invoice_no }}</b><br>
+
+Date : {{ return_obj.sale.date|date:"d-m-Y" }}<br>
+
+Tax : EXCLUSIVE
+
+</div>
+
+</td>
+
+</tr>
+
+</table>
+
+<div class="customer-section-header">
+CUSTOMER DETAILS
+</div>
+
+<div class="customer-box">
+
+<span class="cust-name">
+{{ return_obj.sale.customer.name }}
+</span>
+
+<table class="info-table">
+
+<tr>
+<td><b>Place</b> : {{ return_obj.sale.customer.place|default:"N/A" }}</td>
+</tr>
+
+<tr>
+<td><b>Phone</b> : {{ return_obj.sale.customer.phone|default:"N/A" }}</td>
+</tr>
+
+{% if return_obj.sale.customer.gst_number %}
+<tr>
+<td><b>GSTIN</b> : {{ return_obj.sale.customer.gst_number }}</td>
+</tr>
+{% endif %}
+
+</table>
+
+</div>
+
+<table class="items-table">
+
+<thead>
+
+<tr>
+<th>No</th>
+<th class="text-left">Product</th>
+<th>HSN</th>
+<th>Returned Qty</th>
+<th>Rate</th>
+<th>Total</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for item in return_items %}
+
+<tr>
+
+<td>{{ forloop.counter }}</td>
+
+<td class="text-left">
+<b>{{ item.product.name }}</b>
+</td>
+
+<td>{{ item.product.hsn_code|default:"N/A" }}</td>
+
+<td>{{ item.qty_returned }}</td>
+
+<td>{{ item.rate }}</td>
+
+<td><b>{{ item.total }}</b></td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+<div class="footer-layout">
+
+<div class="bank-details">
+
+<b>COMPANY ACCOUNT DETAILS</b>
+
+TRUEBIT TECHNOLOGIES & INVENTIONS PVT LTD<br>
+
+A/C No : <b>15170200016305</b><br>
+
+IFSC : <b>FDRL0001517</b> | MOONUPEEDIKA
+
+</div>
+
+<div class="total-section">
+
+<div class="total-row grand-total" style="margin-top: 15px;">
+<span>TOTAL REFUND</span>
+<span>₹ {{ return_obj.total_return_amount }}</span>
+</div>
+
+</div>
+
+</div>
+
+<div style="margin-top:50px;border-top:1px solid #000;width:200px;text-align:center;font-weight:bold;">
+Authorised Signatory
+</div>
+
+</div>
+
+</body>
+</html>
