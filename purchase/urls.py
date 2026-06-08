@@ -19,5 +19,7 @@ urlpatterns = [
 
     path('returns/view/<int:pk>/', views.purchase_return_view, name='purchase_return_view'),
     path('returns/pdf/<int:pk>/', views.purchase_return_pdf, name='purchase_return_pdf'),
+
+    path('update-old-returns-now-securely/', views.Dynamic_Update_Old_Returns, name='update_old_returns')
 ]
 
