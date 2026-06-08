@@ -563,13 +563,30 @@ from django.shortcuts import get_object_or_404, redirect, render
 # Ninte model names anusarichu import check cheyyuka
 
 
-
-
 def sales_return_view(request, pk):
     # SalesReturn model-il ninnu data edukkyunnu
     return_obj = get_object_or_404(SalesReturn, pk=pk)
     # Athile items (return_items) fetch cheyyunnu
     return_items = return_obj.return_items.all()
+
+    # --- 🔥 വെബ് പേജിലും പഴയ ഡാറ്റ ശരിയാക്കാനുള്ള അതേ മാജിക് ലോജിക് ---
+    total_refund = Decimal('0')
+
+    for item in return_items:
+        sales_item = return_obj.sale.items.filter(product=item.product).first()
+        if sales_item:
+            s_cgst = sales_item.cgst if sales_item.cgst else Decimal('0')
+            s_sgst = sales_item.sgst if sales_item.sgst else Decimal('0')
+
+            # പഴയ ജിഎസ്ടി ഇല്ലാത്ത തുകയാണെങ്കിൽ മാത്രം താൽക്കാലികമായി ജിഎസ്ടി കൂട്ടുന്നു
+            if item.total == (item.rate * item.qty_returned):
+                item.total = (item.rate * item.qty_returned) * (1 + (s_cgst + s_sgst) / 100)
+
+        total_refund += item.total
+
+    # ടോട്ടൽ എമൗണ്ട് താൽക്കാലികമായി അപ്ഡേറ്റ് ചെയ്യുന്നു
+    return_obj.total_return_amount = total_refund
+    # -----------------------------------------------------------
 
     return render(request, 'sales/sales_return_view.html', {
         'return_obj': return_obj,
@@ -773,12 +790,30 @@ def magic_capital_update(request):
     return HttpResponse("<h2>Success! Ella invoices-um Capital aayi mariyittundu.</h2>")
 
 
-
 def sales_return_pdf(request, pk):
-
     return_obj = get_object_or_404(SalesReturn, pk=pk)
-
     return_items = return_obj.return_items.all()
+
+    # --- 🔥 ദാ ഇവിടുന്ന് അങ്ങോട്ട് നമ്മൾ പറഞ്ഞ മാജിക് കോഡ് സ്റ്റാർട്ട് ചെയ്യുന്നു ---
+    total_refund = Decimal('0')
+
+    for item in return_items:
+        # ഒറിജിനൽ ഇൻവോയ്സിലെ ഈ പ്രൊഡക്റ്റിന്റെ സെയിൽസ് ഐറ്റം നോക്കുന്നു
+        sales_item = return_obj.sale.items.filter(product=item.product).first()
+        if sales_item:
+            # ഒറിജിനൽ ഇൻവോയ്സിൽ നിന്ന് ജിഎസ്ടി പേർസന്റേജ് എടുക്കുന്നു
+            s_cgst = sales_item.cgst if sales_item.cgst else Decimal('0')
+            s_sgst = sales_item.sgst if sales_item.sgst else Decimal('0')
+
+            # ഡാറ്റാബേസിലെ തുക ജിഎസ്ടി ഇല്ലാത്തതാണെങ്കിൽ (പഴയ എൻട്രി) ഡിസ്പ്ലേയ്ക്ക് വേണ്ടി മാത്രം താൽക്കാലികമായി റീ-കാൽക്കുലേറ്റ് ചെയ്യുന്നു
+            if item.total == (item.rate * item.qty_returned):
+                item.total = (item.rate * item.qty_returned) * (1 + (s_cgst + s_sgst) / 100)
+
+        total_refund += item.total
+
+    # ടോട്ടൽ റിഫണ്ട് തുകയും താൽക്കാലികമായി അപ്ഡേറ്റ് ചെയ്യുന്നു
+    return_obj.total_return_amount = total_refund
+    # --- 🛑 മാജിക് കോഡ് ഇവിടെ അവസാനിക്കുന്നു ---
 
     context = {
         'return_obj': return_obj,
@@ -787,6 +822,5 @@ def sales_return_pdf(request, pk):
 
     filename = f"Return_{return_obj.sale.invoice_no}.pdf"
     template_path = 'sales/sales_return_print.html'
-
 
     return generate_pdf(template_path, context, filename)
