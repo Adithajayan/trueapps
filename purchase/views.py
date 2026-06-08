@@ -478,7 +478,8 @@ def purchase_return_add(request, purchase_id):
 
                 grand_return_total += row_total
 
-        p_return.total_return_amount = grand_return_total
+        rounded_return_total = grand_return_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        p_return.total_return_amount = rounded_return_total
         p_return.save()
 
 
@@ -487,7 +488,7 @@ def purchase_return_add(request, purchase_id):
             date=return_date,
             particular=f"Purchase Return {p_return.return_no} (Our Inv: {purchase.invoice_no} | Supplier Bill: {purchase.supplier_invoice_number or 'N/A'})",
             debit=0,
-            credit=grand_return_total,  # Balance kuraykkan credit-il idunnu
+            credit=rounded_return_total,  # Balance kuraykkan credit-il idunnu
             source='PURCHASE',  # Or 'RETURN' choice models-il undengil athu
             reference_id=p_return.id
         )
