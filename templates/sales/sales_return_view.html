@@ -71,7 +71,9 @@
                             <th>Product Name</th>
                             <th class="text-center">Returned Qty</th>
                             <th class="text-end">Rate</th>
-                            <th class="text-end">Total</th>
+                            <th class="text-center">SGST%</th>
+                            <th class="text-center">CGST%</th>
+                            <th class="text-end">Total (Inc. GST)</th>
                         </tr>
 
                     </thead>
@@ -94,10 +96,15 @@
                                 ₹ {{ item.rate }}
                             </td>
 
+                            <td class="text-center">
+                                {{ item.product.sgst|default:"0" }}%
+                            </td>
+                            <td class="text-center">
+                                {{ item.product.cgst|default:"0" }}%
+                            </td>
                             <td class="text-end fw-bold text-danger">
                                 ₹ {{ item.total }}
                             </td>
-
                         </tr>
 
                         {% endfor %}
@@ -108,7 +115,7 @@
 
                         <tr>
 
-                            <td colspan="3" class="text-end fw-bold">
+                            <td colspan="5" class="text-end fw-bold">
                                 Total Returned Amount:
                             </td>
 

@@ -283,6 +283,8 @@ CUSTOMER DETAILS
 <th>HSN</th>
 <th>Returned Qty</th>
 <th>Rate</th>
+<th>SGST%</th>
+<th>CGST%</th>
 <th>Total</th>
 </tr>
 
@@ -305,6 +307,10 @@ CUSTOMER DETAILS
 <td>{{ item.qty_returned }}</td>
 
 <td>{{ item.rate }}</td>
+
+<td>{{ item.product.sgst|default:"0" }}</td>
+
+<td>{{ item.product.cgst|default:"0" }}</td>
 
 <td><b>{{ item.total }}</b></td>
 
@@ -332,11 +338,10 @@ IFSC : <b>FDRL0001517</b> | MOONUPEEDIKA
 
 <div class="total-section">
 
-<div class="total-row grand-total" style="margin-top: 15px;">
-<span>TOTAL REFUND</span>
-<span>₹ {{ return_obj.total_return_amount }}</span>
-</div>
-
+    <div class="total-row grand-total" style="margin-top: 15px;">
+        <span>GRAND TOTAL</span>
+        <span>₹ {{ return_obj.total_return_amount }}</span>
+    </div>
 </div>
 
 </div>

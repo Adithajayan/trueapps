@@ -663,7 +663,10 @@ def sales_return_create(request, pk):
                 if qty_ret > 0:
                     prod = Product.objects.get(id=product_ids[i])
                     rate = Decimal(rates[i])
-                    line_total = qty_ret * rate
+                    sales_item = items.filter(product=prod).first()
+                    s_cgst = sales_item.cgst if sales_item else Decimal('0')
+                    s_sgst = sales_item.sgst if sales_item else Decimal('0')
+                    line_total = (rate * qty_ret) * (1 + (s_cgst + s_sgst) / 100)
 
                     # 1. Return Record Create
                     SalesReturnItem.objects.create(
@@ -691,8 +694,12 @@ def sales_return_create(request, pk):
 
                         # B. Sales Batch Record-ile qty & profit update cheyyunnu 🔥
                         ib.qty -= restore_qty
-                        # 🔥 Ithaanu puthiya line: Qty kurayumbol profit-um recalculate cheyyanam
-                        ib.profit = (ib.selling_rate - ib.purchase_rate) * ib.qty
+
+
+                        p_inc_gst = ib.purchase_rate * (1 + (ib.purchase_item.cgst + ib.purchase_item.sgst) / 100)
+                        s_inc_gst = ib.selling_rate * (1 + (s_cgst + s_sgst) / 100)
+
+                        ib.profit = (s_inc_gst - p_inc_gst) * ib.qty
                         ib.save()
 
                         remaining_to_restock -= restore_qty
