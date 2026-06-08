@@ -577,6 +577,12 @@ def sales_return_view(request, pk):
         if sales_item:
             s_cgst = sales_item.cgst if sales_item.cgst else Decimal('0')
             s_sgst = sales_item.sgst if sales_item.sgst else Decimal('0')
+            if not item.product.sgst or item.product.sgst == 0:
+                item.temp_sgst = s_sgst
+                item.temp_cgst = s_cgst
+            else:
+                item.temp_sgst = item.product.sgst
+                item.temp_cgst = item.product.cgst
 
             # പഴയ ജിഎസ്ടി ഇല്ലാത്ത തുകയാണെങ്കിൽ മാത്രം താൽക്കാലികമായി ജിഎസ്ടി കൂട്ടുന്നു
             if item.total == (item.rate * item.qty_returned):
@@ -805,6 +811,12 @@ def sales_return_pdf(request, pk):
             # ഒറിജിനൽ ഇൻവോയ്സിൽ നിന്ന് ജിഎസ്ടി പേർസന്റേജ് എടുക്കുന്നു
             s_cgst = sales_item.cgst if sales_item.cgst else Decimal('0')
             s_sgst = sales_item.sgst if sales_item.sgst else Decimal('0')
+            if not item.product.sgst or item.product.sgst == 0:
+                item.temp_sgst = s_sgst
+                item.temp_cgst = s_cgst
+            else:
+                item.temp_sgst = item.product.sgst
+                item.temp_cgst = item.product.cgst
 
             # ഡാറ്റാബേസിലെ തുക ജിഎസ്ടി ഇല്ലാത്തതാണെങ്കിൽ (പഴയ എൻട്രി) ഡിസ്പ്ലേയ്ക്ക് വേണ്ടി മാത്രം താൽക്കാലികമായി റീ-കാൽക്കുലേറ്റ് ചെയ്യുന്നു
             if item.total == (item.rate * item.qty_returned):

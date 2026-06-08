@@ -97,10 +97,10 @@
                             </td>
 
                             <td class="text-center">
-                                {{ item.product.sgst|default:"0" }}%
+                                {{ item.temp_sgst|default:"0" }}%
                             </td>
                             <td class="text-center">
-                                {{ item.product.cgst|default:"0" }}%
+                                {{ item.temp_cgst|default:"0" }}%
                             </td>
                             <td class="text-end fw-bold text-danger">
                                 ₹ {{ item.total }}

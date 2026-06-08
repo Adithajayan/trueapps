@@ -308,9 +308,9 @@ CUSTOMER DETAILS
 
 <td>{{ item.rate }}</td>
 
-<td>{{ item.product.sgst|default:"0" }}</td>
+<td class="text-center">{{ item.temp_sgst|default:"0" }}%</td>
 
-<td>{{ item.product.cgst|default:"0" }}</td>
+<td class="text-center">{{ item.temp_cgst|default:"0" }}%</td>
 
 <td><b>{{ item.total }}</b></td>
 
