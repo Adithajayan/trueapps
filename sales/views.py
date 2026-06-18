@@ -840,19 +840,3 @@ def sales_return_pdf(request, pk):
     return generate_pdf(template_path, context, filename)
 
 
-from django.http import HttpResponse
-from sales.models import SalesReturn, SalesReturnItem
-
-
-def fix_broken_return_items(request):
-    try:
-        # ID 2-ൽ കിടക്കുന്ന എല്ലാ ഐറ്റംസിനെയും ID 1-ലേക്ക് മാറ്റി ലിങ്ക് ചെയ്യുന്നു
-        items_to_fix = SalesReturnItem.objects.filter(sales_return_id=2)
-        count = items_to_fix.update(sales_return_id=1)
-
-        # ആവശ്യമില്ലാത്ത ഡ്യൂപ്ലിക്കേറ്റ് റെക്കോർഡ് നീക്കം ചെയ്യുന്നു
-        SalesReturn.objects.filter(id=2).delete()
-
-        return HttpResponse(f"Success: {count} items fixed and duplicate record deleted!")
-    except Exception as e:
-        return HttpResponse(f"Error: {str(e)}")
