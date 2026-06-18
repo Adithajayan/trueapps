@@ -844,17 +844,13 @@ def sales_return_pdf(request, pk):
 from django.http import HttpResponse
 
 
-def fix_invoice_id(request):
-    # 'TBT-IN-002' enna invoice number undel athine 'TBT-IN-001' aakkunnu
-    sale_to_fix = SalesMaster.objects.filter(invoice_no='TBT-IN-002').first()
 
-    if sale_to_fix:
-        # Check cheyyunnu SR-1 already undoo ennu
-        if not SalesMaster.objects.filter(invoice_no='TBT-IN-001').exists():
-            sale_to_fix.invoice_no = 'TBT-IN-001'
-            sale_to_fix.save()
-            return HttpResponse("Success: SR-2 changed to SR-1!")
-        else:
-            return HttpResponse("Error: SR-1 already exists, athukond change cheyyan pattilla!")
-
-    return HttpResponse("Error: SR-2 (TBT-IN-002) record onnum illa!")
+def fix_return_id(request):
+    # SalesReturn-inte ID 2 ne 1 aakki maattunnu
+    ret = SalesReturn.objects.filter(id=2).first()
+    if ret:
+        # ID-ne 1 aakkunnu
+        ret.id = 1
+        ret.save()
+        return HttpResponse("Success: Return ID 2 changed to 1!")
+    return HttpResponse("Error: Return record 2 illa!")
