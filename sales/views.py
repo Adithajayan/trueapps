@@ -840,17 +840,3 @@ def sales_return_pdf(request, pk):
     return generate_pdf(template_path, context, filename)
 
 
-# Ninte views.py-il ithu add cheyyuka
-from django.http import HttpResponse
-
-
-
-def fix_return_id(request):
-    # SalesReturn-inte ID 2 ne 1 aakki maattunnu
-    ret = SalesReturn.objects.filter(id=2).first()
-    if ret:
-        # ID-ne 1 aakkunnu
-        ret.id = 1
-        ret.save()
-        return HttpResponse("Success: Return ID 2 changed to 1!")
-    return HttpResponse("Error: Return record 2 illa!")
