@@ -838,3 +838,23 @@ def sales_return_pdf(request, pk):
     template_path = 'sales/sales_return_print.html'
 
     return generate_pdf(template_path, context, filename)
+
+
+# Ninte views.py-il ithu add cheyyuka
+from django.http import HttpResponse
+
+
+def fix_invoice_id(request):
+    # 'TBT-IN-002' enna invoice number undel athine 'TBT-IN-001' aakkunnu
+    sale_to_fix = SalesMaster.objects.filter(invoice_no='TBT-IN-002').first()
+
+    if sale_to_fix:
+        # Check cheyyunnu SR-1 already undoo ennu
+        if not SalesMaster.objects.filter(invoice_no='TBT-IN-001').exists():
+            sale_to_fix.invoice_no = 'TBT-IN-001'
+            sale_to_fix.save()
+            return HttpResponse("Success: SR-2 changed to SR-1!")
+        else:
+            return HttpResponse("Error: SR-1 already exists, athukond change cheyyan pattilla!")
+
+    return HttpResponse("Error: SR-2 (TBT-IN-002) record onnum illa!")
