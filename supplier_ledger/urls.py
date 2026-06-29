@@ -24,6 +24,7 @@ urlpatterns = [
 
     # PDF
     path('pdf/<int:supplier_id>/', views.supplier_ledger_pdf, name='supplier_ledger_pdf'),
+    path('supplier/<int:supplier_id>/excel/', views.supplier_ledger_excel, name='supplier_ledger_excel'),
 
 
 

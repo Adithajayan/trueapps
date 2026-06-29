@@ -410,3 +410,65 @@ def supplier_ledger_pdf(request, supplier_id):
     # ---------------- BUILD PDF ----------------
     doc.build(elements)
     return response
+
+
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from django.http import HttpResponse
+
+
+def supplier_ledger_excel(request, supplier_id):
+    supplier = get_object_or_404(Supplier, id=supplier_id)
+    ledgers = SupplierLedger.objects.filter(supplier=supplier).order_by("date", "id")
+
+    # Excel Workbook നിർമ്മിക്കുന്നു
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Supplier Ledger"
+
+    # സ്റ്റൈലുകൾ (Formatting)
+    header_fill = PatternFill(start_color="2C3E50", end_color="2C3E50", fill_type="solid")
+    header_font = Font(color="FFFFFF", bold=True)
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'),
+                         top=Side(style='thin'), bottom=Side(style='thin'))
+
+    # ഹെഡറുകൾ എഴുതുന്നു
+    headers = ["Date", "Particulars", "Debit", "Paid", "Return", "Balance"]
+    ws.append(headers)
+
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center")
+
+    # ഡാറ്റകൾ ലൂപ്പ് ചെയ്ത് എഴുതുന്നു
+    running_balance = 0
+    total_debit = 0
+    total_paid = 0
+    total_return = 0
+
+    for l in ledgers:
+        running_balance += float(l.debit) - float(l.credit)
+        total_debit += float(l.debit)
+
+        # Logic പ്രകാരം Paid/Return തിരിക്കുന്നു
+        paid_val = float(l.credit) if (l.source != 'PURCHASE' and l.credit > 0) else 0
+        return_val = float(l.credit) if (l.source == 'PURCHASE' and l.credit > 0) else 0
+
+        total_paid += paid_val
+        total_return += return_val
+
+        row = [l.date.strftime("%d-%m-%Y"), l.particular, float(l.debit), paid_val, return_val, running_balance]
+        ws.append(row)
+
+    # Summary Row ചേർക്കുന്നു (അവസാനമായി)
+    ws.append([])
+    ws.append(["SUMMARY", "", "", "", "", ""])
+    ws.append(["Total Purchase", total_debit, "Total Paid", total_paid, "Total Return", total_return])
+    ws.append(["Final Balance", running_balance])
+
+    # Response തയ്യാറാക്കുന്നു
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{supplier.name}_ledger.xlsx"'
+    wb.save(response)
+    return response

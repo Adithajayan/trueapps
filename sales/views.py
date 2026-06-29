@@ -716,7 +716,7 @@ def sales_return_create(request, pk):
                         pi.quantity_at_hand += restore_qty
                         pi.save()
 
-                        # B. Sales Batch Record-ile qty & profit update cheyyunnu 🔥
+
                         ib.qty -= restore_qty
 
 
@@ -818,16 +818,16 @@ def sales_return_pdf(request, pk):
                 item.temp_sgst = item.product.sgst
                 item.temp_cgst = item.product.cgst
 
-            # ഡാറ്റാബേസിലെ തുക ജിഎസ്ടി ഇല്ലാത്തതാണെങ്കിൽ (പഴയ എൻട്രി) ഡിസ്പ്ലേയ്ക്ക് വേണ്ടി മാത്രം താൽക്കാലികമായി റീ-കാൽക്കുലേറ്റ് ചെയ്യുന്നു
+
             if item.total == (item.rate * item.qty_returned):
                 calculated_total = (item.rate * item.qty_returned) * (1 + (s_cgst + s_sgst) / 100)
                 item.total = calculated_total.quantize(Decimal('0.01'))
 
         total_refund += item.total
 
-    # ടോട്ടൽ റിഫണ്ട് തുകയും താൽക്കാലികമായി അപ്ഡേറ്റ് ചെയ്യുന്നു
+
     return_obj.total_return_amount = total_refund.quantize(Decimal('0.01'))
-    # --- 🛑 മാജിക് കോഡ് ഇവിടെ അവസാനിക്കുന്നു ---
+
 
     context = {
         'return_obj': return_obj,

@@ -13,6 +13,9 @@
                class="btn btn-danger btn-sm me-2">
                 📄 Download PDF
             </a>
+            <a href="{% url 'supplier_ledger_excel' supplier.id %}" class="btn btn-success btn-sm me-2">
+                📊 Download Excel
+            </a>
 
             <a href="{% url 'supplier_ledger_summary' %}"
                class="btn btn-outline-secondary btn-sm">
