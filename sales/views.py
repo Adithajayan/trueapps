@@ -832,11 +832,11 @@ def sales_return_pdf(request, pk):
     context = {
         'return_obj': return_obj,
         'return_items': return_items,
+        'display_no': f"#SR-{SalesReturn.objects.filter(id__lte=return_obj.id).count()}",
     }
 
-    filename = f"Return_{return_obj.sale.invoice_no}.pdf"
+    filename = f"Return_{SalesReturn.objects.filter(id__lte=return_obj.id).count()}.pdf"
     template_path = 'sales/sales_return_print.html'
 
     return generate_pdf(template_path, context, filename)
-
 
