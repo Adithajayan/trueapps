@@ -591,7 +591,7 @@ def sales_return_view(request, pk):
 
         total_refund += item.total
 
-    # ടോട്ടൽ എമൗണ്ട് താൽക്കാലികമായി അപ്ഡേറ്റ് ചെയ്യുന്നു
+
     return_obj.total_return_amount = total_refund.quantize(Decimal('0.01'))
     # -----------------------------------------------------------
 
