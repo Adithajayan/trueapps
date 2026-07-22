@@ -117,14 +117,20 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from .models import Supplier
 
+
 def supplier_delete(request, id):
     supplier = get_object_or_404(Supplier, id=id)
 
     if request.method == 'POST':
         # Supplier-kku purchase records undonnu check cheyyunnu
         if supplier.purchase_set.exists():
-            messages.error(request, f"Cannot delete {supplier.name}! This supplier has active purchase records.")
-            return redirect('supplier_master_list')
+            messages.error(request,
+                           f"Cannot delete '{supplier.name}' because purchase records are linked with this supplier. Please delete related purchases first.")
+
+            # 🛑 Redirect-nu pakaram same supplier delete page-ilekku render cheyyuka
+            return render(request, 'supplier_master/supplier_delete.html', {
+                'supplier': supplier
+            })
 
         # Purchase illengil mathram delete cheyyuka
         supplier.delete()

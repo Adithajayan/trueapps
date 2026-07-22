@@ -1,34 +1,34 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="card p-4 shadow rounded-4 text-center">
+<div class="card p-4 shadow rounded-4 text-center col-md-6 mx-auto">
 
     <!-- Error / Warning Messages Displaying Area -->
     {% if messages %}
-        <div class="mb-3">
+        <div class="mb-4">
             {% for message in messages %}
-                <div class="alert alert-danger alert-dismissible fade show text-start" role="alert">
-                    {{ message }}
+                <div class="alert alert-danger alert-dismissible fade show text-start shadow-sm" role="alert">
+                    <strong>⚠️ Warning:</strong> {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         </div>
     {% endif %}
 
-    <h5 class="mb-3 text-danger">
+    <h5 class="mb-3 text-danger fw-bold">
         Delete Supplier?
     </h5>
 
-    <p>
+    <p class="text-muted">
         Are you sure you want to delete<br>
-        <b>{{ supplier.name }}</b> ?
+        <b class="fs-5 text-dark">{{ supplier.name }}</b> ?
     </p>
 
     <form method="post">
         {% csrf_token %}
-        <button class="btn btn-danger px-4">Yes Delete</button>
+        <button class="btn btn-danger px-4 py-2">Yes, Delete</button>
         <a href="{% url 'supplier_master_list' %}"
-           class="btn btn-secondary px-4">
+           class="btn btn-secondary px-4 py-2 ms-2">
             Cancel
         </a>
     </form>
