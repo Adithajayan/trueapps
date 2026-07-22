@@ -113,11 +113,22 @@ def supplier_edit(request, id):
 
 
 # ================= DELETE =================
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from .models import Supplier
+
 def supplier_delete(request, id):
     supplier = get_object_or_404(Supplier, id=id)
 
     if request.method == 'POST':
+        # Supplier-kku purchase records undonnu check cheyyunnu
+        if supplier.purchase_set.exists():
+            messages.error(request, f"Cannot delete {supplier.name}! This supplier has active purchase records.")
+            return redirect('supplier_master_list')
+
+        # Purchase illengil mathram delete cheyyuka
         supplier.delete()
+        messages.success(request, "Supplier deleted successfully!")
         return redirect('supplier_master_list')
 
     return render(request, 'supplier_master/supplier_delete.html', {

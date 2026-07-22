@@ -112,12 +112,23 @@ def customer_edit(request, pk):
 # -------------------------
 # DELETE CUSTOMER
 # -------------------------
-def customer_delete(request, pk):
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from .models import Customer
 
+
+def customer_delete(request, pk):
     customer = get_object_or_404(Customer, id=pk)
 
     if request.method == "POST":
+        # 1. Ee customer-kku sales undonnu check cheyyuka (SalesMaster use cheyyunnathukondu salesmaster_set vannirikkum)
+        if customer.salesmaster_set.exists():
+            messages.error(request, f"Cannot delete {customer.name}! This customer has active sales records.")
+            return redirect('customers_list')
+
+        # Sales illengil mathram customer-ne delete cheyyuka
         customer.delete()
+        messages.success(request, "Customer deleted successfully!")
         return redirect('customers_list')
 
     return render(request, 'customer/customer_delete.html', {
