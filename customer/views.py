@@ -121,10 +121,15 @@ def customer_delete(request, pk):
     customer = get_object_or_404(Customer, id=pk)
 
     if request.method == "POST":
-        # 1. Ee customer-kku sales undonnu check cheyyuka (SalesMaster use cheyyunnathukondu salesmaster_set vannirikkum)
+        # 1. Ee customer-kku sales undonnu check cheyyunnu
         if customer.salesmaster_set.exists():
-            messages.error(request, f"Cannot delete {customer.name}! This customer has active sales records.")
-            return redirect('customers_list')
+            messages.error(request,
+                           f"Cannot delete '{customer.name}' because sales records are linked with this customer. Please delete related sales first.")
+
+            # 🛑 IMPORTANT CHANGE: Redirect-nu pakaram same delete page-ilekku render cheyyuka
+            return render(request, 'customer/customer_delete.html', {
+                'customer': customer
+            })
 
         # Sales illengil mathram customer-ne delete cheyyuka
         customer.delete()
