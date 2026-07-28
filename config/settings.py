@@ -30,7 +30,7 @@ DJANGO_SUPERUSER_PASSWORD = os.environ.get("DJANGO_SUPERUSER_PASSWORD")
 
 
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "trueapps-production.up.railway.app",
