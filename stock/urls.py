@@ -11,6 +11,7 @@ urlpatterns = [
     path('opening/delete/<int:pk>/', views.opening_stock_delete, name='opening_stock_delete'),
     path('register/detailed/', views.detailed_stock_register, name='detailed_stock_register'),
     path('update-selling-rate/', views.update_selling_rate, name='update_selling_rate'),
+    path('register/detailed/sales/<int:item_id>/', views.batch_sales_detail_view, name='batch_sales_detail_view'),
 
 
 ]

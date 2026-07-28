@@ -126,6 +126,7 @@
                     <th>Sold Qty (Net)</th>
                     <th>Available</th>
                     <th>Sales Rate & GST</th>
+                    <th>Sales Info</th>
 
                 </tr>
 
@@ -225,8 +226,17 @@
                             </button>
 
                         </div>
-
                     </td>
+                    <td>
+                        {% if row.item_id|slice:":3" == "OP-" %}
+                             <span class="text-muted" title="Opening stock has no batch sales detail">N/A</span>
+                        {% else %}
+                            <a href="{% url 'batch_sales_detail_view' row.item_id %}" class="btn btn-sm btn-outline-primary"  title="View Customer Sales Details">
+                                👁️
+                            </a>
+                        {% endif %}
+                    </td>
+
 
                 </tr>
 
@@ -234,7 +244,7 @@
 
                 <tr>
 
-                    <td colspan="8" class="text-muted py-4">
+                    <td colspan="9" class="text-muted py-4">
                         No matching stock batches found.
                     </td>
 

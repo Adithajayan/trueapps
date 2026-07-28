@@ -221,15 +221,7 @@ def opening_stock_history(request):
         'histories': histories
     })
 
-from purchase.models import PurchaseItem
-from sales.models import SalesItem
-from django.db.models import Sum
 
-from purchase.models import PurchaseItem
-from sales.models import SalesItem
-from django.db.models import Sum
-from product.models import Product
-from supplier_master.models import Supplier
 
 from django.shortcuts import render
 from django.db.models import Sum
@@ -347,3 +339,22 @@ def update_selling_rate(request):
         return JsonResponse({'status': 'error', 'msg': 'Item not found'})
 
 
+from django.shortcuts import get_object_or_404
+from purchase.models import PurchaseItem
+from sales.models import SalesItemBatch
+
+
+def batch_sales_detail_view(request, item_id):
+    purchase_item = get_object_or_404(PurchaseItem, id=item_id)
+
+    # SalesItemBatch vazhi ee purchase item-il ninnu sale cheytha details edukkunnu
+    sales_batches = SalesItemBatch.objects.filter(purchase_item=purchase_item).select_related(
+        'sales_item',
+        'sales_item__sales',
+        'sales_item__sales__customer'
+    )
+
+    return render(request, 'stock/batch_sales_detail.html', {
+        'purchase_item': purchase_item,
+        'sales_batches': sales_batches,
+    })
