@@ -858,3 +858,54 @@ def export_sales_excel(request):
 
     wb.save(response)
     return response
+
+
+
+
+# --------------------stock to excel-------------------
+
+import openpyxl
+from django.http import HttpResponse
+from stock.models import Stock
+
+
+def export_stock_report_excel(request):
+    # Complete stock details edukkunnu (Product details oode)
+    stocks = Stock.objects.select_related('product').all().order_by('product__name')
+
+    # Create Excel Workbook using openpyxl
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Stock Report"
+
+    # Excel Header columns (Ningal ആവശ്യപ്പെട്ട 4 fields)
+    columns = ['Product Name', 'Stock Quantity', 'Purchase Rate', 'Sales Rate']
+    ws.append(columns)
+
+    # Writing Stock Data
+    for stock in stocks:
+        product = stock.product
+
+        # Product model-il உள்ள fields edukkunnu (Ninte model-il field names mattangalum undengil ivide change cheyyuka)
+        p_name = product.name if product else "N/A"
+        quantity = float(stock.quantity) if stock else 0.0
+
+        # Purchase rate and Sales rate product model-il ninnu allel purchase item-il ninnu edukkam
+        # (Default aayi product model-il undennu karuthunnu)
+        purchase_rate = float(getattr(product, 'purchase_rate', 0)) if product else 0.0
+        sales_rate = float(getattr(product, 'sales_rate', 0)) if product else 0.0
+
+        row_data = [
+            p_name,
+            quantity,
+            purchase_rate,
+            sales_rate
+        ]
+        ws.append(row_data)
+
+    # HTTP Response for Excel Download
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Stock_Report_Complete.xlsx"'
+    wb.save(response)
+
+    return response

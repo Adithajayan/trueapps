@@ -25,14 +25,21 @@
 
 <div class="container-fluid px-2 px-md-3">
 
-<!-- Heading + Back Button -->
+<!-- Heading + Back Button + Export Excel Button -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
 
-<h3 class="fw-bold mb-0">🚨 Low Stock Alert</h3>
+    <h3 class="fw-bold mb-0">🚨 Low Stock Alert</h3>
 
-<a href="{% url 'reports_home' %}" class="btn btn-outline-secondary btn-sm rounded-pill btn-back">
-← Back
-</a>
+    <div class="d-flex gap-2">
+        <!-- 📥 IMPORT TO EXCEL BUTTON ADDED HERE -->
+        <a href="{% url 'export_stock_report_excel' %}" class="btn btn-success btn-sm rounded-pill">
+            <i class="fas fa-file-excel"></i> Import to Excel
+        </a>
+
+        <a href="{% url 'reports_home' %}" class="btn btn-outline-secondary btn-sm rounded-pill btn-back">
+            ← Back
+        </a>
+    </div>
 
 </div>
 
