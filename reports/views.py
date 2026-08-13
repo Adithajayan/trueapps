@@ -866,7 +866,7 @@ def export_sales_excel(request):
 import openpyxl
 from django.http import HttpResponse
 from stock.models import Stock
-from purchase.models import PurchaseItem  # Ithu import cheyyuka
+from purchase.models import PurchaseItem
 
 
 def export_stock_report_excel(request):
@@ -882,15 +882,20 @@ def export_stock_report_excel(request):
     for stock in stocks:
         product = stock.product
 
-        # Latest purchase item edukkunnu (Athil ninnu rate edukkan)
         latest_purchase = PurchaseItem.objects.filter(product=product).order_by('-id').first()
 
         p_name = product.name if product else "N/A"
         quantity = float(stock.quantity) if stock else 0.0
 
-        # Purchase Item undengil athil ninnu rate edukkuka, illenkil 0
-        purchase_rate = float(latest_purchase.rate) if latest_purchase else 0.0
-        sales_rate = float(latest_purchase.selling_rate) if latest_purchase else 0.0
+        # 🛠️ Safety check for None values
+        purchase_rate = 0.0
+        sales_rate = 0.0
+
+        if latest_purchase:
+            if latest_purchase.rate is not None:
+                purchase_rate = float(latest_purchase.rate)
+            if latest_purchase.selling_rate is not None:
+                sales_rate = float(latest_purchase.selling_rate)
 
         row_data = [
             p_name,
