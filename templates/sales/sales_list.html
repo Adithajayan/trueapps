@@ -3,7 +3,7 @@
 
 <style>
     /* Table styling and hover effects */
-    .table-hover tbody tr:hover { background-color: #f8f9fa; transition: 0.2s; }
+    .table-hover tbody tr:hover td { background-color: #f8f9fa; transition: 0.2s; }
     .status-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; }
     .btn-group .btn { border-radius: 4px !important; margin: 0 2px; }
 
@@ -20,10 +20,15 @@
             width: 100% !important;
         }
     }
-        /* E-Way Bill checkbox click cheythal color maaran ulla custom style */
-    .table tbody tr.eway-checked {
-        background-color: #e2f0d9 !important; /* premium soft green color */
+
+    /* E-Way Bill checkbox click cheythal cells background color maaran (with td targeting) */
+    .table tbody tr.eway-checked td {
+        background-color: #e8f5e9 !important; /* Extremely soft, premium pastel green */
         transition: background-color 0.25s ease;
+    }
+    /* Row hover change for checked rows */
+    .table-hover tbody tr.eway-checked:hover td {
+        background-color: #dcedc8 !important; /* Slightly darker soft green on hover */
     }
 </style>
 
@@ -87,7 +92,8 @@
                         <th class="text-center py-3" style="width: 60px;">E-Way</th>
                         <th class="ps-4 py-3" style="width: 130px;">Date</th>
                         <th class="py-3" style="width: 180px;">Invoice Details</th>
-                        <th class="py-3 text-center" style="width: 100px;">Type</th> <th class="py-3">Customer</th>
+                        <th class="py-3 text-center" style="width: 100px;">Type</th>
+                        <th class="py-3">Customer</th>
                         <th class="py-3 text-end" style="width: 150px;">Total Amount</th>
                         <th class="py-3 text-center" style="width: 220px;">Actions</th>
                     </tr>
@@ -98,7 +104,6 @@
                         <td class="text-center">
                            <input type="checkbox" class="form-check-input eway-checkbox shadow-none" data-sale-id="{{ sale.id }}" style="cursor: pointer; width: 18px; height: 18px;">
                         </td>
-
                         <td class="ps-4">
                             <div class="fw-bold text-dark">{{ sale.date|date:"d M Y" }}</div>
                         </td>
@@ -168,6 +173,7 @@
         <small>Total Invoices: <strong>{{ sales|length }}</strong></small>
     </div>
 </div>
+
 <!-- JavaScript for checkbox toggle & state saving -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -181,7 +187,9 @@
             if (isChecked) {
                 checkbox.checked = true;
                 const row = document.getElementById("sale-row-" + saleId);
-                if (row) row.classList.add("eway-checked");
+                if (row) {
+                    row.classList.add("eway-checked");
+                }
             }
 
             // Handle checkbox click logic
