@@ -20,6 +20,11 @@
             width: 100% !important;
         }
     }
+        /* E-Way Bill checkbox click cheythal color maaran ulla custom style */
+    .table tbody tr.eway-checked {
+        background-color: #e2f0d9 !important; /* premium soft green color */
+        transition: background-color 0.25s ease;
+    }
 </style>
 
 <div class="container-fluid mt-4">
@@ -79,6 +84,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-dark text-white">
                     <tr>
+                        <th class="text-center py-3" style="width: 60px;">E-Way</th>
                         <th class="ps-4 py-3" style="width: 130px;">Date</th>
                         <th class="py-3" style="width: 180px;">Invoice Details</th>
                         <th class="py-3 text-center" style="width: 100px;">Type</th> <th class="py-3">Customer</th>
@@ -88,7 +94,11 @@
                 </thead>
                 <tbody>
                     {% for sale in sales %}
-                    <tr>
+                    <tr id="sale-row-{{ sale.id }}">
+                        <td class="text-center">
+                           <input type="checkbox" class="form-check-input eway-checkbox shadow-none" data-sale-id="{{ sale.id }}" style="cursor: pointer; width: 18px; height: 18px;">
+                        </td>
+
                         <td class="ps-4">
                             <div class="fw-bold text-dark">{{ sale.date|date:"d M Y" }}</div>
                         </td>
@@ -141,7 +151,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <div class="text-muted">
                                 <i class="fa fa-folder-open fa-3x mb-3 opacity-25"></i>
                                 <p class="mb-0">No sales records found for this period.</p>
@@ -158,5 +168,34 @@
         <small>Total Invoices: <strong>{{ sales|length }}</strong></small>
     </div>
 </div>
+<!-- JavaScript for checkbox toggle & state saving -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const checkboxes = document.querySelectorAll(".eway-checkbox");
 
+        // Load saved states from browser memory
+        checkboxes.forEach(checkbox => {
+            const saleId = checkbox.getAttribute("data-sale-id");
+            const isChecked = localStorage.getItem("eway_bill_" + saleId) === "true";
+
+            if (isChecked) {
+                checkbox.checked = true;
+                const row = document.getElementById("sale-row-" + saleId);
+                if (row) row.classList.add("eway-checked");
+            }
+
+            // Handle checkbox click logic
+            checkbox.addEventListener("change", function() {
+                const row = document.getElementById("sale-row-" + saleId);
+                if (this.checked) {
+                    if (row) row.classList.add("eway-checked");
+                    localStorage.setItem("eway_bill_" + saleId, "true");
+                } else {
+                    if (row) row.classList.remove("eway-checked");
+                    localStorage.removeItem("eway_bill_" + saleId);
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
