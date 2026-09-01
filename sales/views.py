@@ -8,8 +8,8 @@ from .models import SalesMaster, SalesItem, InvoiceSetting
 from customer.models import Customer
 from product.models import Product
 from stock.models import Stock
-
-
+from django.db.models import Sum
+from purchase.models import PurchaseItem
 # ---------------- SALES CREATE ----------------
 from django.db import transaction
 from stock.models import StockHistory  # Opening stock-inu vendi
@@ -60,8 +60,7 @@ def sales_create(request):
             if not product_ids[i]: continue
             prod_obj = Product.objects.get(id=product_ids[i])
             requested_qty = int(float(qtys[i]))
-            stock_obj = Stock.objects.filter(product=prod_obj).first()
-            available = stock_obj.quantity if stock_obj else 0
+            available = PurchaseItem.objects.filter(product=prod_obj).aggregate(total=Sum('quantity_at_hand'))['total'] or 0
             if available < requested_qty:
                 messages.error(request, f"Insufficient stock for {prod_obj.name}. Available: {available}")
                 return render(request, 'sales/sales_form.html')
