@@ -244,11 +244,15 @@ function selectProduct(row, p) {
   });
 
   if (isDuplicate) {
-    alert(`⚠️ Warning: "${p.name}" is already added to this invoice! Duplicate items are not allowed.`);
+
+    const msg = row.querySelector('.status-msg');
+    msg.innerHTML = `<span class="error-text">⚠️ Duplicate item! Already added to invoice.</span>`;
+
     row.querySelector('.product').value = '';
     row.querySelector('.product_id').value = '';
     row.querySelector('.product_suggestions').innerHTML = '';
-    return; // Stops here, so duplicate product won't be selected
+    row.querySelector('.stock-info').classList.add('d-none');
+    return;
   }
   row.querySelector('.product').value = p.name;
   row.querySelector('.product_id').value = p.id;
