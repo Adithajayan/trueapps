@@ -324,6 +324,45 @@ document.addEventListener('click', e => {
 document.getElementById('salesForm').onsubmit = function() {
     return validateAllStock();
 };
+
+// --- SEPARATE SCRIPT FOR DUPLICATE PRODUCT CHECK ---
+document.addEventListener('change', e => {
+    if (!e.target.classList.contains('product_id')) return;
+    const currentInput = e.target;
+    const currentProductId = currentInput.value;
+
+    if (!currentProductId) return;
+
+    const currentRow = currentInput.closest('.sales-row');
+    let isDuplicate = false;
+
+    // Check all other rows for the same product ID
+    document.querySelectorAll('.sales-row').forEach(row => {
+        if (row !== currentRow) {
+            const existingId = row.querySelector('.product_id').value;
+            if (existingId === currentProductId) {
+                isDuplicate = true;
+            }
+        }
+    });
+
+    if (isDuplicate) {
+        alert("⚠️ Warning: This product is already added to this invoice! Duplicate items are not allowed.");
+        // Clear the current row
+        currentRow.querySelector('.product').value = '';
+        currentInput.value = '';
+        currentRow.querySelector('.product_suggestions').innerHTML = '';
+        currentRow.querySelector('.stock-info').classList.add('d-none');
+        currentRow.querySelector('.rate').value = '';
+        currentRow.querySelector('.cgst').value = '0';
+        currentRow.querySelector('.sgst').value = '0';
+        currentRow.querySelector('.row-total').innerText = '0.00';
+        currentRow.dataset.totalStock = '0';
+
+        if (typeof calculateGrand === 'function') calculateGrand();
+        if (typeof validateAllStock === 'function') validateAllStock();
+    }
+});
 </script>
 
 {% endblock %}

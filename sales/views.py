@@ -336,8 +336,7 @@ def sales_edit(request, pk):
             new_qty = int(float(qtys[i]))
             old_item = items.filter(product=prod_obj).first()
             old_qty = old_item.qty if old_item else 0
-            stock_obj = Stock.objects.filter(product=prod_obj).first()
-            current_available = stock_obj.quantity if stock_obj else 0
+            current_available = PurchaseItem.objects.filter(product=prod_obj).aggregate(total=Sum('quantity_at_hand'))['total'] or 0
             if (current_available + old_qty) < new_qty:
                 messages.error(request, f"Insufficient stock for {prod_obj.name}.")
                 return render(request, 'sales/sales_edit.html', {'sale': sale, 'items': items})
