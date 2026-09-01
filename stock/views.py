@@ -9,7 +9,8 @@ from purchase.models import Purchase, PurchaseItem
 # -------------------------------------------------
 # STOCK REGISTER
 # -------------------------------------------------
-
+from django.db.models import Sum
+from purchase.models import PurchaseItem
 
 def stock_list(request):
 
@@ -32,6 +33,9 @@ def stock_list(request):
             stocks = stocks.filter(updated_at__year=year, updated_at__month=month)
         except ValueError:
             pass
+    for stock in stocks:
+        total_qty = PurchaseItem.objects.filter(product=stock.product).aggregate(total=Sum('quantity_at_hand'))[ 'total'] or 0
+        stock.quantity = total_qty
 
     return render(request, 'stock/stock_list.html', {
         'stocks': stocks,

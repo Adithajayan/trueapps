@@ -177,13 +177,12 @@ def product_search(request):
 
     data = []
     for p in products:
-        stock_obj = Stock.objects.filter(product=p).first()
-        qty = stock_obj.quantity if stock_obj else 0
+        total_qty = PurchaseItem.objects.filter(product=p).aggregate(total=Sum('quantity_at_hand'))['total'] or 0
 
         data.append({
             'id': p.id,
             'name': p.name,
-            'stock': float(qty),
+            'stock': float(total_qty),
             'rate': float(p.sales_rate) if hasattr(p, 'sales_rate') else float(p.selling_rate),
             'cgst': float(p.cgst) if p.cgst else 0,
             'sgst': float(p.sgst) if p.sgst else 0
