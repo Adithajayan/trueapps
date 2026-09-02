@@ -35,6 +35,8 @@ urlpatterns = [
     path('summary/', views.expense_summary, name='expense_summary'),
     path('summary/pdf/', views.expense_summary_pdf, name='expense_summary_pdf'),
 
+    path('expense/print-report/', views.expense_print_report, name='expense_print_report'),
+
 
 
 

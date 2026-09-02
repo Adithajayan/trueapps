@@ -532,3 +532,48 @@ def expense_category_delete(request, pk):
         type_id=category.expense_type.id
     )
 
+
+def expense_print_report(request):
+    # Base query for active expenses
+    expenses = (
+        Expense.objects
+        .select_related('expense_type', 'category', 'partner')
+        .filter(expense_type__is_active=True)
+        .order_by('-date')
+    )
+
+    # Get filter parameters
+    type_id = request.GET.get('type')
+    partner_id = request.GET.get('partner')
+    from_date = request.GET.get('from')
+    to_date = request.GET.get('to')
+
+    selected_type = "All Expenses"
+    selected_partner_name = "All Partners"
+
+    # Apply filters
+    if type_id and type_id != 'all':
+        expenses = expenses.filter(expense_type_id=type_id)
+        selected_type = ExpenseType.objects.get(id=type_id, is_active=True).name
+
+    if partner_id and partner_id != 'all':
+        expenses = expenses.filter(partner_id=partner_id)
+        selected_partner_name = Partner.objects.get(id=partner_id, is_active=True).name
+
+    if from_date:
+        expenses = expenses.filter(date__gte=from_date)
+    if to_date:
+        expenses = expenses.filter(date__lte=to_date)
+
+    total_amount = expenses.aggregate(total=Sum('amount'))['total'] or 0
+
+    context = {
+        'expenses': expenses,
+        'total_amount': total_amount,
+        'selected_type': selected_type,
+        'selected_partner': selected_partner_name,
+        'from_date': from_date,
+        'to_date': to_date,
+    }
+
+    return render(request, 'expense/expense_print_report.html', context)

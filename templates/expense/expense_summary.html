@@ -151,52 +151,7 @@
 .chart-wrapper { display:none; }
 {% endif %}
 
-/* =======================
-   PRINT STYLING (REPORT LOOK)
-======================= */
-@media print {
-    /* Filter box, buttons, back button mattum print-il varilla */
-    .filter-box,
-    .summary-header .d-flex,
-    .back-btn,
-    form,
-    .btn {
-        display: none !important;
-    }
 
-    /* Background colors and shadows clean aakkunnu */
-    body {
-        background: #fff !important;
-        color: #000 !important;
-    }
-
-    .card, .stat-card {
-        border: 1px solid #ddd !important;
-        box-shadow: none !important;
-        background: #fff !important;
-        color: #000 !important;
-    }
-
-    .stat-card h6, .stat-card h3 {
-        color: #000 !important;
-    }
-
-    /* Table borders clean aakkunnu */
-    .table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-    }
-
-    .table th, .table td {
-        border: 1px solid #ddd !important;
-        padding: 8px !important;
-    }
-
-    .table thead {
-        background: #f3f4f6 !important;
-        color: #000 !important;
-    }
-}
 
 </style>
 
@@ -217,10 +172,11 @@
            PDF
         </a>
 
-        <a href="{% url 'expense_summary' %}?{{ request.GET.urlencode }}&print=true"
+        <!-- Print Button (Updated to point to clean report view) -->
+        <a href="{% url 'expense_print_report' %}?{{ request.GET.urlencode }}"
            target="_blank"
            class="btn btn-dark btn-sm">
-           Print
+           <i class="fa fa-print"></i> Print Report
         </a>
 
         <a href="{% url 'expense_home' %}"
@@ -428,13 +384,7 @@ new Chart(document.getElementById('expenseChart'), {
     }
 });
 </script>
-<script>
-    // URL-il print=true ennundel page load ayathum automatic print popup varum
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('print') === 'true') {
-        window.print();
-    }
-</script>
+
 {% endif %}
 
 {% endblock %}
