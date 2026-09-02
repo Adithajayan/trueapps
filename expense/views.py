@@ -330,9 +330,11 @@ from .models import Expense, ExpenseType
 def expense_summary(request):
     # Base query for types
     expense_types = ExpenseType.objects.filter(is_active=True)
+    partners = Partner.objects.filter(is_active=True)
 
     # Get filter parameters
     type_id = request.GET.get('type')
+    partner_id = request.GET.get('partner')
     from_date = request.GET.get('from')
     to_date = request.GET.get('to')
 
@@ -340,7 +342,7 @@ def expense_summary(request):
     selected_type = "All Expenses"
 
     # 🔥 LOGIC: Filter parameters undo ennu check cheyyunnu
-    is_filtered = any([type_id, from_date, to_date])
+    is_filtered = any([type_id, partner_id, from_date, to_date])
 
     if is_filtered:
         # Filter parameters undenkil mathrame database-il ninnu data edukkunnu
@@ -356,6 +358,9 @@ def expense_summary(request):
             selected_type = ExpenseType.objects.get(
                 id=type_id, is_active=True
             ).name
+
+        if partner_id and partner_id != 'all':
+            expenses = expenses.filter(partner_id=partner_id)
 
         if from_date:
             expenses = expenses.filter(date__gte=from_date)
@@ -407,6 +412,7 @@ def expense_summary(request):
     context = {
         'expenses': expenses,
         'expense_types': expense_types,
+        'partners': partners,
         'total_amount': total_amount,
         'selected_type': selected_type,
         'category_summary': category_summary,
@@ -456,6 +462,7 @@ def expense_summary_pdf(request):
     )
 
     type_id = request.GET.get('type')
+    partner_id = request.GET.get('partner')
     from_date = request.GET.get('from')
     to_date = request.GET.get('to')
 
@@ -464,6 +471,9 @@ def expense_summary_pdf(request):
     if type_id and type_id != 'all':
         expenses = expenses.filter(expense_type_id=type_id)
         selected_type = ExpenseType.objects.get(id=type_id, is_active=True).name
+
+    if partner_id and partner_id != 'all':
+        expenses = expenses.filter(partner_id=partner_id)
 
     if from_date:
         expenses = expenses.filter(date__gte=from_date)

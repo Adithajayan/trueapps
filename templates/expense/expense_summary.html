@@ -151,6 +151,53 @@
 .chart-wrapper { display:none; }
 {% endif %}
 
+/* =======================
+   PRINT STYLING (REPORT LOOK)
+======================= */
+@media print {
+    /* Filter box, buttons, back button mattum print-il varilla */
+    .filter-box,
+    .summary-header .d-flex,
+    .back-btn,
+    form,
+    .btn {
+        display: none !important;
+    }
+
+    /* Background colors and shadows clean aakkunnu */
+    body {
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .card, .stat-card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .stat-card h6, .stat-card h3 {
+        color: #000 !important;
+    }
+
+    /* Table borders clean aakkunnu */
+    .table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    .table th, .table td {
+        border: 1px solid #ddd !important;
+        padding: 8px !important;
+    }
+
+    .table thead {
+        background: #f3f4f6 !important;
+        color: #000 !important;
+    }
+}
+
 </style>
 
 <div class="container mt-4">
@@ -168,6 +215,12 @@
            target="_blank"
            class="btn btn-danger btn-sm">
            PDF
+        </a>
+
+        <a href="{% url 'expense_summary' %}?{{ request.GET.urlencode }}&print=true"
+           target="_blank"
+           class="btn btn-dark btn-sm">
+           Print
         </a>
 
         <a href="{% url 'expense_home' %}"
@@ -195,14 +248,27 @@
         </select>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-2">
+        <label class="form-label">Partner</label>
+        <select name="partner" class="form-select">
+            <option value="all">All Partners</option>
+            {% for p in partners %}
+            <option value="{{ p.id }}"
+              {% if request.GET.partner == p.id|stringformat:"s" %}selected{% endif %}>
+              {{ p.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
         <label class="form-label">From</label>
         <input type="date" name="from"
                value="{{ request.GET.from }}"
                class="form-control">
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-2">
         <label class="form-label">To</label>
         <input type="date" name="to"
                value="{{ request.GET.to }}"
@@ -361,6 +427,13 @@ new Chart(document.getElementById('expenseChart'), {
         }
     }
 });
+</script>
+<script>
+    // URL-il print=true ennundel page load ayathum automatic print popup varum
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('print') === 'true') {
+        window.print();
+    }
 </script>
 {% endif %}
 
