@@ -2,140 +2,509 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Report - TRUEAPPS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* Global & Reset */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg-subtle: #f8fafc;
+            --card-bg: #ffffff;
+            --success: #059669;
+            --success-light: #ecfdf5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            color: #111;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: #f1f5f9;
             margin: 0;
-            padding: 20px;
-            font-size: 14px;
+            padding: 30px 20px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
+
+        /* Top Action Bar (Print Button) */
+        .action-bar {
+            max-width: 900px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Container Card */
+        .report-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+            padding: 40px;
+            border: 1px solid var(--border);
+        }
+
+        /* Report Header */
         .report-header {
-            text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 2px dashed var(--border);
+            margin-bottom: 24px;
         }
-        .report-header h2 {
+
+        .brand-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-logo-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .brand-section h1 {
             margin: 0;
             font-size: 22px;
-            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #0f172a;
         }
-        .meta-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            background: #f9fafb;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #e5e7eb;
-        }
-        .meta-info div {
-            font-size: 13px;
-        }
-        .summary-box {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            gap: 15px;
-        }
-        .box {
-            flex: 1;
-            background: #f3f4f6;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            border: 1px solid #e5e7eb;
-        }
-        .box h4 {
-            margin: 0 0 5px 0;
+
+        .report-title-tag {
             font-size: 12px;
-            color: #4b5563;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
         }
-        .box h3 {
+
+        .report-meta-date {
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-subtle);
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .report-meta-date strong {
+            color: var(--text-main);
+        }
+
+        /* Meta Info Grid */
+        .meta-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+            background-color: var(--bg-subtle);
+            padding: 18px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .meta-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Summary KPI Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .kpi-card.amount-card::before {
+            background: var(--success);
+        }
+
+        .kpi-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kpi-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin: 0 0 6px 0;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
             margin: 0;
-            font-size: 18px;
-            color: #111827;
+            letter-spacing: -0.5px;
         }
+
+        .kpi-card.amount-card .kpi-value {
+            color: #047857;
+        }
+
+        .kpi-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .kpi-card.amount-card .kpi-icon {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        /* Table Styling */
+        .table-container {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #d1d5db;
-            padding: 8px 10px;
             text-align: left;
-            font-size: 13px;
         }
+
+        thead {
+            background-color: #0f172a;
+            color: #ffffff;
+        }
+
         th {
-            background-color: #1f2937;
-            color: white;
+            padding: 14px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border: none;
         }
-        tr:nth-child(even) {
-            background-color: #f9fafb;
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            color: #334155;
         }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .badge-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+
         .text-end {
             text-align: right;
         }
+
+        .amount-cell {
+            font-weight: 700;
+            color: #0f172a;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px !important;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        .report-footer {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Print Media Styles */
         @media print {
-            body { padding: 0; }
-            .no-print { display: none; }
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .report-wrapper {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .action-bar {
+                display: none !important;
+            }
+
+            .meta-info-grid, .kpi-card, .table-container {
+                border-color: #cbd5e1 !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
-<body onload="window.print()">
+<body>
 
-    <div class="report-header">
-        <h2>TRUEAPPS - Expense Report</h2>
+    <!-- Action Toolbar (Hidden during print) -->
+    <div class="action-bar">
+        <button class="btn btn-primary" onclick="window.print()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Print / Save PDF
+        </button>
     </div>
 
-    <div class="meta-info">
-        <div><strong>Expense Type:</strong> {{ selected_type }}</div>
-        <div><strong>Partner:</strong> {{ selected_partner }}</div>
-        <div><strong>Period:</strong> {{ from_date|default:"Beginning" }} to {{ to_date|default:"Today" }}</div>
-    </div>
+    <!-- Main Report Container -->
+    <div class="report-wrapper">
 
-    <div class="summary-box">
-        <div class="box">
-            <h4>Total Records</h4>
-            <h3>{{ expenses.count }}</h3>
+        <!-- Report Header -->
+        <div class="report-header">
+            <div class="brand-section">
+                <div class="brand-logo-title">
+                    <div class="brand-icon">T</div>
+                    <h1>TRUEAPPS</h1>
+                </div>
+                <div class="report-title-tag">Official Expense Report</div>
+            </div>
+            <div class="report-meta-date">
+                Report Generated: <strong>{% now "M d, Y" %}</strong>
+            </div>
         </div>
-        <div class="box">
-            <h4>Total Amount</h4>
-            <h3>₹ {{ total_amount|floatformat:2 }}</h3>
-        </div>
-    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Category / Note</th>
-                <th>Paid By</th>
-                <th class="text-end">Amount (₹)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for e in expenses %}
-            <tr>
-                <td>{{ e.date|date:"M d, Y" }}</td>
-                <td>{{ e.expense_type.name }}</td>
-                <td>
-                    {% if e.category %}{{ e.category.name }}{% else %}{{ e.note|default:"—" }}{% endif %}
-                </td>
-                <td>{{ e.partner.name|default:"—" }}</td>
-                <td class="text-end">{{ e.amount }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" style="text-align: center; color: #6b7280; padding: 20px;">No expenses found</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <!-- Meta Info Grid -->
+        <div class="meta-info-grid">
+            <div class="meta-item">
+                <span class="meta-label">Expense Type</span>
+                <span class="meta-value">{{ selected_type|default:"All Types" }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Partner</span>
+                <span class="meta-value">{{ selected_partner|default:"All Partners" }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Period</span>
+                <span class="meta-value">{{ from_date|default:"Beginning" }} &mdash; {{ to_date|default:"Today" }}</span>
+            </div>
+        </div>
+
+        <!-- Summary KPI Section -->
+        <div class="summary-grid">
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h4 class="kpi-title">Total Records</h4>
+                    <h3 class="kpi-value">{{ expenses.count }}</h3>
+                </div>
+                <div class="kpi-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+            <div class="kpi-card amount-card">
+                <div class="kpi-info">
+                    <h4 class="kpi-title">Total Amount</h4>
+                    <h3 class="kpi-value">₹ {{ total_amount|floatformat:2 }}</h3>
+                </div>
+                <div class="kpi-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Category / Note</th>
+                        <th>Paid By</th>
+                        <th class="text-end">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in expenses %}
+                    <tr>
+                        <td>{{ e.date|date:"M d, Y" }}</td>
+                        <td><span class="badge-type">{{ e.expense_type.name }}</span></td>
+                        <td>
+                            {% if e.category %}
+                                <strong>{{ e.category.name }}</strong>
+                                {% if e.note %}<br><small style="color: var(--text-muted);">{{ e.note }}</small>{% endif %}
+                            {% else %}
+                                {{ e.note|default:"—" }}
+                            {% endif %}
+                        </td>
+                        <td>{{ e.partner.name|default:"—" }}</td>
+                        <td class="text-end amount-cell">{{ e.amount }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <div>No expenses found for this period</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="report-footer">
+            <span>TRUEAPPS Management System</span>
+            <span>Confidential & Internal Use Only</span>
+        </div>
+
+    </div>
 
 </body>
 </html>
