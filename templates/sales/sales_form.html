@@ -126,7 +126,7 @@
                   <div class="msg-container">
                     <small class="stock-info badge bg-light text-success border d-none"></small>
                     <small class="status-msg d-block"></small>
-                    <small class="batch-preview text-muted d-block" style="font-size: 0.7rem;"></small>
+                    <small class="batch-preview text-primary d-block fw-bold mt-1" style="font-size: 0.75rem;"></small>
                   </div>
                 </div>
               </td>
@@ -271,16 +271,27 @@ function selectProduct(row, p) {
       row.dataset.totalStock = data.total_stock;
       row.dataset.batches = JSON.stringify(data.batches);
 
-      if (data.batches.length > 0) {
+      // Constructing Batch & Purchase Rate Info text
+      let batchText = '';
+      if (data.batches && data.batches.length > 0) {
+          let batchDetailsArr = [];
+          data.batches.forEach((b, index) => {
+              batchDetailsArr.push(`[B${index+1}: Qty ${b.available_qty}, P.Rate: ₹${b.purchase_rate}]`);
+          });
+          batchText = `📦 Batches: ${batchDetailsArr.join(' | ')}`;
 
+          // Set default selling rate from first available FIFO batch if available
           if (data.batches[0].selling_rate > 0) {
               row.querySelector('.rate').value = data.batches[0].selling_rate;
           }
-
-
           row.querySelector('.cgst').value = data.batches[0].cgst || 0;
           row.querySelector('.sgst').value = data.batches[0].sgst || 0;
+      } else {
+          batchText = `⚠️ No active stock batches found!`;
       }
+
+      // Display inside preview container under product input
+      row.querySelector('.batch-preview').innerHTML = batchText;
 
       calculateRowTotal(row);
       validateAllStock();
