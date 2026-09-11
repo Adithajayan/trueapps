@@ -276,7 +276,7 @@ function selectProduct(row, p) {
       if (data.batches && data.batches.length > 0) {
           let batchDetailsArr = [];
           data.batches.forEach((b, index) => {
-              batchDetailsArr.push(`[B${index+1}: Qty ${b.available_qty}, P.Rate: ₹${b.purchase_rate}]`);
+              batchDetailsArr.push(`[B${index+1}: Qty ${b.available_qty}, P.Rate: <span style="color: red; font-weight: bold;">₹${b.purchase_rate}</span>]`);
           });
           batchText = `📦 Batches: ${batchDetailsArr.join(' | ')}`;
 

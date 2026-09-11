@@ -144,6 +144,7 @@ value="{{ item.product.id }}">
 
 <div class="product_suggestions list-group"></div>
 <small class="status-msg d-block"></small>
+<small class="batch-preview text-primary d-block fw-bold mt-1" style="font-size: 0.75rem;"></small>
 
 </div>
 </td>
@@ -256,7 +257,7 @@ $(document).ready(function() {
                     <input type="text" class="form-control product" autocomplete="off" placeholder="Search product...">
                     <input type="hidden" name="product_id[]" class="product_id">
                     <div class="product_suggestions list-group"></div>
-                    <small class="status-msg d-block"></small>
+                    <small class="batch-preview text-primary d-block fw-bold mt-1" style="font-size: 0.75rem;"></small>
                 </div>
             </td>
             <td><input type="number" name="qty[]" class="form-control qty text-center" value="1"></td>
@@ -314,6 +315,8 @@ $(document).ready(function() {
 
         var row = $(this).closest('tr');
         var name = $(this).text().split('Stock:')[0].trim();
+        var productId = $(this).data('id');
+
 
         row.find('.product').val(name);
         row.find('.product_id').val($(this).data('id'));
@@ -326,6 +329,23 @@ $(document).ready(function() {
         row.find('.status-msg').html(stock > 0 ? '' : '<span class="text-danger">Out of Stock</span>');
 
         $('.product_suggestions').hide();
+        $.get(`/sales/product-batch-info/${productId}/`, function(data) {
+        row.find('.status-msg').html(`Stock: ${data.total_stock}`);
+
+        let batchText = '';
+        if (data.batches && data.batches.length > 0) {
+            let batchDetailsArr = [];
+            data.batches.forEach(function(b, index) {
+                // Purchase rate red colour-il kaanikkaan ulla code
+                batchDetailsArr.push(`[B${index+1}: Qty ${b.available_qty}, P.Rate: <span style="color: red; font-weight: bold;">₹${b.purchase_rate}</span>]`);
+            });
+            batchText = `📦 Batches: ${batchDetailsArr.join(' | ')}`;
+        } else {
+            batchText = `⚠️ No active stock batches found!`;
+        }
+
+        row.find('.batch-preview').html(batchText);
+    });
         calculateRowTotal(row);
     });
 
