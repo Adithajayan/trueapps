@@ -117,9 +117,10 @@ def sales_create(request):
                 cgst=s_cgst, sgst=s_sgst, total=0
             )
 
+            # 🔥 FIX: Added 'id' in order_by for strict FIFO consistency with edit view
             batches = PurchaseItem.objects.filter(
                 product=product, quantity_at_hand__gt=0
-            ).order_by('purchase__purchase_date')
+            ).order_by('purchase__purchase_date', 'id')
 
             remaining_to_sell = requested_qty
             total_purchase_cost_no_gst = Decimal(0)
@@ -128,9 +129,9 @@ def sales_create(request):
                 if remaining_to_sell <= 0: break
                 qty_from_batch = min(batch.quantity_at_hand, remaining_to_sell)
 
-                # Purchase price with GST from batch
-                p_cgst = batch.cgst
-                p_sgst = batch.sgst
+                # Purchase price with GST from batch (Safe fallback for None values)
+                p_cgst = batch.cgst if batch.cgst else Decimal(0)
+                p_sgst = batch.sgst if batch.sgst else Decimal(0)
                 purchase_price_inc_gst = batch.rate + (batch.rate * (p_cgst + p_sgst) / 100)
 
                 # 🔥 GST Inclusive Profit
