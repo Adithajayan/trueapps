@@ -155,6 +155,7 @@
                 <div style="font-size:13px;margin-top:10px;">
                     Invoice No : <b>{{ sale.invoice_no }}</b><br>
                     Date : {{ sale.date|date:"d-m-Y" }}<br>
+                    Sale Type : <b>{{ sale.get_sale_type_display }}</b><br>
                     Tax : EXCLUSIVE
                 </div>
             </td>
