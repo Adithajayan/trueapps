@@ -19,7 +19,7 @@ urlpatterns = [
 
     path('returns/view/<int:pk>/', views.purchase_return_view, name='purchase_return_view'),
     path('returns/pdf/<int:pk>/', views.purchase_return_pdf, name='purchase_return_pdf'),
-
+    path('purchase/return/delete/<int:pk>/', views.purchase_return_delete, name='purchase_return_delete'),
 
 ]
 

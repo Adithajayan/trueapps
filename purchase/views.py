@@ -544,4 +544,45 @@ def purchase_return_pdf(request, pk):
     return generate_pdf(template_path, context, filename)
 
 
+from django.shortcuts import get_object_or_404, redirect, render
+from django.db import transaction
+from .models import PurchaseReturn
+from stock.models import Stock
+from supplier_ledger.models import SupplierLedger
+
+
+@transaction.atomic
+def purchase_return_delete(request, pk):
+    p_return = get_object_or_404(PurchaseReturn, id=pk)
+
+    if request.method == "POST":
+
+        # 🔁 STEP 1: REVERSE BATCH & OVERALL STOCK
+        for return_item in p_return.return_items.all():
+            p_item = return_item.purchase_item
+
+            # Batch-ilekku quantity thirike idunnu
+            p_item.quantity_at_hand += return_item.qty
+            p_item.save()
+
+            # Overall stock-ilekku quantity thirike idunnu
+            stock = Stock.objects.get(product=p_item.product)
+            stock.quantity += return_item.qty
+            stock.save()
+
+        # 🔁 STEP 2: DELETE SUPPLIER LEDGER ENTRY
+        SupplierLedger.objects.filter(
+            source='PURCHASE',
+            reference_id=p_return.id
+        ).delete()
+
+        # 🔁 STEP 3: DELETE PURCHASE RETURN (return_items auto delete aavum due to cascade)
+        p_return.delete()
+
+        return redirect('purchase_return_list')
+
+    return render(request, 'purchase/purchase_return_delete.html', {
+        'purchase_return': p_return
+    })
+
 
