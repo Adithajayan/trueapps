@@ -7,6 +7,11 @@ from django.db.models import Q  # <--- Ithu top-il undo ennu urappu varuthuka
 from datetime import datetime
 from django.db.models import Q
 
+# ---------------- LIST ----------------
+from django.db import models  # <--- Ithu top-il undo ennu urappu varuthuka
+from datetime import datetime
+from django.db.models import Q
+
 def purchase_list(request):
     # Base queryset
     purchases = Purchase.objects.all().order_by('-id')
@@ -16,7 +21,6 @@ def purchase_list(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-
     if not start_date and not end_date and not query:
         now = datetime.now()
         purchases = purchases.filter(
@@ -24,10 +28,11 @@ def purchase_list(request):
             purchase_date__year=now.year
         )
 
-    # 2. Search box logic (Invoice No or Supplier Name)
+    # 2. Search box logic (Invoice No, Supplier Bill, or Supplier Name)
     if query:
         purchases = purchases.filter(
             Q(invoice_no__icontains=query) |
+            Q(supplier_invoice_number__icontains=query) |
             Q(supplier__name__icontains=query)
         )
 
