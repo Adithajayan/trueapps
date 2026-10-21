@@ -305,7 +305,9 @@ function calculateRowTotal(row) {
   const sgst = parseFloat(row.querySelector('.sgst').value) || 0;
 
   const baseTotal = qty * rate;
-  const totalWithGst = baseTotal + (baseTotal * ((cgst + sgst) / 100));
+  const gstAmount = baseTotal * ((cgst + sgst) / 100);
+  const totalWithGst = Math.round((baseTotal + gstAmount) * 100) / 100; // Exact paise rounding
+
   row.querySelector('.row-total').innerText = totalWithGst.toFixed(2);
   calculateGrand();
 }
@@ -315,6 +317,7 @@ function calculateGrand() {
   document.querySelectorAll('.row-total').forEach(el => {
     grandTotal += parseFloat(el.innerText) || 0;
   });
+  grandTotal = Math.round(grandTotal * 100) / 100; // Exact paise rounding
   document.getElementById('grand_total').innerText = grandTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 

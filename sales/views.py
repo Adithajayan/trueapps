@@ -59,7 +59,7 @@ def sales_create(request):
         for i in range(len(product_ids)):
             if not product_ids[i]: continue
             prod_obj = Product.objects.get(id=product_ids[i])
-            requested_qty = int(float(qtys[i]))
+            requested_qty = Decimal(qtys[i]) if qtys[i] else Decimal('0')
             available = PurchaseItem.objects.filter(product=prod_obj).aggregate(total=Sum('quantity_at_hand'))['total'] or 0
             if available < requested_qty:
                 messages.error(request, f"Insufficient stock for {prod_obj.name}. Available: {available}")
@@ -103,7 +103,7 @@ def sales_create(request):
             if not product_ids[i]: continue
 
             product = Product.objects.get(id=product_ids[i])
-            requested_qty = int(float(qtys[i]))
+            requested_qty = Decimal(qtys[i]) if qtys[i] else Decimal('0')
             sell_rate = Decimal(rates[i])
             s_cgst = Decimal(cgsts[i]) if (i < len(cgsts) and cgsts[i]) else Decimal(0)
             s_sgst = Decimal(sgsts[i]) if (i < len(sgsts) and sgsts[i]) else Decimal(0)
@@ -148,9 +148,9 @@ def sales_create(request):
                 remaining_to_sell -= qty_from_batch
 
             # Final Item Calculations
-            sales_item.purchase_price = total_purchase_cost_no_gst / requested_qty if requested_qty > 0 else 0
+            sales_item.purchase_price = (total_purchase_cost_no_gst / requested_qty).quantize(Decimal('0.01')) if requested_qty > 0 else Decimal('0.00')
             base_amount = sell_rate * requested_qty
-            item_total = base_amount + (base_amount * (s_cgst + s_sgst) / 100)
+            item_total = (base_amount + (base_amount * (s_cgst + s_sgst) / 100)).quantize(Decimal('0.01'))
             sales_item.total = item_total
             sales_item.save()
 
@@ -162,7 +162,7 @@ def sales_create(request):
 
             total_bill += item_total
 
-        sale.total_amount = total_bill
+        sale.total_amount = total_bill.quantize(Decimal('0.01'))
         sale.save()
         messages.success(request, f"Invoice {invoice_no} created successfully!")
         return redirect('sales_list')
@@ -334,7 +334,7 @@ def sales_edit(request, pk):
         for i in range(len(product_ids)):
             if not product_ids[i]: continue
             prod_obj = Product.objects.get(id=product_ids[i])
-            new_qty = int(float(qtys[i]))
+            new_qty = Decimal(qtys[i]) if qtys[i] else Decimal('0')
             old_item = items.filter(product=prod_obj).first()
             old_qty = old_item.qty if old_item else 0
             current_available = PurchaseItem.objects.filter(product=prod_obj).aggregate(total=Sum('quantity_at_hand'))['total'] or 0
@@ -361,7 +361,7 @@ def sales_edit(request, pk):
         for i in range(len(product_ids)):
             if not product_ids[i]: continue
             product = Product.objects.get(id=product_ids[i])
-            req_qty = int(float(qtys[i]))
+            req_qty = Decimal(qtys[i]) if qtys[i] else Decimal('0')
             sell_rate = Decimal(rates[i])
             try:
                 s_cgst = Decimal(float(cgsts[i])) if (i < len(cgsts) and cgsts[i]) else Decimal(0)
