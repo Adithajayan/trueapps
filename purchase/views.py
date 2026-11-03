@@ -66,9 +66,10 @@ def purchase_add(request):
 
         sup_inv_no = request.POST.get('supplier_invoice_number')
 
-        if sup_inv_no and Purchase.objects.filter(supplier_invoice_number=sup_inv_no).exists():
+
+        if sup_inv_no and Purchase.objects.filter(supplier_invoice_number__iexact=sup_inv_no.strip()).exists():
             from django.contrib import messages
-            messages.error(request, f"Error: Invoice No {sup_inv_no} already exists..")
+            messages.error(request, f"Error: Invoice No '{sup_inv_no}' already exists..")
             return redirect('purchase_add')
 
         supplier = Supplier.objects.get(id=request.POST.get('supplier'))
@@ -179,6 +180,13 @@ def purchase_edit(request, pk):
     items = purchase.items.all()
 
     if request.method == "POST":
+        sup_inv_no = request.POST.get('supplier_invoice_number')
+
+
+        if sup_inv_no and Purchase.objects.filter(supplier_invoice_number__iexact=sup_inv_no.strip()).exclude(
+                id=purchase.id).exists():
+            messages.error(request, f"Error: Invoice No '{sup_inv_no}' already exists..")
+            return redirect('purchase_edit', pk=purchase.id)
         # 🔴 STEP 1: REVERSE OLD STOCK
         for item in items:
             stock = Stock.objects.filter(product=item.product).first()
@@ -514,14 +522,19 @@ def check_supplier_invoice(request):
     invoice_no = request.GET.get('invoice_no', None)
     purchase_id = request.GET.get('purchase_id', None)
 
-    query = Purchase.objects.filter(supplier_invoice_number=invoice_no)
+    if invoice_no:
+        # ✅ Case-insensitive check (__iexact) and strip() to remove spaces
+        query = Purchase.objects.filter(supplier_invoice_number__iexact=invoice_no.strip())
 
+        if purchase_id:
+            query = query.exclude(id=purchase_id)
 
-    if purchase_id:
-        query = query.exclude(id=purchase_id)
+        is_taken = query.exists()
+    else:
+        is_taken = False
 
     data = {
-        'is_taken': query.exists()
+        'is_taken': is_taken
     }
     return JsonResponse(data)
 

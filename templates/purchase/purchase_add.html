@@ -364,11 +364,9 @@
 <script>
 
 $(document).on('blur', 'input[name="supplier_invoice_number"]', function() {
-    let invoice_no = $(this).val();
+    let invoice_no = $(this).val().trim(); // ✅ .trim() add cheythu
     let self = $(this);
 
-    // Edit page aaneil nammal purchase ID koodi check cheyyanam
-    // Purchase ID ninte template-il 'purchase.id' enna perilundallo
     let purchase_id = "{% if purchase %}{{ purchase.id }}{% else %}{% endif %}";
 
     if (invoice_no !== "") {
@@ -376,7 +374,7 @@ $(document).on('blur', 'input[name="supplier_invoice_number"]', function() {
             url: "{% url 'check_supplier_invoice' %}",
             data: {
                 'invoice_no': invoice_no,
-                'purchase_id': purchase_id // ID koodi pass cheyyunnu
+                'purchase_id': purchase_id
             },
             dataType: 'json',
             success: function (data) {
