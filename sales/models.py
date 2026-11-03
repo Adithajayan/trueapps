@@ -40,7 +40,7 @@ class SalesItem(models.Model):
     sales = models.ForeignKey(SalesMaster, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     hsn_code = models.CharField(max_length=50)
-    qty = models.PositiveIntegerField()
+    qty = models.DecimalField(max_digits=10, decimal_places=3)
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
     selling_price = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -73,7 +73,7 @@ class SalesReturn(models.Model):
 class SalesReturnItem(models.Model):
     sales_return = models.ForeignKey(SalesReturn, related_name='return_items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    qty_returned = models.PositiveIntegerField()
+    qty_returned = models.DecimalField(max_digits=10, decimal_places=3)
     rate = models.DecimalField(max_digits=10, decimal_places=2) # Return samayathe rate
     total = models.DecimalField(max_digits=12, decimal_places=2)
 
