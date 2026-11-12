@@ -789,7 +789,7 @@ def full_monthly_report_pdf(request):
         'average_invoice': round(average_invoice, 2),
         'invoice_count': invoice_count,
 
-        
+
         'taxable_5_percent': round(taxable_5_percent, 2),
         'taxable_18_percent': round(taxable_18_percent, 2),
         'gst_5_percent': round(gst_5_percent, 2),
@@ -935,4 +935,86 @@ def export_stock_report_excel(request):
     response['Content-Disposition'] = 'attachment; filename="Stock_Report_Complete.xlsx"'
     wb.save(response)
 
+    return response
+
+
+import openpyxl
+from django.http import HttpResponse
+from sales.models import SalesItem
+import calendar
+from datetime import datetime
+
+
+def export_hsn_wise_sales_excel(request):
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
+    month = request.GET.get('month')
+    year = request.GET.get('year')
+
+    # Querying sales items
+    items = SalesItem.objects.select_related('sales', 'product').all()
+
+    filename_prefix = "HSN_WISE_SALES"
+    if from_date and to_date:
+        items = items.filter(sales__date__range=[from_date, to_date])
+        filename_prefix = f"HSN_SALES_{from_date}_TO_{to_date}"
+    elif month and year:
+        items = items.filter(sales__date__month=month, sales__date__year=year)
+        filename_prefix = f"HSN_SALES_{calendar.month_name[int(month)].upper()}_{year}"
+
+    # Aggregate data by HSN Code
+    hsn_data = {}
+    for item in items:
+        hcode = item.hsn_code or "N/A"
+        if hcode not in hsn_data:
+            hsn_data[hcode] = {
+                'qty': 0.0,
+                'taxable': 0.0,
+                'sgst': 0.0,
+                'cgst': 0.0,
+                'grand_total': 0.0
+            }
+
+        qty = float(item.qty or 0)
+        item_tot = float(item.total or 0)
+
+        sgst_rate = float(item.sgst or 2.5)
+        cgst_rate = float(item.cgst or 2.5)
+        total_tax_rate = (sgst_rate + cgst_rate) / 100.0
+
+        taxable_val = item_tot / (1 + total_tax_rate)
+        tax_val = item_tot - taxable_val
+        half_tax = tax_val / 2.0
+
+        hsn_data[hcode]['qty'] += qty
+        hsn_data[hcode]['taxable'] += taxable_val
+        hsn_data[hcode]['sgst'] += half_tax
+        hsn_data[hcode]['cgst'] += half_tax
+        hsn_data[hcode]['grand_total'] += item_tot
+
+    # Excel Setup
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "HSN Wise Sales"
+
+    columns = [
+        'HSN Code', 'Total Quantity Sold', 'Taxable Amount',
+        'SGST Amount', 'CGST Amount', 'Grand Total'
+    ]
+    ws.append(columns)
+
+    for hcode, vals in hsn_data.items():
+        ws.append([
+            hcode,
+            round(vals['qty'], 3),
+            round(vals['taxable'], 2),
+            round(vals['sgst'], 2),
+            round(vals['cgst'], 2),
+            round(vals['grand_total'], 2)
+        ])
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{filename_prefix}.xlsx"'
+
+    wb.save(response)
     return response
