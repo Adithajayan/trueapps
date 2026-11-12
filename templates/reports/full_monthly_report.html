@@ -704,7 +704,7 @@
 
         <div class="final-body">
 
-            <table class="final-total-table">
+<table class="final-total-table">
 
                 <tr>
                     <td>Total Invoices</td>
@@ -715,6 +715,18 @@
                     <td>Total Taxable Amount</td>
                     <td>₹ {{ total_taxable }}</td>
                 </tr>
+
+
+                <tr>
+                    <td> 5% GST Category (Taxable / GST)</td>
+                    <td>Taxable: ₹ {{ taxable_5_percent }} | GST (5%): ₹ {{ gst_5_percent }}</td>
+                </tr>
+
+                <tr>
+                    <td> 18% GST Category (Taxable / GST)</td>
+                    <td>Taxable: ₹ {{ taxable_18_percent }} | GST (18%): ₹ {{ gst_18_percent }}</td>
+                </tr>
+                <!-- ============================================== -->
 
                 <tr>
                     <td>Total SGST Amount</td>

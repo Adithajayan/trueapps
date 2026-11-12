@@ -739,10 +739,17 @@ def full_monthly_report_pdf(request):
     # Dynamic Filename: e.g., APRIL 2026 SALES BILL.pdf
     filename = f"{report_month_name} {report_year} SALES BILL.pdf"
 
+
     # --- SUMMARY CALCULATIONS ---
     overall_total = Decimal('0')
     total_taxable = Decimal('0')
     total_gst = Decimal('0')
+
+
+    taxable_5_percent = Decimal('0')
+    taxable_18_percent = Decimal('0')
+    gst_5_percent = Decimal('0')
+    gst_18_percent = Decimal('0')
 
     for sale in sales:
         overall_total += sale.total_amount
@@ -750,10 +757,23 @@ def full_monthly_report_pdf(request):
         total_taxable += Decimal(str(sale.get_taxable_total))
         total_gst += Decimal(str(sale.get_gst_total))
 
+
+        for item in sale.items.all():
+            item_sgst = getattr(item, 'sgst_percent', getattr(item, 'sgst', 0)) or 0
+            item_total = Decimal(str(getattr(item, 'total', 0) or 0))
+
+            if float(item_sgst) <= 2.5:
+                taxable_5_percent += item_total / Decimal('1.05')
+                gst_5_percent += (item_total / Decimal('1.05')) * Decimal('0.05')
+            else:
+                taxable_18_percent += item_total / Decimal('1.18')
+                gst_18_percent += (item_total / Decimal('1.18')) * Decimal('0.18')
+
     invoice_count = sales.count()
     # Average calculation with zero division check
     average_invoice = overall_total / invoice_count if invoice_count > 0 else Decimal('0')
 
+    # --- DATA CONTEXT FOR HTML ---
     # --- DATA CONTEXT FOR HTML ---
     context = {
         'sales': sales,
@@ -768,6 +788,12 @@ def full_monthly_report_pdf(request):
         'total_gst_split': total_gst / 2,  # CGST/SGST split
         'average_invoice': round(average_invoice, 2),
         'invoice_count': invoice_count,
+
+        
+        'taxable_5_percent': round(taxable_5_percent, 2),
+        'taxable_18_percent': round(taxable_18_percent, 2),
+        'gst_5_percent': round(gst_5_percent, 2),
+        'gst_18_percent': round(gst_18_percent, 2),
     }
 
     template_path = 'reports/full_monthly_report.html'
