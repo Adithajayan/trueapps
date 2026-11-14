@@ -327,14 +327,15 @@
 
                 </div>
 
-                <!-- ✅ Discount input box -->
+
+                <!-- ✅ Discount Percentage input box -->
                 <div class="col-md-6 text-md-end mb-2 mb-md-0">
                     <div class="d-inline-flex align-items-center gap-2">
-                        <label class="fw-semibold text-secondary mb-0">Discount (₹):</label>
+                        <label class="fw-semibold text-secondary mb-0">Discount (%):</label>
                         <input type="number"
-                               name="discount_amount"
-                               id="discountAmount"
-                               value="{% if purchase %}{{ purchase.discount_amount|default:0 }}{% else %}0{% endif %}"
+                               name="discount_percentage"
+                               id="discountPercentage"
+                               value="{% if purchase %}{{ purchase.discount_percentage|default:0 }}{% else %}0{% endif %}"
                                step="any"
                                class="form-control text-center"
                                style="width: 120px;"
@@ -487,7 +488,8 @@ function addRow() {
 // Calculation Logic
 function calculateGrandTotal() {
 
-    let subtotal = 0;
+    let grand = 0;
+    let discountPercent = parseFloat(document.getElementById("discountPercentage")?.value || 0);
 
     document.querySelectorAll("#purchaseTable tbody tr").forEach(row => {
         let qty = parseFloat(row.querySelector(".qty")?.value || 0);
@@ -495,17 +497,23 @@ function calculateGrandTotal() {
         let cgst = parseFloat(row.querySelector(".cgst")?.value || 0);
         let sgst = parseFloat(row.querySelector(".sgst")?.value || 0);
 
+        // ✅ Step A: Base amount (Qty x Rate)
         let base = qty * rate;
-        let gstAmount = base * (cgst + sgst) / 100;
-        let total = base + gstAmount;
+
+        // ✅ Step B: Base amount-il ninnu discount percentage (%) minus cheyyunnu
+        let itemDiscount = (base * discountPercent) / 100;
+        let taxableBase = base - itemDiscount;
+
+        // ✅ Step C: Discounted taxable base amount-il ninnu GST calculate cheyyunnu
+        let gstAmount = taxableBase * (cgst + sgst) / 100;
+
+        // ✅ Step D: Row total (Taxable Base + GST)
+        let total = taxableBase + gstAmount;
 
         row.querySelector(".total").innerText = total.toFixed(2);
-        subtotal += total;
+        grand += total;
     });
 
-    // ✅ Subtract discount from subtotal
-    let discountAmount = parseFloat(document.getElementById("discountAmount")?.value || 0);
-    let grand = subtotal - discountAmount;
     if (grand < 0) grand = 0;
 
     document.getElementById("grandTotal").innerText =
@@ -513,9 +521,9 @@ function calculateGrandTotal() {
 
 }
 
-// Event Listeners for Calculation (Added #discountAmount)
+// Event Listeners for Calculation (Updated #discountPercentage)
 document.addEventListener("input", function (e) {
-    if (e.target.matches(".qty, .rate, .cgst, .sgst, #discountAmount")) {
+    if (e.target.matches(".qty, .rate, .cgst, .sgst, #discountPercentage")) {
         calculateGrandTotal();
     }
 });

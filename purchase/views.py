@@ -95,6 +95,9 @@ def purchase_add(request):
         cgsts = request.POST.getlist('cgst[]')
         sgsts = request.POST.getlist('sgst[]')
 
+        # 1. First form-il ninnu discount percentage edukkunnu (Eg: 2.88)
+        discount_percentage = Decimal(request.POST.get('discount_percentage') or '0')
+
         for i in range(len(product_ids)):
 
             pid = product_ids[i]
@@ -106,12 +109,21 @@ def purchase_add(request):
             cgst = Decimal(cgsts[i])
             sgst = Decimal(sgsts[i])
 
-            selling_rate = selling_rates[i].strip()
+            selling_rate = selling_rates[i].strip() if selling_rates[i].strip() else None
             selling_rate = Decimal(selling_rate) if selling_rate else None
 
+            # ✅ Step A: Base amount (Qty x Rate)
             base = qty * rate
-            gst_amount = base * (cgst + sgst) / 100
-            total = base + gst_amount
+
+            # ✅ Step B: Base amount-il ninnu discount percentage (%) minus cheyyunnu
+            item_discount = (base * discount_percentage) / Decimal('100')
+            taxable_base = base - item_discount
+
+            # ✅ Step C: Discounted taxable base amount-il ninnu GST calculate cheyyunnu
+            gst_amount = taxable_base * (cgst + sgst) / Decimal('100')
+
+            # ✅ Step D: Row total (Taxable Base + GST)
+            total = taxable_base + gst_amount
 
             PurchaseItem.objects.create(
                 purchase=purchase,
@@ -130,10 +142,9 @@ def purchase_add(request):
             stock.save()
 
             grand_total += total
-        discount_amount = Decimal(request.POST.get('discount_amount') or '0')
-        final_grand_total = grand_total - discount_amount
 
-        rounded_total = final_grand_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        # ✅ Grand total direct round-off cheythu save aakkunnu
+        rounded_total = grand_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         purchase.total_amount = rounded_total
         purchase.save()
 
@@ -225,6 +236,10 @@ def purchase_edit(request, pk):
         sgsts = request.POST.getlist('sgst[]')
 
         # 🔴 STEP 5: RE-CREATE ITEMS
+        # 1. First form-il ninnu discount percentage edukkunnu
+        discount_percentage = Decimal(request.POST.get('discount_percentage') or '0')
+
+        # 🔴 STEP 5: RE-CREATE ITEMS
         for i in range(len(product_ids)):
             pid = product_ids[i]
             if not pid:
@@ -236,12 +251,21 @@ def purchase_edit(request, pk):
             sgst = Decimal(sgsts[i])
 
             # ✅ FIX: Selling rate list-il ninnu value edukkanam
-            s_rate = selling_rates[i].strip() if i < len(selling_rates) else None
+            s_rate = selling_rates[i].strip() if i < len(selling_rates) and selling_rates[i].strip() else None
             selling_rate = Decimal(s_rate) if s_rate else None
 
+            # ✅ Step A: Base amount (Qty x Rate)
             base = qty * rate
-            gst_amount = base * (cgst + sgst) / 100
-            total = base + gst_amount
+
+            # ✅ Step B: Base amount-il ninnu discount percentage (%) minus cheyyunnu
+            item_discount = (base * discount_percentage) / Decimal('100')
+            taxable_base = base - item_discount
+
+            # ✅ Step C: Discounted taxable base amount-il ninnu GST calculate cheyyunnu
+            gst_amount = taxable_base * (cgst + sgst) / Decimal('100')
+
+            # ✅ Step D: Row total (Taxable Base + GST)
+            total = taxable_base + gst_amount
 
             PurchaseItem.objects.create(
                 purchase=purchase,
