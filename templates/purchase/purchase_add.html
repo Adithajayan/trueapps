@@ -327,7 +327,22 @@
 
                 </div>
 
-                <div class="col-md-6 text-md-end">
+                <!-- ✅ Discount input box -->
+                <div class="col-md-6 text-md-end mb-2 mb-md-0">
+                    <div class="d-inline-flex align-items-center gap-2">
+                        <label class="fw-semibold text-secondary mb-0">Discount (₹):</label>
+                        <input type="number"
+                               name="discount_amount"
+                               id="discountAmount"
+                               value="{% if purchase %}{{ purchase.discount_amount|default:0 }}{% else %}0{% endif %}"
+                               step="any"
+                               class="form-control text-center"
+                               style="width: 120px;"
+                               placeholder="0.00">
+                    </div>
+                </div>
+
+                <div class="col-md-12 text-md-end mt-2">
 
                     <div class="card d-inline-block p-2 px-4 bg-light border-0 shadow-sm">
 
@@ -468,45 +483,41 @@ function addRow() {
 }
 
 
+
 // Calculation Logic
 function calculateGrandTotal() {
 
-    let grand = 0;
+    let subtotal = 0;
 
     document.querySelectorAll("#purchaseTable tbody tr").forEach(row => {
-
         let qty = parseFloat(row.querySelector(".qty")?.value || 0);
         let rate = parseFloat(row.querySelector(".rate")?.value || 0);
         let cgst = parseFloat(row.querySelector(".cgst")?.value || 0);
         let sgst = parseFloat(row.querySelector(".sgst")?.value || 0);
 
         let base = qty * rate;
-
         let gstAmount = base * (cgst + sgst) / 100;
-
         let total = base + gstAmount;
 
         row.querySelector(".total").innerText = total.toFixed(2);
-
-        grand += total;
-
+        subtotal += total;
     });
 
+    // ✅ Subtract discount from subtotal
+    let discountAmount = parseFloat(document.getElementById("discountAmount")?.value || 0);
+    let grand = subtotal - discountAmount;
+    if (grand < 0) grand = 0;
+
     document.getElementById("grandTotal").innerText =
-        grand.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        grand.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
 }
 
-
-// Event Listeners for Calculation
+// Event Listeners for Calculation (Added #discountAmount)
 document.addEventListener("input", function (e) {
-
-    if (e.target.matches(".qty, .rate, .cgst, .sgst")) {
-
+    if (e.target.matches(".qty, .rate, .cgst, .sgst, #discountAmount")) {
         calculateGrandTotal();
-
     }
-
 });
 
 

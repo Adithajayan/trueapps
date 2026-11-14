@@ -130,7 +130,10 @@ def purchase_add(request):
             stock.save()
 
             grand_total += total
-        rounded_total = grand_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        discount_amount = Decimal(request.POST.get('discount_amount') or '0')
+        final_grand_total = grand_total - discount_amount
+
+        rounded_total = final_grand_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         purchase.total_amount = rounded_total
         purchase.save()
 
@@ -260,7 +263,10 @@ def purchase_edit(request, pk):
             grand_total += total
 
         # 🔴 STEP 6: UPDATE PURCHASE TOTAL
-        rounded_total = grand_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        discount_amount = Decimal(request.POST.get('discount_amount') or '0')
+        final_grand_total = grand_total - discount_amount
+
+        rounded_total = final_grand_total.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         purchase.total_amount = rounded_total
         purchase.save()
 
