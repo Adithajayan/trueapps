@@ -417,9 +417,12 @@ def sales_edit(request, pk):
             total_bill += item_total
 
         # --- STEP 4: UPDATE SALES MASTER ---
+        customer_id = request.POST.get('customer_id')
+        if customer_id:
+            sale.customer = get_object_or_404(Customer, id=customer_id)
         sale.total_amount = total_bill
         sale.date = request.POST.get('date') or sale.date
-        sale.sale_type = new_sale_type  # 🔥 Puthiya Sale Type ivide save cheyyunnu
+        sale.sale_type = new_sale_type
         sale.invoice_no = sale.invoice_no.upper()
         sale.invoice_prefix = sale.invoice_prefix.upper() if sale.invoice_prefix else sale.invoice_prefix
         sale.save()

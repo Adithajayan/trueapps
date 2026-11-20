@@ -96,13 +96,11 @@ value="{{ sale.date|date:'Y-m-d' }}">
 </select>
 </div>
 
-<div class="col-md-8 col-12">
+<div class="col-md-8 col-12 position-relative">
 <label class="form-label fw-bold">Customer</label>
-<input type="text" class="form-control bg-light"
-value="{{ sale.customer.name }}" readonly>
-<input type="hidden" name="customer_id" value="{{ sale.customer.id }}">
-</div>
-
+<input type="text" id="customer_search_input" class="form-control" value="{{ sale.customer.name }}" autocomplete="off">
+<input type="hidden" name="customer_id" id="customer_id" value="{{ sale.customer.id }}">
+<div id="customer_suggestions" class="list-group position-absolute w-100" style="z-index:9999;display:none;"></div>
 </div>
 
 <div class="table-responsive">
@@ -244,6 +242,19 @@ Grand Total:
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
+    $("#customer_search_input").on("keyup", function() {
+        var term = $(this).val().trim();
+        if (!term) return $("#customer_suggestions").hide();
+        $.get("{% url 'customer_search' %}", { 'term': term }, function(data) {
+            var html = data.length ? data.map(c => `<div class="list-group-item customer-option" data-id="${c.id}" data-name="${c.name}">${c.name}</div>`).join('') : '<div class="list-group-item disabled">Not found</div>';
+            $("#customer_suggestions").html(html).show();
+        });
+    });
+    $(document).on("click", ".customer-option", function() {
+        $("#customer_search_input").val($(this).data("name"));
+        $("#customer_id").val($(this).data("id"));
+        $("#customer_suggestions").hide();
+    });
 
     // --- 1. ADD NEW ROW ---
     $("#add-row").click(function() {
