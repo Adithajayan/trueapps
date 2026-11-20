@@ -939,17 +939,17 @@ def export_stock_report_excel(request):
 
 
 import openpyxl
+from openpyxl.styles import Font
 from django.http import HttpResponse
 from sales.models import SalesItem
 import calendar
-from datetime import datetime
-
 
 def export_hsn_wise_sales_excel(request):
     from_date = request.GET.get('from_date')
     to_date = request.GET.get('to_date')
     month = request.GET.get('month')
     year = request.GET.get('year')
+    sale_type = request.GET.get('sale_type')  # Optional: B2B, B2C, or ALL
 
     # Querying sales items
     items = SalesItem.objects.select_related('sales', 'product').all()
@@ -962,12 +962,23 @@ def export_hsn_wise_sales_excel(request):
         items = items.filter(sales__date__month=month, sales__date__year=year)
         filename_prefix = f"HSN_SALES_{calendar.month_name[int(month)].upper()}_{year}"
 
-    # Aggregate data by HSN Code
-    hsn_data = {}
+    if sale_type and sale_type != "ALL":
+        items = items.filter(sales__sale_type=sale_type)
+        filename_prefix += f"_{sale_type}"
+
+    # B2B, B2C എന്നിവയ്ക്കായി സെപ്പറേറ്റ് ഡിക്ഷണറികൾ ഉണ്ടാക്കുന്നു
+    b2b_hsn = {}
+    b2c_hsn = {}
+
     for item in items:
         hcode = item.hsn_code or "N/A"
-        if hcode not in hsn_data:
-            hsn_data[hcode] = {
+        s_type = item.sales.sale_type  # 'B2B' or 'B2C'
+
+        # ഏത് ഡിക്ഷണറിയിലാണ് ആഡ് ചെയ്യേണ്ടതെന്ന് തീരുമാനിക്കുന്നു
+        target_dict = b2b_hsn if s_type == 'B2B' else b2c_hsn
+
+        if hcode not in target_dict:
+            target_dict[hcode] = {
                 'qty': 0.0,
                 'taxable': 0.0,
                 'sgst': 0.0,
@@ -978,42 +989,82 @@ def export_hsn_wise_sales_excel(request):
         qty = float(item.qty or 0)
         item_tot = float(item.total or 0)
 
-        sgst_rate = float(item.sgst or 2.5)
-        cgst_rate = float(item.cgst or 2.5)
+        sgst_rate = float(item.sgst or 0)
+        cgst_rate = float(item.cgst or 0)
         total_tax_rate = (sgst_rate + cgst_rate) / 100.0
 
-        taxable_val = item_tot / (1 + total_tax_rate)
+        # Tax calculation
+        if total_tax_rate > 0:
+            taxable_val = item_tot / (1 + total_tax_rate)
+        else:
+            taxable_val = item_tot
+
         tax_val = item_tot - taxable_val
         half_tax = tax_val / 2.0
 
-        hsn_data[hcode]['qty'] += qty
-        hsn_data[hcode]['taxable'] += taxable_val
-        hsn_data[hcode]['sgst'] += half_tax
-        hsn_data[hcode]['cgst'] += half_tax
-        hsn_data[hcode]['grand_total'] += item_tot
+        target_dict[hcode]['qty'] += qty
+        target_dict[hcode]['taxable'] += taxable_val
+        target_dict[hcode]['sgst'] += half_tax
+        target_dict[hcode]['cgst'] += half_tax
+        target_dict[hcode]['grand_total'] += item_tot
 
     # Excel Setup
     wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "HSN Wise Sales"
-
     columns = [
         'HSN Code', 'Total Quantity Sold', 'Taxable Amount',
         'SGST Amount', 'CGST Amount', 'Grand Total'
     ]
-    ws.append(columns)
 
-    for hcode, vals in hsn_data.items():
+    # ഓരോ ഷീറ്റിലേക്കും ഡാറ്റ എഴുതാനുള്ള ചെറിയ ഹെൽപ്പർ ഫങ്ക്ഷൻ
+    def populate_sheet(ws, data_dict):
+        ws.append(columns)
+        # Header Bold ആക്കുന്നു
+        for cell in ws[1]:
+            cell.font = Font(bold=True)
+
+        tot_qty = tot_taxable = tot_sgst = tot_cgst = tot_grand = 0.0
+
+        for hcode, vals in data_dict.items():
+            ws.append([
+                hcode,
+                round(vals['qty'], 3),
+                round(vals['taxable'], 2),
+                round(vals['sgst'], 2),
+                round(vals['cgst'], 2),
+                round(vals['grand_total'], 2)
+            ])
+            tot_qty += vals['qty']
+            tot_taxable += vals['taxable']
+            tot_sgst += vals['sgst']
+            tot_cgst += vals['cgst']
+            tot_grand += vals['grand_total']
+
+        # അവസാനം TOTAL row കൂടി കൊടുക്കുന്നു
+        ws.append([])
         ws.append([
-            hcode,
-            round(vals['qty'], 3),
-            round(vals['taxable'], 2),
-            round(vals['sgst'], 2),
-            round(vals['cgst'], 2),
-            round(vals['grand_total'], 2)
+            'TOTAL',
+            round(tot_qty, 3),
+            round(tot_taxable, 2),
+            round(tot_sgst, 2),
+            round(tot_cgst, 2),
+            round(tot_grand, 2)
         ])
+        for cell in ws[ws.max_row]:
+            cell.font = Font(bold=True)
 
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    # 1. ആദ്യത്തെ ഷീറ്റ്: B2B
+    ws_b2b = wb.active
+    ws_b2b.title = "B2B HSN Sales"
+    populate_sheet(ws_b2b, b2b_hsn)
+
+    # 2. രണ്ടാമത്തെ ഷീറ്റ്: B2C
+    ws_b2c = wb.create_sheet(title="B2C HSN Sales")
+    populate_sheet(ws_b2c, b2c_hsn)
+
+    # Response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
     response['Content-Disposition'] = f'attachment; filename="{filename_prefix}.xlsx"'
 
     wb.save(response)
